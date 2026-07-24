@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
-use Database\Factories\UserFactory;
+use config\database\factories\UserFactory;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use App\Enums\UserStatus;
 
 class User extends Authenticatable
 {
@@ -25,9 +26,13 @@ class User extends Authenticatable
         'uuid',
         'status',
         'last_login_at',
+        'last_login_ip',
         'activated_at',
         'created_by',
         'updated_by',
+        'last_login_browser',
+        'last_login_platform',
+        'login_count'
     ];
 
     /**
@@ -50,11 +55,17 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'status' => UserStatus::class,
         ];
     }
 
     public function uniqueIds(): array
     {
         return ['uuid'];
+    }
+
+    public function loginHistories()
+    {
+        return $this->hasMany(LoginHistory::class);
     }
 }

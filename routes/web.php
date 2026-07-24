@@ -3,10 +3,14 @@
 use App\Http\Controllers\Auth\LoginController;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/', function () {
+    return redirect('login');
+});
+
 Route::middleware('guest')->group(function () {
-    Route::get('/', [LoginController::class, 'create'])
+    Route::get('/login', [LoginController::class, 'create'])
         ->name('login');
-    Route::post('/', [LoginController::class, 'store'])
+    Route::post('/sign-in', [LoginController::class, 'store'])
         ->name('login.store');
 });
 
