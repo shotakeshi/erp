@@ -1,7 +1,9 @@
 <?php
 
-use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\DepartmentController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\EmployeeController;
 
 Route::get('/', function () {
     return redirect('login');
@@ -18,6 +20,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function (){
         return view('welcome');
     })->name('dashboard');
+
+    Route::resources(
+        [
+            'employees' => EmployeeController::class,
+            'departments' => DepartmentController::class,
+        ]
+    );
 
     Route::post('/logout', [LoginController::class, 'destroy'])
         ->name('logout');

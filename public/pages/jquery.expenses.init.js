@@ -1,6 +1,6 @@
 /**
- * Theme: Metrica - Responsive Bootstrap 4 Admin Dashboard
- * Author: Mannatthemes
+ * Theme: ERP TEMPLATE
+ * Author: ERP TEAM
  * Expenses Js
  */
 

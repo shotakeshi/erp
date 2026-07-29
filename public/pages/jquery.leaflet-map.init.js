@@ -1,9 +1,3 @@
-/**
- * Theme: Metrica - Responsive Bootstrap 4 Admin Dashboard
- * Author: Mannatthemes
- * Leaflet Map Js
- */
-
 
 $(function(){
 

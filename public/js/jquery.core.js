@@ -1,11 +1,4 @@
 /**
- * Theme: Metrica - Responsive Bootstrap 4 Admin Dashboard
- * Author: Mannatthemes
- * Module/App: Core Js
- */
-
-
-/**
  * Components
  */
 !function($) {

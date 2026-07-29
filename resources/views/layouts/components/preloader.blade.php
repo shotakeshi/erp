@@ -1,1 +1,6 @@
-<?php
+<div id="preloader" class="preloader">
+    <div class="loader">
+        <div class="spinner"></div>
+        <div class="loading-text">Loading...</div>
+    </div>
+</div>

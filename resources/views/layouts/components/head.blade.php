@@ -1,6 +1,6 @@
 <head>
     <meta charset="utf-8" />
-    <title>ERP | Dashboard</title>
+    <title>{{ config('app.name') }} | @stack('title', __('site.dashboard'))</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
     <meta content="" name="author" />
@@ -16,4 +16,5 @@
     <link href="{{ asset('css/metisMenu.min.css') }}" rel="stylesheet" type="text/css" />
     @stack('css')
     <link href="{{ asset('css/app.min.css') }}?v={{ time() }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('css/style.css') }}?v={{ time() }}" rel="stylesheet" type="text/css" />
 </head>

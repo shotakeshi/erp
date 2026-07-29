@@ -256,8 +256,16 @@
                 }
             });
         }
-    
 
+    window.addEventListener('load', () => {
+        const preloader = document.getElementById('preloader');
+
+        if (!preloader) return;
+
+        setTimeout(() => {
+            preloader.classList.add('hidden');
+        }, 1000);
+    });
 
     function init() {
         initSlimscroll();

@@ -105,7 +105,7 @@
                 <a class="nav-link dropdown-toggle waves-effect waves-light nav-user" data-toggle="dropdown" href="#" role="button"
                    aria-haspopup="false" aria-expanded="false">
                     <img src="{{ asset('images/users/user-4.jpg') }}" alt="profile-user" class="rounded-circle" />
-                    <span class="ml-1 nav-user-name hidden-sm">{{ Auth::user()->name }} <i class="mdi mdi-chevron-down"></i> </span>
+                    <span class="ml-1 nav-user-name hidden-sm">{{ Auth::user()->name }} | {{ Auth::user()->email }}<i class="mdi mdi-chevron-down"></i> </span>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right">
                     <a class="dropdown-item" href="#"><i class="dripicons-user text-muted mr-2"></i> Profile</a>
@@ -114,7 +114,7 @@
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="{{ route('logout') }}"
                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                        <i class="mdi mdi-power text-danger mr-2"></i> {{ __('site.button.logout') }}
+                        <i class="mdi mdi-power text-danger mr-2"></i> {{ __('common.button.logout') }}
                     </a>
                     <form id="logout-form" class="d-none" action="{{ route('logout') }}" method="POST">
                         @csrf

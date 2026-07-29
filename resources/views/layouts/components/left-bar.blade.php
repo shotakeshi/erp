@@ -7,25 +7,25 @@
             </span>
         </a>
         <nav class="nav">
-            <a href="#MetricaDashboard" class="nav-link" data-toggle="tooltip-custom" data-placement="right"  data-trigger="hover" title="" data-original-title="Dashboard">
+            <a href="#Dashboard" class="nav-link" data-toggle="tooltip-custom" data-placement="right"  data-trigger="hover" title="" data-original-title="Dashboard">
                 <i data-feather="home" class="align-self-center menu-icon icon-dual"></i>
-            </a><!--end MetricaDashboards-->
+            </a><!--end Dashboards-->
 
-            <a href="#MetricaApps" class="nav-link" data-toggle="tooltip-custom" data-placement="right"  data-trigger="hover" title="" data-original-title="Apps">
+            <a href="#Apps" class="nav-link" data-toggle="tooltip-custom" data-placement="right"  data-trigger="hover" title="" data-original-title="Apps">
                 <i data-feather="grid" class="align-self-center menu-icon icon-dual"></i>
-            </a><!--end MetricaApps-->
+            </a><!--end Apps-->
 
-            <a href="#MetricaUikit" class="nav-link" data-toggle="tooltip-custom" data-placement="right"  data-trigger="hover" title="" data-original-title="UI Kit">
+            <a href="#Uikit" class="nav-link" data-toggle="tooltip-custom" data-placement="right"  data-trigger="hover" title="" data-original-title="UI Kit">
                 <i data-feather="package" class="align-self-center menu-icon icon-dual"></i>
-            </a><!--end MetricaUikit-->
+            </a><!--end Uikit-->
 
-            <a href="#MetricaPages" class="nav-link" data-toggle="tooltip-custom" data-placement="right"  data-trigger="hover" title="" data-original-title="Pages">
+            <a href="#Pages" class="nav-link" data-toggle="tooltip-custom" data-placement="right"  data-trigger="hover" title="" data-original-title="Pages">
                 <i data-feather="copy" class="align-self-center menu-icon icon-dual"></i>
-            </a><!--end MetricaPages-->
+            </a><!--end Pages-->
 
-            <a href="#MetricaAuthentication" class="nav-link" data-toggle="tooltip-custom" data-placement="right"  data-trigger="hover" title="" data-original-title="Authentication">
+            <a href="#Authentication" class="nav-link" data-toggle="tooltip-custom" data-placement="right"  data-trigger="hover" title="" data-original-title="Authentication">
                 <i data-feather="lock" class="align-self-center menu-icon icon-dual"></i>
-            </a> <!--end MetricaAuthentication-->
+            </a> <!--end Authentication-->
 
         </nav><!--end nav-->
         <div class="pro-metrica-end">
@@ -33,7 +33,7 @@
                 <i data-feather="message-circle" class="align-self-center menu-icon icon-md icon-dual mb-4"></i>
             </a>
             <a href="#" class="profile">
-                <img src="assets/images/users/user-4.jpg" alt="profile-user" class="rounded-circle thumb-sm">
+                <img src="{{ asset('images/users/user-4.jpg') }}" alt="profile-user" class="rounded-circle thumb-sm">
             </a>
         </div>
     </div><!--end main-icon-menu-->
@@ -41,7 +41,7 @@
     <div class="main-menu-inner">
         <!-- LOGO -->
         <div class="topbar-left">
-            <a href="index.html" class="logo">
+            <a href="{{ route('dashboard') }}" class="logo">
                 <span>
                     <img src="{{ asset('images/logo-lg.png') }}" alt="ERP SYSTEM" class="logo-lg logo-dark">
                     <img src="{{ asset('images/logo-lg.png') }}" alt="ERP SYSTEM" class="logo-lg logo-light">
@@ -50,28 +50,24 @@
         </div>
         <!--end logo-->
         <div class="menu-body slimscroll">
-            <div id="MetricaDashboard" class="main-icon-menu-pane">
+            <div id="Dashboard" class="main-icon-menu-pane active">
                 <div class="title-box">
-                    <h6 class="menu-title">Dashboard</h6>
+                    <h6 class="menu-title">{{ __('site.people') }}</h6>
                 </div>
                 <ul class="nav">
-                    <li class="nav-item"><a class="nav-link" href="index.html">Analytics</a></li>
-                    <li class="nav-item"><a class="nav-link" href="crypto-index.html">Crypto</a></li>
-                    <li class="nav-item"><a class="nav-link" href="crm-index.html">CRM</a></li>
-                    <li class="nav-item"><a class="nav-link" href="projects-index.html">Project</a></li>
-                    <li class="nav-item"><a class="nav-link" href="ecommerce-index.html">Ecommerce</a></li>
-                    <li class="nav-item"><a class="nav-link" href="helpdesk-index.html">Helpdesk</a></li>
-                    <li class="nav-item"><a class="nav-link" href="hospital-index.html">Hospital</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ route('employees.index') }}">{{ __('site.employees.manage') }}</a></li>
+                    <li class="nav-item"><a class="nav-link" href="crypto-index.html">Phòng ban</a></li>
+                    <li class="nav-item"><a class="nav-link" href="crm-index.html">Chức vụ</a></li>
                 </ul>
             </div><!-- end Dashboards -->
 
-            <div id="MetricaApps" class="main-icon-menu-pane">
+            <div id="Apps" class="main-icon-menu-pane">
                 <div class="title-box">
                     <h6 class="menu-title">Apps</h6>
                 </div>
                 <ul class="nav metismenu">
                     <li class="nav-item">
-                        <a class="nav-link" href="javascript: void(0);"><span class="w-100">Analytics</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
+                        <a class="nav-link" href="javascript: void(0);"><span class="w-100">People</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
                         <ul class="nav-second-level" aria-expanded="false">
                             <li><a href="analytics-customers.html">Customers</a></li>
                             <li><a href="analytics-reports.html">Reports</a></li>
@@ -203,7 +199,7 @@
                 </ul>
             </div><!-- end Crypto -->
 
-            <div id="MetricaUikit" class="main-icon-menu-pane">
+            <div id="Uikit" class="main-icon-menu-pane">
                 <div class="title-box">
                     <h6 class="menu-title">UI Kit</h6>
                 </div>
@@ -304,7 +300,7 @@
                 </ul><!--end nav-->
             </div><!-- end Others -->
 
-            <div id="MetricaPages" class="main-icon-menu-pane">
+            <div id="Pages" class="main-icon-menu-pane">
                 <div class="title-box">
                     <h6 class="menu-title">Pages</h6>
                 </div>
@@ -320,7 +316,7 @@
                     <li class="nav-item"><a class="nav-link" href="pages-gallery.html">Gallery</a></li>
                 </ul>
             </div><!-- end Pages -->
-            <div id="MetricaAuthentication" class="main-icon-menu-pane">
+            <div id="Authentication" class="main-icon-menu-pane">
                 <div class="title-box">
                     <h6 class="menu-title">Authentication</h6>
                 </div>
