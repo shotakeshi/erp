@@ -28,6 +28,15 @@ Route::middleware('auth')->group(function () {
         ]
     );
 
+    Route::get('/locations/wards/{province}', function (
+        string $province,
+        App\Services\LocationService $locationService
+    ) {
+        return response()->json(
+            $locationService->wardsByProvince($province)
+        );
+    });
+
     Route::post('/logout', [LoginController::class, 'destroy'])
         ->name('logout');
 });

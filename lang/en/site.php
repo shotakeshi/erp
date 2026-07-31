@@ -16,7 +16,7 @@ return [
         'manage' => 'Manage',
         'member_name' => 'Member Name',
         'age' => 'Age',
-        'gender' => 'Gender',
+        'sex' => 'Gender',
         'address' => 'Address',
         'phone' => 'Mobile No',
         'joined' => 'Joined',
@@ -28,6 +28,23 @@ return [
         'employee_email' => 'Email',
         'employee_phone' => 'Phone',
         'employee_joined' => 'Joined',
-        'employee_status' => 'Status'
+        'employee_status' => 'Status',
+        'dob' => 'Date Of Birth',
+        'date_of_joining' => 'Date Of Joining',
+        'email' => 'Email',
+        'nationality' => 'Nationality',
+        'city' => 'Province / City',
+        'state' => 'Ward',
+        'avatar' => 'Avatar',
+        'personal_infomation' => 'Personal Information',
+        'portal_code' => 'Portal Code',
+        'employment_details' => 'Employment Details',
+        'deparment' => 'Deparment',
+        'position' => 'Position',
+        'gender' => [
+            'male' => 'Male',
+            'female' => 'Female',
+            'other' => 'Other'
+        ]
     ],
 ];
