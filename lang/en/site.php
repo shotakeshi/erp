@@ -6,6 +6,7 @@ return [
     'activity' => 'Activity',
     'tasks' => 'Tasks',
     'people' => 'People',
+    'select' => 'Select',
     'employees' => [
         'title' => 'Employees',
         'list' => 'List of Employees',
@@ -41,10 +42,29 @@ return [
         'employment_details' => 'Employment Details',
         'deparment' => 'Deparment',
         'position' => 'Position',
+        'reporting_manager' => "Reporting Manager",
+        'contract_type' => "Contract Type",
+        'salary' => "Salary",
         'gender' => [
             'male' => 'Male',
             'female' => 'Female',
             'other' => 'Other'
         ]
     ],
+    'departments' => [
+        'title' => 'Departments',
+        'list' => 'List of Departments',
+        'add' => 'Add Department',
+        'detail' => 'Department Details',
+        'name' => 'Department Name',
+        'name_eg' => 'e.g Engineer',
+        'cost_center' => 'Cost Center',
+        'cost_center_eg' => 'e.g CC-001',
+        'parent_department' => 'Parent Department',
+        'no_parent_department' => 'No parent (top-level)',
+        'department_head' => 'Department Head',
+        'no_department_head' => 'No head assigned',
+        'description' => 'Description',
+        'eg_description' => 'Brief description of this department',
+    ]
 ];

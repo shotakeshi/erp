@@ -6,6 +6,7 @@ use App\Models\Employee;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use App\Services\LocationService;
+use App\Http\Requests\EmployeeRequest;
 
 class EmployeeController extends Controller
 {
@@ -19,5 +20,9 @@ class EmployeeController extends Controller
         return view('employees.create', [
             'provinces' => $locationService->provinces(),
         ]);
+    }
+
+    public function store(EmployeeRequest $request){
+
     }
 }
