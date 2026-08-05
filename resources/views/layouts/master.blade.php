@@ -15,5 +15,6 @@
 </div>
 @include('layouts.components.preloader')
 @include('layouts.components.scripts')
+<x-toast />
 </body>
 </html>

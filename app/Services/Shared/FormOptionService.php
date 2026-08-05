@@ -1,30 +1,29 @@
 <?php
+
+namespace App\Services\Shared;
+use App\Models\Department;
+use App\Models\Employee;
+use App\Queries\DepartmentQuery;
+use App\Queries\EmployeeQuery;
+
 class FormOptionService
 {
     public function __construct(
-        protected EmployeeRepository $employeeRepository,
-        protected DepartmentRepository $departmentRepository,
-        protected PositionRepository $positionRepository,
-        protected CostCenterRepository $costCenterRepository,
-    ) {}
+        protected EmployeeQuery $employeeQuery,
+        protected DepartmentQuery $departmentQuery,
+    ) {
 
-    public function employees()
-    {
-        return $this->employeeRepository->getForSelect();
     }
 
-    public function departments()
-    {
-        return $this->departmentRepository->getForSelect();
+    public function employeeOptions(){
+        return $this->employeeQuery->forSelect();
     }
 
-    public function positions()
-    {
-        return $this->positionRepository->getForSelect();
+    public function departmentOptions(){
+        return $this->departmentQuery->forSelect();
     }
 
-    public function costCenters()
-    {
-        return $this->costCenterRepository->getForSelect();
+    public function departmentForParentSelect(?Department $department = null){
+        return $this->departmentQuery->forParentSelect($department);
     }
 }

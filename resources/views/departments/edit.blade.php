@@ -2,16 +2,17 @@
 @extends('layouts.master')
 @section('content')
     <x-page-title
-            title="{{ __('site.departments.add') }}"
+            title="{{ __('site.departments.edit') }}"
             :breadcrumbs="[
             ['title' => __('site.departments.title'), 'url' => route('departments.index')],
-            ['title' => __('site.departments.add')],
+            ['title' => __('site.departments.edit')],
         ]">
     </x-page-title>
     <div class="row">
         <div class="col-lg-8 mx-auto">
-            <form class="form-horizontal form-material mb-0" action="{{ route('departments.store') }}" method="POST">
+            <form class="form-horizontal form-material mb-0" action="{{ route('departments.update', $department) }}" method="POST">
                 @csrf
+                @method('PUT')
                 <div class="card">
                     <div class="card-header">
                         {{ __('site.departments.detail') }}
@@ -23,6 +24,7 @@
                                     name="name"
                                     label="{{ __('site.departments.name') }}"
                                     placeholder="{{ __('site.departments.name_eg') }}"
+                                    value="{{ $department->name }}"
                                     required
                                 />
                             </div>
@@ -30,6 +32,7 @@
                                 <x-form.input
                                         name="cost_center"
                                         label="{{ __('site.departments.cost_center') }}"
+                                        value="{{ $department->cost_center }}"
                                         placeholder="{{ __('site.departments.cost_center_eg') }}"
                                 />
                             </div>
@@ -42,6 +45,7 @@
                                         placeholder="{{ __('site.departments.no_parent_department') }}"
                                         select2
                                         :options="$departments"
+                                        :selected="$department->parent_id"
                                         option-value="id"
                                         option-label="name"
                                 />
@@ -53,6 +57,7 @@
                                         placeholder="{{ __('site.departments.no_department_head') }}"
                                         select2
                                         :options="$employees"
+                                        :selected="$department->head_id"
                                         option-value="id"
                                         option-label="employee_id_full_name"
                                 />
@@ -64,12 +69,13 @@
                                         name="description"
                                         label="{{ __('site.departments.description') }}"
                                         placeholder="{{ __('site.departments.description') }}"
+                                        value="{{ $department->description }}"
                                         rows="4"
                                 />
                             </div>
                         </div>
                         <div class="form-group">
-                            <x-form-actions show-reset show-cancel :url-cancel="route('departments.index')" />
+                            <x-form-actions :show-reset="false" show-cancel :url-cancel="route('departments.index')" />
                         </div>
                     </div> <!--end card-body-->
                 </div><!--end card-->

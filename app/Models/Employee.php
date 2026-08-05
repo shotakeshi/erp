@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\UserStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -29,6 +30,11 @@ class Employee extends Model
         return "{$this->first_name} {$this->last_name}";
     }
 
+    public function getEmployeeIdFullNameAttribute(): string
+    {
+        return "{$this->employee_id} | {$this->first_name} {$this->last_name}";
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -42,5 +48,12 @@ class Employee extends Model
     public function position(): BelongsTo
     {
         return $this->belongsTo(Position::class);
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->whereHas('user', function ($query) {
+            $query->where('status', UserStatus::ACTIVE);
+        });
     }
 }

@@ -9,12 +9,12 @@
     <link rel="shortcut icon" href="{{ asset('images/favicon.ico') }}">
     <!-- Plugins css -->
     @stack('css')
-
     <!-- App css -->
     <link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('css/jquery-ui.min.css') }}" rel="stylesheet">
     <link href="{{ asset('css/icons.min.css') }}" rel="stylesheet" type="text/css" />
-    <link href="{{ asset('css/metisMenu.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('css/metisMenu.min.css') }}" rel="stylesheet"  />
+    <link href="{{ asset('css/toastr.min.css') }}" rel="stylesheet" type="text/css">
     <link href="{{ asset('css/app.min.css') }}?v={{ time() }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('css/style.css') }}?v={{ time() }}" rel="stylesheet" type="text/css" />
 </head>

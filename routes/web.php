@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\PositionController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\EmployeeController;
@@ -25,6 +26,7 @@ Route::middleware('auth')->group(function () {
         [
             'employees' => EmployeeController::class,
             'departments' => DepartmentController::class,
+            'positions' => PositionController::class,
         ]
     );
 

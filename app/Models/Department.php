@@ -12,12 +12,12 @@ class Department extends Model
 
     public function parent(): BelongsTo
     {
-        return $this->belongsTo(Department::class, 'parent_id');
+        return $this->belongsTo(self::class, 'parent_id');
     }
 
     public function children(): HasMany
     {
-        return $this->hasMany(Department::class, 'parent_id');
+        return $this->hasMany(self::class, 'parent_id');
     }
 
     public function head(): BelongsTo
@@ -33,5 +33,23 @@ class Department extends Model
     public function employees(): HasMany
     {
         return $this->hasMany(Employee::class);
+    }
+
+    public function descendantIds(): array
+    {
+        $ids = [];
+
+        $this->loadMissing('children');
+
+        foreach ($this->children as $child) {
+            $ids[] = $child->id;
+
+            $ids = array_merge(
+                $ids,
+                $child->descendantIds()
+            );
+        }
+
+        return $ids;
     }
 }

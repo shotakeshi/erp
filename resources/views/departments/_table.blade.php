@@ -1,29 +1,48 @@
 <div class="table-responsive mt-3">
-    <table class="table table-bordered mb-0 table-centered">
+    <table class="table mb-0 table-centered">
         <tbody>
-{{--            @foreach($employees as $employee)--}}
-{{--                <tr>--}}
-{{--                    <td>{{ $loop->iteration }}</td>--}}
-{{--                    <td>--}}
-{{--                        {{ $employee->fullname }}<br/>--}}
-{{--                        {{ $employee->email }}--}}
-{{--                    </td>--}}
-{{--                    <td>{{ $employee->employee_id }}</td>--}}
-{{--                    <td><span class="badge badge-soft-success">Approved</span></td>--}}
-{{--                    <td>--}}
-{{--                        <div class="dropdown d-inline-block float-right">--}}
-{{--                            <a class="nav-link dropdown-toggle arrow-none" id="dLabel8" data-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">--}}
-{{--                                <i class="fas fa-ellipsis-v font-20 text-muted"></i>--}}
-{{--                            </a>--}}
-{{--                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dLabel8">--}}
-{{--                                <a class="dropdown-item" href="#">Creat Project</a>--}}
-{{--                                <a class="dropdown-item" href="#">Open Project</a>--}}
-{{--                                <a class="dropdown-item" href="#">Tasks Details</a>--}}
-{{--                            </div>--}}
-{{--                        </div>--}}
-{{--                    </td>--}}
-{{--                </tr>--}}
-{{--            @endforeach--}}
+            @foreach($departments as $department)
+                <tr>
+                    <td class="pl-0">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="avatar-box thumb-sm align-self-center mr-2">
+                                <span class="avatar-title bg-purple rounded"><i class="fas fa-building"></i></span>
+                            </div>
+                            <div>
+                                <div class="font-14 mb-1">
+                                    {{ $department->name }}{{ $department->parent ? ' > ' . $department->parent->name : '' }}
+                                </div>
+                                <span class="text-muted font-italic font-12">
+                                    {{ $department->description ?? '-' }}
+                                </span><br>
+                                @if($department->head)
+                                    <span class="text-muted font-italic">
+                                        Head: {{ $department->head->employee_id_full_name }}
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+                    </td>
+                    <td style="width: 100px">
+                        @if($department->cost_center)
+                            <span class="badge badge-classic">
+                                {{ $department->cost_center }}
+                            </span>
+                        @endif
+                    </td>
+                    <td style="width: 100px" class="font-16 font-weight-bold">
+                        <i class="fas fa-users"></i> 0
+                    </td>
+                    <td style="width: 100px" class="pr-0 text-right">
+                        <a style="width: 34px" href="{{ route('departments.show', $department)  }}" class="btn btn-sm btn-outline-gray">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <a style="width: 34px" href="{{ route('departments.edit', $department) }}" class="btn btn-sm btn-outline-warning">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                    </td>
+                </tr>
+            @endforeach
         </tbody>
-    </table><!--end /table-->
-</div><!--end /tableresponsive-->
+    </table>
+</div>

@@ -1,4 +1,4 @@
-@push('title', __('site.employees.title'))
+@push('title', __('site.departments.title'))
 @extends('layouts.master')
 @section('content')
     <x-page-title
@@ -9,7 +9,7 @@
         ]">
     </x-page-title>
     <div class="row">
-        <div class="col-lg-12">
+        <div class="col-lg-8 mx-auto">
             <div class="card">
                 <div class="card-body">
                     <x-action-button

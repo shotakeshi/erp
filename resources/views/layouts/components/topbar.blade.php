@@ -130,9 +130,9 @@
 
         <ul class="list-unstyled topbar-nav mb-0">
             <li>
-                <a href="index.html">
+                <a href="{{ route('dashboard') }}">
                     <span class="responsive-logo">
-                        <img src="assets/images/logo-sm.png" alt="logo-small" class="logo-sm align-self-center" height="34">
+                        <img src="{{ asset('images/logo-sm.png') }}" alt="logo-small" class="logo-sm align-self-center" height="34">
                     </span>
                 </a>
             </li>
