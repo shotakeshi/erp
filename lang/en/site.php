@@ -37,11 +37,12 @@ return [
         'city' => 'Province / City',
         'state' => 'Ward',
         'avatar' => 'Avatar',
-        'personal_infomation' => 'Personal Information',
+        'personal_information' => 'Personal Information',
         'portal_code' => 'Portal Code',
         'employment_details' => 'Employment Details',
-        'deparment' => 'Deparment',
+        'department' => 'Department',
         'position' => 'Position',
+        'select_position' => 'Choose Position',
         'reporting_manager' => "Reporting Manager",
         'contract_type' => "Contract Type",
         'salary' => "Salary",
@@ -49,6 +50,11 @@ return [
             'male' => 'Male',
             'female' => 'Female',
             'other' => 'Other'
+        ],
+        'contract_types' => [
+            'permanent' => 'Permanent',
+            'temporary' => 'Temporary',
+            'contract' => 'Contract'
         ]
     ],
     'departments' => [

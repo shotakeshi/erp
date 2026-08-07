@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\ContractType;
 use App\Enums\Gender;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -26,50 +27,6 @@ class EmployeeRequest extends FormRequest
             $this->addressRules(),
             $this->employmentRules()
         );
-    }
-
-    public function messages(): array
-    {
-        return [
-            'required' => ':attribute là bắt buộc.',
-            'email.email' => 'Email không đúng định dạng.',
-            'email.unique' => 'Email đã tồn tại.',
-            'employee_id.unique' => 'Mã nhân viên đã tồn tại.',
-
-            'avatar.image' => 'Avatar phải là hình ảnh.',
-            'avatar.mimes' => 'Avatar chỉ được phép jpg, jpeg, png, webp.',
-            'avatar.max' => 'Avatar tối đa 2MB.',
-
-            'salary.numeric' => 'Lương phải là số.',
-            'salary.min' => 'Lương phải lớn hơn hoặc bằng 0.',
-
-            'dob.date_format' => 'Ngày sinh phải có định dạng dd/mm/yyyy.',
-            'date_of_joining.date_format' => 'Ngày vào làm phải có định dạng dd/mm/yyyy.',
-        ];
-    }
-
-    public function attributes(): array
-    {
-        return [
-            'avatar' => 'Avatar',
-            'employee_id' => 'Mã nhân viên',
-            'first_name' => 'Tên',
-            'last_name' => 'Họ',
-            'email' => 'Email',
-            'phone' => 'Số điện thoại',
-            'dob' => 'Ngày sinh',
-            'gender' => 'Giới tính',
-            'address' => 'Địa chỉ',
-            'portal_code' => 'Mã bưu điện',
-            'city' => 'Tỉnh / Thành phố',
-            'state' => 'Quận / Huyện',
-            'department_id' => 'Phòng ban',
-            'position_id' => 'Chức vụ',
-            'reporting_manager_id' => 'Quản lý',
-            'date_of_joining' => 'Ngày vào làm',
-            'contract_type' => 'Loại hợp đồng',
-            'salary' => 'Lương',
-        ];
     }
 
     /**
@@ -119,6 +76,7 @@ class EmployeeRequest extends FormRequest
                 'required',
                 'string',
                 'max:20',
+                'regex:/^0\d{9}$/',
             ],
 
             'dob' => [
@@ -179,7 +137,7 @@ class EmployeeRequest extends FormRequest
             ],
 
             'position_id' => [
-                'required',
+                'nullable',
                 'exists:positions,id',
             ],
 
@@ -195,8 +153,7 @@ class EmployeeRequest extends FormRequest
 
             'contract_type' => [
                 'required',
-                'string',
-                'max:50',
+                new Enum(ContractType::class),
             ],
 
             'salary' => [

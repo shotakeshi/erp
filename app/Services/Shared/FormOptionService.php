@@ -26,4 +26,9 @@ class FormOptionService
     public function departmentForParentSelect(?Department $department = null){
         return $this->departmentQuery->forParentSelect($department);
     }
+
+    public function departmentOptionsWithPositions()
+    {
+        return $this->departmentQuery->forSelectWithPositions();
+    }
 }

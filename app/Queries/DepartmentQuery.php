@@ -59,4 +59,17 @@ class DepartmentQuery
 
         return $ids;
     }
+
+    public function forSelectWithPositions()
+    {
+        return Department::query()
+            ->with([
+                'positions:id,department_id,name'
+            ])
+            ->orderBy('name')
+            ->get([
+                'id',
+                'name',
+            ]);
+    }
 }

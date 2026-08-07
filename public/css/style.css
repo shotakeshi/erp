@@ -35,6 +35,10 @@
     letter-spacing: .5px;
 }
 
+.delete-popup .swal2-icon-content {
+    font-size: 60px;
+}
+
 @keyframes spin {
     to {
         transform: rotate(360deg);

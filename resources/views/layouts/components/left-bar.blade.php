@@ -56,8 +56,8 @@
                 </div>
                 <ul class="nav">
                     <li class="nav-item"><a class="nav-link" href="{{ route('employees.index') }}">{{ __('site.employees.manage') }}</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ route('departments.index') }}">{{ __('site.employees.deparment') }}</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ route('positions.index') }}">Chức vụ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ route('departments.index') }}">{{ __('site.employees.department') }}</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ route('positions.index') }}">{{ __('site.positions.title') }}</a></li>
                 </ul>
             </div><!-- end Dashboards -->
 

@@ -22,7 +22,7 @@
                 @csrf
                 <div class="card">
                     <div class="card-header">
-                        {{ __('site.employees.personal_infomation') }}
+                        {{ __('site.employees.personal_information') }}
                     </div>
                     <div class="card-body">
                         <div class="form-group row">
@@ -146,39 +146,37 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col-lg-6">
-                                <label for="department-id">{{ __('site.employees.deparment') }}</label>
-                                <select name="department_id" id="department-id" class="form-control">
-                                    @foreach (\App\Enums\Gender::cases() as $gender)
-                                        <option value="{{ $gender->value }}"
-                                                @selected(old('gender', $employee->gender ?? 'Male') === $gender->value)>
-                                            {{ $gender->value }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                                <x-form.select
+                                        name="department_id"
+                                        label="{{ __('site.departments.title') }}"
+                                        placeholder="{{ __('site.positions.choose_department') }}"
+                                        select2
+                                        :options="$departments"
+                                        option-value="id"
+                                        option-label="name"
+                                />
                             </div>
                             <div class="col-lg-6">
-                                <label for="position-id">{{ __('site.employees.position') }}*</label>
-                                <select name="position_id" id="position-id" class="form-control">
-                                    @foreach (\App\Enums\Gender::cases() as $gender)
-                                        <option value="{{ $gender->value }}"
-                                                @selected(old('gender', $employee->gender ?? 'Male') === $gender->value)>
-                                            {{ $gender->value }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                                <x-form.select
+                                        name="position_id"
+                                        label="{{ __('site.employees.position') }}"
+                                        :options="$positions"
+                                        option-value="id"
+                                        option-label="name"
+                                        select2
+                                />
                             </div>
                         </div>
                         <div class="row mt-3">
                             <div class="col-md-6">
-                                <label for="reporting-manager-id">{{ __('site.employees.reporting_manager') }}</label>
-                                <select name="reporting_manager_id" id="reporting-manager-id" class="form-control">
-                                    @foreach (\App\Enums\Gender::cases() as $gender)
-                                        <option value="{{ $gender->value }}"
-                                                @selected(old('gender', $employee->gender ?? 'Male') === $gender->value)>
-                                            {{ $gender->value }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                                <x-form.select
+                                        name="reporting_manager_id"
+                                        label="{{ __('site.employees.reporting_manager') }}"
+                                        select2
+                                        :options="$employees"
+                                        option-value="id"
+                                        option-label="employee_id_full_name"
+                                />
                             </div>
                             <div class="col-md-6">
                                 <x-form.datepicker
@@ -190,15 +188,12 @@
                         </div>
                         <div class="row mt-3">
                             <div class="col-md-6">
-                                <label for="contract-type">{{ __('site.employees.contract_type') }}</label>
-                                <select name="contract_type" id="contract-type" class="form-control">
-                                    @foreach (\App\Enums\Gender::cases() as $gender)
-                                        <option value="{{ $gender->value }}"
-                                                @selected(old('gender', $employee->gender ?? 'Male') === $gender->value)>
-                                            {{ $gender->value }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                                <x-form.select
+                                        label="{{ __('site.employees.contract_type') }}"
+                                        name="contract_type"
+                                        :options="\App\Enums\ContractType::options()"
+                                        required
+                                />
                             </div>
                             <div class="col-md-6">
                                 <label for="salary">{{ __('site.employees.salary') }}</label>
@@ -227,7 +222,6 @@
     <script src="{{ asset('plugins/timepicker/bootstrap-material-datetimepicker.js') }}"></script>
     <script src="{{ asset('plugins/bootstrap-maxlength/bootstrap-maxlength.min.js') }}"></script>
     <script src="{{ asset('plugins/bootstrap-touchspin/js/jquery.bootstrap-touchspin.min.js') }}"></script>
-
     <script src="{{ asset('pages/jquery.forms-advanced.js') }}"></script>
     <script>
         $('.dropify').dropify();
@@ -263,6 +257,24 @@
                 });
                 $('#state').html(html);
             });
+        });
+
+        const departments = @json($departments);
+        $('#department_id').on('change', function () {
+            const department = departments.find(
+                item => item.id == $(this).val()
+            );
+            const $position = $('#position_id');
+            $position.empty();
+            $position.append(new Option('{{ __('site.employees.select_position') }}', ''));
+            if (department) {
+                department.positions.forEach(position => {
+                    $position.append(
+                        new Option(position.name, position.id)
+                    );
+                });
+            }
+            $position.trigger('change');
         });
     </script>
 @endpush

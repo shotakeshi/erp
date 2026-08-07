@@ -16,20 +16,6 @@ class PositionRequest extends FormRequest
     }
 
     /**
-     * Prepare data before validation.
-     */
-    protected function prepareForValidation(): void
-    {
-        $this->merge([
-            'name' => trim((string) $this->name),
-            'level' => trim((string) $this->level),
-            'description' => trim((string) $this->description),
-            'salary_min' => str_replace(',', '', (string) $this->salary_min),
-            'salary_max' => str_replace(',', '', (string) $this->salary_max),
-        ]);
-    }
-
-    /**
      * Validation rules.
      */
     public function rules(): array

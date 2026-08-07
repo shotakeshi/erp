@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Department;
 use App\Models\Position;
 use App\Services\Shared\FormOptionService;
 use Illuminate\Http\Request;
@@ -15,11 +16,18 @@ class PositionController extends Controller
 
     }
 
-    public function index(){
-        $positions = Position::with('department')
+    public function index(Request $request){
+        $positions = Position::query()
+            ->with('department')
             ->withCount('employees')
+            ->when($request->department_id, function ($query, $departmentId) {
+                $query->where('department_id', $departmentId);
+            })
             ->get();
-        return view('positions.index', compact('positions'));
+        return view('positions.index', [
+            'positions' => $positions,
+            'departments' => $this->formOptionService->departmentOptions()
+        ]);
     }
 
     public function create(){
@@ -64,6 +72,25 @@ class PositionController extends Controller
             return back()
                 ->withInput()
                 ->with('error', __('common.messages.update_failed'));
+        }
+    }
+
+    public function destroy(Position $position){
+        try {
+            $position->delete();
+            return redirect()
+                ->route('positions.index')
+                ->with(
+                    'success',
+                    __('common.messages.deleted')
+                );
+
+        } catch (\Throwable $e) {
+            report($e);
+            return back()->with(
+                'error',
+                __('common.messages.delete_failed')
+            );
         }
     }
 }

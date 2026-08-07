@@ -46,9 +46,9 @@
                         <a style="width: 34px" href="{{ route('positions.edit', $position) }}" class="btn btn-sm btn-outline-warning">
                             <i class="fas fa-edit"></i>
                         </a>
-                        <a style="width: 34px" href="{{ route('positions.destroy', $position) }}" class="btn btn-sm btn-outline-danger">
-                            <i class="fas fa-trash"></i>
-                        </a>
+                        <x-form.delete-button
+                          :action="route('positions.destroy',$position)"
+                        />
                     </td>
                 </tr>
             @endforeach
