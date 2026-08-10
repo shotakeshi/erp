@@ -24,21 +24,21 @@ enum UserStatus: string
     public function badgeClass(): string
     {
         return match ($this) {
-            self::ACTIVE      => 'badge bg-success',
-            self::INACTIVE    => 'badge bg-secondary',
-            self::ON_LEAVE    => 'badge bg-warning',
-            self::TERMINATED  => 'badge bg-danger',
-            self::BLOCKED     => 'badge bg-dark',
+            self::ACTIVE      => 'badge badge-pill badge-success pl-2 pr-2',
+            self::INACTIVE    => 'badge badge-pill badge-danger pl-2 pr-2',
+            self::ON_LEAVE    => 'badge badge-pill badge-warning pl-2 pr-2',
+            self::TERMINATED  => 'badge badge-pill badge-danger pl-2 pr-2',
+            self::BLOCKED     => 'badge badge-pill badge-dark pl-2 pr-2',
         };
     }
 
     public function icon(): string
     {
         return match ($this) {
-            self::ACTIVE      => 'ti ti-check',
-            self::INACTIVE    => 'ti ti-user-off',
-            self::ON_LEAVE    => 'ti ti-beach',
-            self::TERMINATED  => 'ti ti-user-x',
+            self::ACTIVE      => 'ti ti-unlock',
+            self::INACTIVE    => 'ti ti-close',
+            self::ON_LEAVE    => 'ti ti-unlink',
+            self::TERMINATED  => 'ti ti-line-dotted',
             self::BLOCKED     => 'ti ti-lock',
         };
     }

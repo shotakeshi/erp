@@ -19,7 +19,8 @@ class DepartmentController extends Controller
     }
     public function index(Request $request): View
     {
-        $departments = Department::with('parent','head')->get();
+        $departments = Department::with('parent','head')
+            ->withCount('employees')->get();
         return view('departments.index', compact('departments'));
     }
 
@@ -47,9 +48,7 @@ class DepartmentController extends Controller
 
     public function show(Department $department){
         return view('departments.show', [
-            'department' => $department,
-            'employees' => $this->formOptionService->employeeOptions(),
-            'departments' => $this->formOptionService->departmentOptions()
+            'department' => $department
         ]);
     }
 

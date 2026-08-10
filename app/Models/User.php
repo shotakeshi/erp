@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Enums\UserStatus;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
@@ -45,6 +47,10 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    protected $appends = [
+        'full_name',
+    ];
+
     /**
      * Get the attributes that should be cast.
      *
@@ -68,5 +74,29 @@ class User extends Authenticatable
     public function loginHistories()
     {
         return $this->hasMany(LoginHistory::class);
+    }
+
+    // User.php
+    public function employee()
+    {
+        return $this->hasOne(Employee::class);
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(callback: function (User $user) {
+            if (empty($user->password)) {
+                $user->password = Hash::make(
+                    Str::password(16)
+                );
+            }
+            if (auth()->check() && empty($user->created_by)) {
+                $user->created_by = auth()->id();
+            }
+        });
+
+        static::updating(function (User $user) {
+
+        });
     }
 }

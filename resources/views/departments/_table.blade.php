@@ -30,8 +30,8 @@
                             </span>
                         @endif
                     </td>
-                    <td style="width: 100px" class="font-16 font-weight-bold">
-                        <i class="fas fa-users"></i> 0
+                    <td style="width: 100px">
+                        <i class="fas fa-users"></i> {{ $department->employees_count }}
                     </td>
                     <td style="width: 100px" class="pr-0 text-right">
                         <a style="width: 34px" href="{{ route('departments.show', $department)  }}" class="btn btn-sm btn-outline-gray">

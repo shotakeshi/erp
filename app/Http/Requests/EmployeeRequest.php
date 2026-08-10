@@ -7,6 +7,7 @@ use App\Enums\Gender;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
+use Carbon\Carbon;
 
 class EmployeeRequest extends FormRequest
 {
@@ -80,7 +81,7 @@ class EmployeeRequest extends FormRequest
             ],
 
             'dob' => [
-                'nullable',
+                'required',
                 'date_format:d/m/Y',
             ],
 
@@ -157,7 +158,7 @@ class EmployeeRequest extends FormRequest
             ],
 
             'salary' => [
-                'nullable',
+                'required',
                 'numeric',
                 'min:0',
             ],
@@ -176,6 +177,27 @@ class EmployeeRequest extends FormRequest
             'email' => strtolower(trim((string) $this->email)),
             'salary' => str_replace([',', ' '], '', (string) $this->salary),
         ]);
+    }
+
+    protected function passedValidation(): void
+    {
+        $data = [];
+
+        if ($this->filled('dob')) {
+            $data['dob'] = Carbon::createFromFormat(
+                'd/m/Y',
+                $this->input('dob')
+            )->format('Y-m-d');
+        }
+
+        if ($this->filled('date_of_joining')) {
+            $data['date_of_joining'] = Carbon::createFromFormat(
+                'd/m/Y',
+                $this->input('date_of_joining')
+            )->format('Y-m-d');
+        }
+
+        $this->merge($data);
     }
 
     private function employeeId(): ?int

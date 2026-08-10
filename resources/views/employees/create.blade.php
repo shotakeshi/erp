@@ -18,7 +18,7 @@
     </x-page-title>
     <div class="row">
         <div class="col-lg-8 mx-auto">
-            <form class="form-horizontal form-material mb-0" action="{{ route('employees.store') }}" method="POST">
+            <form class="form-horizontal form-material mb-0" action="{{ route('employees.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="card">
                     <div class="card-header">
@@ -30,7 +30,8 @@
                                 <x-form.label for="avatar">
                                     {{ __('site.employees.avatar') }}
                                 </x-form.label>
-                                <input type="file" class="dropify" data-default-file="{{ asset('images/avatar-upload.png') }}"/>
+                                <input type="file" name="avatar" accept="image/jpeg,image/png,image/webp" class="dropify" data-default-file="{{ asset('images/avatar-upload.png') }}"/>
+
                             </div>
                             <div class="col-md-9">
                                 <div class="row">
@@ -160,7 +161,7 @@
                                 <x-form.select
                                         name="position_id"
                                         label="{{ __('site.employees.position') }}"
-                                        :options="$positions"
+                                        :options="[]"
                                         option-value="id"
                                         option-label="name"
                                         select2
@@ -201,7 +202,7 @@
                                        id="salary"
                                        class="form-control"
                                        name="salary"
-                                       value="{{ old('salary') }}">
+                                       value="{{ old('salary') ?? 0 }}">
                             </div>
                         </div>
                         <div class="form-group">
@@ -243,38 +244,128 @@
             });
         });
 
-        $('#city').on('change', function () {
-            const province = $(this).val();
-            $('#state').html('<option>Loading...</option>');
-            $.get(`/locations/wards/${province}`, function (wards) {
-                let html = '<option value="">-- {{ __('site.select') }} --</option>';
+        const $city = $('#city');
+        const $state = $('#state');
+
+        const statePlaceholder = @json(__('site.select'));
+
+        function loadWards(cityCode, selectedWardCode = null) {
+            $state.empty();
+
+            $state.append(
+                new Option(statePlaceholder, '')
+            );
+
+            if (!cityCode) {
+                $state.trigger('change');
+                return;
+            }
+
+            $state.html(
+                `<option value="">Loading...</option>`
+            );
+
+            $.get(`/locations/wards/${cityCode}`, function (wards) {
+
+                $state.empty();
+
+                $state.append(
+                    new Option(statePlaceholder, '')
+                );
+
                 wards.forEach(function (ward) {
-                    html += `
-                <option value="${ward.code}">
-                    ${ward.name_with_type}
-                </option>
-            `;
+                    const option = new Option(
+                        ward.name_with_type,
+                        ward.code,
+                        false,
+                        ward.code == selectedWardCode
+                    );
+
+                    $state.append(option);
                 });
-                $('#state').html(html);
+
+                $state.trigger('change');
             });
+        }
+
+        $city.on('change', function () {
+            loadWards($(this).val());
+        });
+
+        $(function () {
+
+            const oldCity = @json(old('city'));
+            const oldState = @json(old('state'));
+
+            if (!oldCity) {
+                return;
+            }
+
+            $city
+                .val(oldCity)
+                .trigger('change.select2');
+
+            loadWards(oldCity, oldState);
         });
 
         const departments = @json($departments);
-        $('#department_id').on('change', function () {
+
+        function loadPositions(departmentId, selectedPositionId = null) {
             const department = departments.find(
-                item => item.id == $(this).val()
+                item => item.id == departmentId
             );
+
             const $position = $('#position_id');
+
             $position.empty();
-            $position.append(new Option('{{ __('site.employees.select_position') }}', ''));
+
+            $position.append(
+                new Option(
+                    '{{ __('site.employees.select_position') }}',
+                    ''
+                )
+            );
+
             if (department) {
                 department.positions.forEach(position => {
-                    $position.append(
-                        new Option(position.name, position.id)
+
+                    const option = new Option(
+                        position.name,
+                        position.id
                     );
+
+                    if (position.id == selectedPositionId) {
+                        option.selected = true;
+                    }
+
+                    $position.append(option);
                 });
             }
+
             $position.trigger('change');
+        }
+
+        $('#department_id').on('change', function () {
+            loadPositions($(this).val());
+        });
+
+        // Restore old value khi validation fail
+        $(document).ready(function () {
+
+            const oldDepartmentId = @json(old('department_id'));
+            const oldPositionId = @json(old('position_id'));
+
+            if (oldDepartmentId) {
+
+                $('#department_id')
+                    .val(oldDepartmentId)
+                    .trigger('change');
+
+                loadPositions(
+                    oldDepartmentId,
+                    oldPositionId
+                );
+            }
         });
     </script>
 @endpush
