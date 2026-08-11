@@ -1,5 +1,6 @@
 @props([
-    'action'
+    'action',
+    'title' => null
 ])
 @php
     use Illuminate\Support\Str;
@@ -14,12 +15,12 @@
     @csrf
     @method('DELETE')
     <button
-            style="width: 34px"
+            @if(empty($title)) style="width: 34px" @endif
             type="button"
             class="btn btn-sm btn-outline-danger"
             onclick="confirmDelete('{{ $formId }}')"
             title="{{ __('common.button.delete') }}"
     >
-        <i class="fas fa-trash"></i>
+        <i class="fas fa-trash"></i> {{ $title }}
     </button>
 </form>

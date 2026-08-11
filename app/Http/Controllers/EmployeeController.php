@@ -11,21 +11,43 @@ use App\Services\Shared\FormOptionService;
 use App\Services\FileUploadService;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use App\Filters\EmployeeFilter;
 
 class EmployeeController extends Controller
 {
     public function __construct(
         protected FormOptionService $formOptionService,
         protected LocationService $locationService,
-        private readonly FileUploadService $fileUploadService
+        private readonly FileUploadService $fileUploadService,
+        private readonly EmployeeFilter $employeeFilter,
     ){
 
     }
-    public function index(Request $request, ): View
+    public function index(Request $request): View
     {
-        $employees = Employee::with('user','department','position')->paginate(20);
-        return view('employees.index',[
-            'employees' => $employees
+        $employees = $this->employeeFilter
+            ->apply(
+                Employee::query(),
+                $request->only([
+                    'search',
+                    'status',
+                    'department_id',
+                    'position_id',
+                    'contract_type',
+                ])
+            )
+            ->with([
+                'user',
+                'department',
+                'position',
+            ])
+            ->paginate(20)
+            ->withQueryString();
+
+        return view('employees.index', [
+            'employees' => $employees,
+            'departments' => $this->formOptionService->departmentOptions(),
+            'positions' => $this->formOptionService->positionOptions()
         ]);
     }
 

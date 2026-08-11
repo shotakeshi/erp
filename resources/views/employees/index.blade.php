@@ -18,7 +18,13 @@
                             :href="route('employees.create')">
                         {{ __('common.button.add') . ' ' .  __('site.employees.title') }}
                     </x-action-button>
+                    @include('employees._filter')
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body">
                     @include('employees._table', ['employees', $employees])
+                    <x-pagination :paginator="$employees" />
                 </div><!--end card-body-->
             </div><!--end card-->
         </div> <!-- end col -->

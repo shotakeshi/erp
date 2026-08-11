@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use App\Services\Shared\FormOptionService;
 use App\Http\Requests\DepartmentRequest;
-use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class DepartmentController extends Controller
@@ -75,6 +74,24 @@ class DepartmentController extends Controller
             return back()
                 ->withInput()
                 ->with('error', __('common.messages.update_failed'));
+        }
+    }
+
+    public function destroy(Department $department){
+        try {
+            $department->delete();
+            return redirect()
+                ->route('departments.index')
+                ->with(
+                    'success',
+                    __('common.messages.deleted')
+                );
+        } catch (\Throwable $e) {
+            report($e);
+            return back()->with(
+                'error',
+                __('common.messages.delete_failed')
+            );
         }
     }
 }

@@ -53,4 +53,15 @@ enum UserStatus: string
             self::BLOCKED     => 'dark',
         };
     }
+
+    public static function options(): array
+    {
+        return collect(self::cases())
+            ->map(fn (self $status) => [
+                'value' => $status->value,
+                'label' => $status->label(),
+            ])
+            ->values()
+            ->all();
+    }
 }

@@ -13,6 +13,8 @@ return [
         'back' => 'Back',
         'cancel' => 'Cancel',
         'confirm_delete' => 'Yes, delete it!',
+        'filter' => 'Filters',
+        'search' => 'Search'
     ],
     'messages' => [
         'create_failed' => 'Failed to create record.',
@@ -29,5 +31,20 @@ return [
         'restored' => 'Record has been restored.',
         'not_found' => 'Record not found.',
         'not_changed' => 'Record has been not changed.'
-    ]
+    ],
+    'filters' => [
+        'status' => 'Status',
+        'all_status' => 'All Status',
+        'all_department' => 'All Department',
+        'all_position' => 'All Position',
+        'all_contract_type' => 'All Contract Type',
+    ],
+    'pagination' => [
+        'showing' => 'Showing',
+        'to' => 'to',
+        'of' => 'of',
+        'entries' => 'entries',
+        'previous' => 'previous',
+        'next' => 'next',
+    ],
 ];
