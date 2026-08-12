@@ -13,20 +13,14 @@
         </div>
         {{-- Search --}}
         <div class="col-lg-1">
-            <button
-                    type="submit"
-                    class="btn btn-outline-gray w-100"
-            >
+            <button type="submit" class="btn btn-outline-gray w-100">
                 {{ __('common.button.search') }}
             </button>
         </div>
 
         {{-- Reset --}}
         <div class="col-lg-1">
-            <a
-                    href="{{ $action }}"
-                    class="btn btn-outline-danger w-100"
-            >
+            <a href="{{ $action }}" class="btn btn-outline-danger w-100" >
                 {{ __('common.button.reset') }}
             </a>
         </div>

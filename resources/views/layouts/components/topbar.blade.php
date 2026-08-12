@@ -109,6 +109,7 @@
                 </a>
                 <div class="dropdown-menu dropdown-menu-right">
                     <a class="dropdown-item" href="#"><i class="dripicons-user text-muted mr-2"></i> Profile</a>
+                    <a class="dropdown-item" href="{{ route('profiles.change-password') }}"><i class="fas fa-key text-muted mr-2"></i> {{ __('site.profiles.change_password') }}</a>
                     <a class="dropdown-item" href="#"><i class="dripicons-gear text-muted mr-2"></i> Settings</a>
                     <a class="dropdown-item" href="#"><i class="dripicons-lock text-muted mr-2"></i> Lock screen</a>
                     <div class="dropdown-divider"></div>

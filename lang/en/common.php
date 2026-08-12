@@ -34,6 +34,7 @@ return [
         'not_found' => 'Record not found.',
         'not_changed' => 'Record has been not changed.',
         'confirm_restore' => 'Are you sure you want to restore this record?',
+        'password_changed' => 'Password has been changed.',
     ],
     'filters' => [
         'status' => 'Status',

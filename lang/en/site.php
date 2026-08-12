@@ -101,5 +101,16 @@ return [
         'salary_max' => 'Max Salary ($)',
         'salary_min' => 'Min Salary ($)',
         'salary_range' => 'Salary Range',
+    ],
+    'profiles' => [
+        'change_password' => 'Change Password',
+        'current_password' =>  'Current password',
+        'new_password' => 'New password',
+        'password_confirmation' => 'Confirm new password',
+        'change' => 'Change',
+        'password' => 'New Password',
+        'update_password' => 'Update Password',
+        'note_change_password' => 'Make sure your new password is at least 8 characters.',
+        'back' => 'Back',
     ]
 ];

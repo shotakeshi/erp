@@ -5,6 +5,7 @@ use App\Http\Controllers\PositionController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\ProfileController;
 
 Route::get('/', function () {
     return redirect('login');
@@ -34,6 +35,11 @@ Route::middleware('auth')->group(function () {
             'positions' => PositionController::class,
         ]
     );
+
+    Route::prefix('profiles')->name('profiles.')->group(function () {
+        Route::get('/change-password', [ProfileController::class,'changePassword',])->name('change-password');
+        Route::put('/profile/change-password', [ ProfileController::class,'updatePassword',])->name('update-password');
+    });
 
     Route::get('/locations/wards/{province}', function (
         string $province,
