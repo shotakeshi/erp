@@ -1,5 +1,9 @@
+@props([
+    'action',
+])
 <form action="{{ $action }}" method="GET" class="mt-3">
     <div class="row">
+        {{-- Search --}}
         <div class="col-lg-4">
             <x-form.input
                     name="search"
@@ -7,25 +11,64 @@
                     :value="request('search')"
             />
         </div>
+        {{-- Search --}}
         <div class="col-lg-1">
-            <button type="submit" class="btn btn-outline-gray w-100">
+            <button
+                    type="submit"
+                    class="btn btn-outline-gray w-100"
+            >
                 {{ __('common.button.search') }}
             </button>
         </div>
+
+        {{-- Reset --}}
         <div class="col-lg-1">
-            <a href="{{ $action }}" class="btn btn-outline-danger w-100">
+            <a
+                    href="{{ $action }}"
+                    class="btn btn-outline-danger w-100"
+            >
                 {{ __('common.button.reset') }}
             </a>
         </div>
+
+        {{-- Filter button --}}
         <div class="col-lg-6">
-            <button type="button" class="btn btn-outline-gray float-right" data-toggle="collapse" data-target="#filter" aria-expanded="false" aria-controls="filter">
-                <i class="ti ti-filter"></i> {{ __('common.button.filter') }}
+            <button
+                    type="button"
+                    class="btn btn-outline-gray float-right"
+                    data-toggle="collapse"
+                    data-target="#employee-filter"
+                    aria-expanded="{{ request()->hasAny([
+                    'status',
+                    'department_id',
+                    'position_id',
+                    'contract_type',
+                ]) ? 'true' : 'false' }}"
+                    aria-controls="employee-filter"
+            >
+                <i class="ti ti-filter"></i>
+                {{ __('common.button.filter') }}
             </button>
         </div>
+
+        {{-- Filters --}}
         <div class="col-lg-12">
-            <div class="collapse" id="filter">
+            <div
+                    class="collapse {{
+                    request()->hasAny([
+                        'status',
+                        'department_id',
+                        'position_id',
+                        'contract_type',
+                    ]) ? 'show' : ''
+                }}"
+                    id="employee-filter"
+            >
                 <hr>
+
                 <div class="row mt-3">
+
+                    {{-- Status --}}
                     <div class="col-lg-2">
                         <x-form.select
                                 name="status"
@@ -36,6 +79,8 @@
                                 :selected="request('status')"
                         />
                     </div>
+
+                    {{-- Department --}}
                     <div class="col-lg-2">
                         <x-form.select
                                 name="department_id"
@@ -46,6 +91,8 @@
                                 :selected="request('department_id')"
                         />
                     </div>
+
+                    {{-- Position --}}
                     <div class="col-lg-2">
                         <x-form.select
                                 name="position_id"
@@ -56,6 +103,8 @@
                                 :selected="request('position_id')"
                         />
                     </div>
+
+                    {{-- Contract type --}}
                     <div class="col-lg-2">
                         <x-form.select
                                 name="contract_type"

@@ -14,7 +14,9 @@ return [
         'cancel' => 'Cancel',
         'confirm_delete' => 'Yes, delete it!',
         'filter' => 'Filters',
-        'search' => 'Search'
+        'search' => 'Search',
+        'restore' => 'Restore',
+        'list_of_trash' => 'List of trash',
     ],
     'messages' => [
         'create_failed' => 'Failed to create record.',
@@ -30,7 +32,8 @@ return [
         'restore_sure' => 'Are you sure you want to restore this record?',
         'restored' => 'Record has been restored.',
         'not_found' => 'Record not found.',
-        'not_changed' => 'Record has been not changed.'
+        'not_changed' => 'Record has been not changed.',
+        'confirm_restore' => 'Are you sure you want to restore this record?',
     ],
     'filters' => [
         'status' => 'Status',

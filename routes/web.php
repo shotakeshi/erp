@@ -22,6 +22,11 @@ Route::middleware('auth')->group(function () {
         return view('welcome');
     })->name('dashboard');
 
+    Route::prefix('employees')->name('employees.')->group(function () {
+        Route::get('trash', [EmployeeController::class, 'trash'])->name('trash');
+        Route::post('{employee}/restore', [EmployeeController::class, 'restore'])->withTrashed()->name('restore');
+    });
+
     Route::resources(
         [
             'employees' => EmployeeController::class,

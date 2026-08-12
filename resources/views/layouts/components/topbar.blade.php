@@ -104,8 +104,8 @@
             <li class="dropdown">
                 <a class="nav-link dropdown-toggle waves-effect waves-light nav-user" data-toggle="dropdown" href="#" role="button"
                    aria-haspopup="false" aria-expanded="false">
-                    <img src="{{ asset('images/users/user-4.jpg') }}" alt="profile-user" class="rounded-circle" />
-                    <span class="ml-1 nav-user-name hidden-sm">{{ Auth::user()->name }} | {{ Auth::user()->email }}<i class="mdi mdi-chevron-down"></i> </span>
+                    <img src="{{ image_url(Auth::user()->employee?->avatar) }}" alt="{{ Auth::user()->email }}" class="rounded-circle thumb-md">
+                    <span class="ml-1 nav-user-name hidden-sm">{{ Auth::user()->name }}<i class="mdi mdi-chevron-down"></i> </span>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right">
                     <a class="dropdown-item" href="#"><i class="dripicons-user text-muted mr-2"></i> Profile</a>

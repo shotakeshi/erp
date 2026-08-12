@@ -10,16 +10,17 @@
 @extends('layouts.master')
 @section('content')
     <x-page-title
-            title="{{ __('site.employees.add') }}"
+            title="{{ __('site.employees.edit') }}"
             :breadcrumbs="[
             ['title' => __('site.employees.title'), 'url' => route('employees.index')],
-            ['title' => __('site.employees.add')],
+            ['title' => __('site.employees.edit')],
         ]">
     </x-page-title>
     <div class="row">
         <div class="col-lg-8 mx-auto">
-            <form class="form-horizontal form-material mb-0" action="{{ route('employees.store') }}" method="POST" enctype="multipart/form-data">
+            <form class="form-horizontal form-material mb-0" action="{{ route('employees.update', $employee) }}" method="POST" enctype="multipart/form-data">
                 @csrf
+                @method('PUT')
                 <div class="card">
                     <div class="card-header">
                         {{ __('site.employees.personal_information') }}
@@ -30,23 +31,42 @@
                                 <x-form.label for="avatar">
                                     {{ __('site.employees.avatar') }}
                                 </x-form.label>
-                                <input type="file" name="avatar" accept="image/jpeg,image/png,image/webp" class="dropify" data-default-file="{{ asset('images/avatar-upload.png') }}"/>
+                                <input type="file" name="avatar"
+                                       accept="image/jpeg,image/png,image/webp"
+                                       class="dropify"
+                                       data-default-file="{{ image_url($employee->avatar,'images/avatar-upload.png') }}"/>
+                                @if ($employee->avatar)
+                                    <div class="form-check mt-2">
+                                        <input
+                                                type="checkbox"
+                                                class="form-check-input"
+                                                name="remove_avatar"
+                                                id="remove_avatar"
+                                                value="1"
+                                        >
+                                        <label class="form-check-label" for="remove_avatar">
+                                            {{ __('site.employees.remove_avatar') }}
+                                        </label>
+                                    </div>
 
+                                @endif
                             </div>
                             <div class="col-md-9">
                                 <div class="row">
                                     <div class="col-lg-6">
                                         <x-form.input
-                                            name="employee_id"
-                                            label="{{ __('site.employees.employee_id') }}"
-                                            placeholder="{{ __('site.employees.employee_id') }}"
-                                            required
+                                                name="employee_id"
+                                                label="{{ __('site.employees.employee_id') }}"
+                                                placeholder="{{ __('site.employees.employee_id') }}"
+                                                :value="old( 'employee_id', $employee->employee_id )"
+                                                required
                                         />
                                     </div>
                                     <div class="col-md-3">
                                         <x-form.datepicker
                                                 name="dob"
                                                 label="{{ __('site.employees.dob') }}"
+                                                :value="old('dob',$employee->dob?->format('d/m/Y'))"
                                                 required
                                         />
                                     </div>
@@ -55,6 +75,7 @@
                                                 label="{{ __('site.employees.sex') }}"
                                                 name="gender"
                                                 :options="\App\Enums\Gender::options()"
+                                                :selected="old( 'gender', $employee->gender?->value )"
                                                 required
                                         />
                                     </div>
@@ -65,6 +86,7 @@
                                                 name="first_name"
                                                 label="{{ __('site.employees.firstname') }}"
                                                 placeholder="{{ __('site.employees.firstname') }}"
+                                                :value="old( 'first_name', $employee->first_name )"
                                                 required
                                         />
                                     </div>
@@ -73,6 +95,7 @@
                                                 name="last_name"
                                                 label="{{ __('site.employees.lastname') }}"
                                                 placeholder="{{ __('site.employees.lastname') }}"
+                                                :value="old( 'first_name', $employee->last_name )"
                                                 required
                                         />
                                     </div>
@@ -83,6 +106,7 @@
                                                 name="email"
                                                 label="{{ __('site.employees.email') }}"
                                                 placeholder="{{ __('site.employees.email') }}"
+                                                :value="old( 'first_name', $employee->email )"
                                                 required
                                         />
                                     </div>
@@ -91,6 +115,7 @@
                                                 name="phone"
                                                 label="{{ __('site.employees.phone') }}"
                                                 placeholder="{{ __('site.employees.phone') }}"
+                                                :value="old( 'first_name', $employee->phone )"
                                                 required
                                         />
                                     </div>
@@ -110,6 +135,7 @@
                                         name="address"
                                         label="{{ __('site.employees.address') }}"
                                         placeholder="{{ __('site.employees.address') }}"
+                                        :value="old( 'address', $employee->address )"
                                 />
                             </div>
                         </div>
@@ -121,12 +147,15 @@
                                         :options="$provinces"
                                         option-value="code"
                                         option-label="name"
+                                        :selected="old( 'city', $employee->city )"
+                                        select2
                                 />
                             </div>
                             <div class="col-md-6">
                                 <x-form.select
                                         label="{{ __('site.employees.state') }}"
                                         name="state"
+                                        :selected="old( 'state', $employee->state )"
                                         select2
                                 />
                             </div>
@@ -146,6 +175,7 @@
                                         placeholder="{{ __('site.positions.choose_department') }}"
                                         select2
                                         :options="$departments"
+                                        :selected="old( 'department_id', $employee->department_id )"
                                         option-value="id"
                                         option-label="name"
                                 />
@@ -155,6 +185,7 @@
                                         name="position_id"
                                         label="{{ __('site.employees.position') }}"
                                         :options="[]"
+                                        :selected="old( 'position_id', $employee->position_id )"
                                         option-value="id"
                                         option-label="name"
                                         select2
@@ -168,6 +199,7 @@
                                         label="{{ __('site.employees.reporting_manager') }}"
                                         select2
                                         :options="$employees"
+                                        :selected="old( 'reporting_manager_id', $employee->reporting_manager_id )"
                                         option-value="id"
                                         option-label="employee_id_full_name"
                                 />
@@ -177,6 +209,7 @@
                                         name="date_of_joining"
                                         label="{{ __('site.employees.date_of_joining') }}"
                                         required
+                                        :value="old('date_of_joining',$employee->date_of_joining?->format('d/m/Y'))"
                                 />
                             </div>
                         </div>
@@ -186,6 +219,7 @@
                                         label="{{ __('site.employees.contract_type') }}"
                                         name="contract_type"
                                         :options="\App\Enums\ContractType::options()"
+                                        :selected="old( 'contract_type', $employee->contract_type?->value )"
                                         required
                                 />
                             </div>
@@ -194,12 +228,12 @@
                                         name="salary"
                                         label="{{ __('site.employees.salary') }}"
                                         placeholder="{{ __('site.employees.salary') }}"
-                                        :value="0"
+                                        :value="old( 'salary', $employee->salary )"
                                 />
                             </div>
                         </div>
                         <div class="form-group">
-                            <x-form-actions show-reset show-cancel :url-cancel="route('employees.index')" />
+                            <x-form-actions :show-reset="false" show-cancel :url-cancel="route('employees.index')" />
                         </div>
                     </div>
                 </div>
@@ -237,16 +271,28 @@
             });
         });
 
+        /*
+        |--------------------------------------------------------------------------
+        | City -> Ward
+        |--------------------------------------------------------------------------
+        */
+
         const $city = $('#city');
         const $state = $('#state');
 
         const statePlaceholder = @json(__('site.select'));
 
-        function loadWards(cityCode, selectedWardCode = null) {
+        function loadWards(
+            cityCode,
+            selectedWardCode = null
+        ) {
             $state.empty();
 
             $state.append(
-                new Option(statePlaceholder, '')
+                new Option(
+                    statePlaceholder,
+                    ''
+                )
             );
 
             if (!cityCode) {
@@ -255,110 +301,166 @@
             }
 
             $state.html(
-                `<option value="">Loading...</option>`
+                '<option value="">Loading...</option>'
             );
 
-            $.get(`/locations/wards/${cityCode}`, function (wards) {
-
-                $state.empty();
-
-                $state.append(
-                    new Option(statePlaceholder, '')
-                );
-
-                wards.forEach(function (ward) {
-                    const option = new Option(
-                        ward.name_with_type,
-                        ward.code,
-                        false,
-                        ward.code == selectedWardCode
+            $.get(
+                `/locations/wards/${cityCode}`,
+                function (wards) {
+                    $state.empty();
+                    $state.append(
+                        new Option(
+                            statePlaceholder,
+                            ''
+                        )
                     );
 
-                    $state.append(option);
-                });
-
-                $state.trigger('change');
-            });
+                    wards.forEach(function (ward) {
+                        const option = new Option(
+                            ward.name_with_type,
+                            ward.code,
+                            false,
+                            ward.code == selectedWardCode
+                        );
+                        $state.append(option);
+                    });
+                    $state.trigger('change');
+                }
+            );
         }
 
+
         $city.on('change', function () {
-            loadWards($(this).val());
+            loadWards(
+                $(this).val()
+            );
         });
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Restore City / Ward
+        |--------------------------------------------------------------------------
+        */
+
         $(function () {
+            const city = @json(
+                old('city', $employee->city)
+            );
 
-            const oldCity = @json(old('city'));
-            const oldState = @json(old('state'));
+            const state = @json(
+                old('state', $employee->state)
+            );
 
-            if (!oldCity) {
+            if (!city) {
                 return;
             }
 
             $city
-                .val(oldCity)
+                .val(city)
                 .trigger('change.select2');
 
-            loadWards(oldCity, oldState);
+            loadWards(
+                city,
+                state
+            );
         });
 
+        /*
+        |--------------------------------------------------------------------------
+        | Department -> Position
+        |--------------------------------------------------------------------------
+        */
+
         const departments = @json($departments);
+        const $department = $('#department_id');
+        const $position = $('#position_id');
+        const positionPlaceholder = @json(
+            __('site.employees.select_position')
+        );
 
-        function loadPositions(departmentId, selectedPositionId = null) {
-            const department = departments.find(
-                item => item.id == departmentId
-            );
-
-            const $position = $('#position_id');
+        function loadPositions(
+            departmentId,
+            selectedPositionId = null
+        ) {
 
             $position.empty();
-
             $position.append(
                 new Option(
-                    '{{ __('site.employees.select_position') }}',
+                    positionPlaceholder,
                     ''
                 )
             );
 
-            if (department) {
-                department.positions.forEach(position => {
+            if (!departmentId) {
+                $position.trigger('change');
+                return;
+            }
+
+            const department = departments.find(
+                item => item.id == departmentId
+            );
+
+            if (!department) {
+                $position.trigger('change');
+                return;
+            }
+
+            department.positions.forEach(
+                function (position) {
 
                     const option = new Option(
                         position.name,
-                        position.id
+                        position.id,
+                        false,
+                        position.id == selectedPositionId
                     );
-
-                    if (position.id == selectedPositionId) {
-                        option.selected = true;
-                    }
-
                     $position.append(option);
-                });
-            }
-
+                }
+            );
             $position.trigger('change');
         }
 
-        $('#department_id').on('change', function () {
-            loadPositions($(this).val());
+        $department.on('change', function () {
+            loadPositions(
+                $(this).val()
+            );
         });
 
-        // Restore old value khi validation fail
-        $(document).ready(function () {
+        /*
+        |--------------------------------------------------------------------------
+        | Restore Department / Position
+        |--------------------------------------------------------------------------
+        */
 
-            const oldDepartmentId = @json(old('department_id'));
-            const oldPositionId = @json(old('position_id'));
+        $(function () {
+            const departmentId = @json(
+                old(
+                    'department_id',
+                    $employee->department_id
+                )
+            );
 
-            if (oldDepartmentId) {
+            const positionId = @json(
+                old(
+                    'position_id',
+                    $employee->position_id
+                )
+            );
 
-                $('#department_id')
-                    .val(oldDepartmentId)
-                    .trigger('change');
-
-                loadPositions(
-                    oldDepartmentId,
-                    oldPositionId
-                );
+            if (!departmentId) {
+                return;
             }
+
+            $department
+                .val(departmentId)
+                .trigger('change.select2');
+
+            loadPositions(
+                departmentId,
+                positionId
+            );
         });
+
     </script>
 @endpush

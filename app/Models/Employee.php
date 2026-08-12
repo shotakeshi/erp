@@ -6,6 +6,8 @@ use App\Enums\UserStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Enums\Gender;
+use App\Enums\ContractType;
 
 class Employee extends Model
 {
@@ -21,7 +23,9 @@ class Employee extends Model
     protected $casts = [
         'dob'             => 'date',
         'date_of_joining' => 'date',
-        'salary'          => 'decimal:2'
+        'salary'          => 'decimal:2',
+        'gender'          => Gender::class,
+        'contract_type'          => ContractType::class,
     ];
 
     public function getFullNameAttribute(): string

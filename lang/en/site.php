@@ -47,6 +47,8 @@ return [
         'contract_type' => "Contract Type",
         'salary' => "Salary",
         'search_placeholder' => 'Search by name, email, ID...',
+        'remove_avatar' => 'Remove Avatar',
+        'trash' => 'Trash',
         'gender' => [
             'male' => 'Male',
             'female' => 'Female',

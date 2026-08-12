@@ -2,32 +2,20 @@
 @extends('layouts.master')
 @section('content')
     <x-page-title
-        title="{{ __('site.employees.title') }}"
-        :breadcrumbs="[
+            title="{{ __('site.employees.title') }}"
+            :breadcrumbs="[
             ['title' => __('site.employees.title'), 'url' => route('employees.index')],
-            ['title' => __('site.employees.list')],
+            ['title' => __('site.employees.trash')],
         ]">
     </x-page-title>
     <div class="row">
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-lg-6">
-                            <x-action-button
-                                    icon="fas fa-plus"
-                                    type="primary"
-                                    :href="route('employees.create')">
-                                {{ __('common.button.add') . ' ' .  __('site.employees.title') }}
-                            </x-action-button>
-                        </div>
-                        <div class="col-lg-6">
-                            <a href="{{ route('employees.trash') }}" class="btn btn-outline-gray float-right">
-                                <i class="fas fa-trash-alt"></i> {{ __('common.button.list_of_trash') }}
-                            </a>
-                        </div>
-                    </div>
-                    @include('employees._filter', ['action' => route('employees.index')])
+                    <a href="{{ route('employees.index') }}" class="btn btn-sm btn-outline-gray">
+                        <i class="fas fa-arrow-left"></i> {{ __('site.employees.list') }}
+                    </a>
+                    @include('employees._filter', ['action' => route('employees.trash')])
                 </div>
             </div>
             <div class="card">
