@@ -39,7 +39,7 @@
                     </td>
                     <td class="text-center">
                         <div class="dropdown d-inline-block float-right">
-                            <a style="width: 34px" href="{{ route('employees.show', $employee)  }}" class="btn btn-sm btn-outline-gray">
+                            <a style="width: 34px; height: 34px" href="{{ route('employees.show', $employee)  }}" class="btn btn-sm btn-outline-gray">
                                 <i class="fas fa-eye"></i>
                             </a>
                             @if(request()->routeIs('employees.trash'))
@@ -54,24 +54,13 @@
                                     </button>
                                 </form>
                             @else
-                                <a style="width: 34px" href="{{ route('employees.edit', $employee) }}" class="btn btn-sm btn-outline-warning">
+                                <a style="width: 34px; height: 34px" href="{{ route('employees.edit', $employee) }}" class="btn btn-sm btn-outline-warning">
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 <x-form.delete-button
                                     :action="route('employees.destroy',$employee)"
                                 />
-                                <div class="btn-group mt-2" style="width: 112px">
-                                    <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        Account <i class="mdi mdi-chevron-down"></i>
-                                    </button>
-                                    <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#">Action</a>
-                                        <a class="dropdown-item" href="#">Another action</a>
-                                        <a class="dropdown-item" href="#">Something else here</a>
-                                        <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="#">Separated link</a>
-                                    </div>
-                                </div><!-- /btn-group -->
+                                @include('employees._account', ['employee' => $employee])
                             @endif
                         </div>
                     </td>

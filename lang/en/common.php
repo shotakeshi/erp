@@ -17,6 +17,11 @@ return [
         'search' => 'Search',
         'restore' => 'Restore',
         'list_of_trash' => 'List of trash',
+        'resend' => 'Resend',
+        'reset_password' => 'Reset Password',
+        'copy' => 'Copy',
+        'close' => 'Close',
+        'copied' => 'Copied',
     ],
     'messages' => [
         'create_failed' => 'Failed to create record.',
@@ -39,6 +44,18 @@ return [
         'account_activated' => 'Account activated.',
         'password_reset_success' => 'Password reset successfully.',
         'password_reset_link_sent' => 'Password reset link has been sent.',
+        'account_already_activated' => 'Account already activated.',
+        'activation_link_sent' => 'Activation link has been sent.',
+        'resend_activation' => 'Resend activation link.',
+        'confirm_resend_activation' => 'Are you sure you want to resend activation link?',
+        'resend_activation_description' => 'Resend activation link.',
+        'user_not_found' => 'User not found.',
+        'account_not_active' => 'Account is not active.',
+        'password_reset_sent' => 'Password reset link has been sent.',
+        'confirm_reset_password' => 'Confirm reset password.',
+        'reset_password_description' => 'Reset password.',
+        'password_generated' => 'Password has been generated.',
+        'password_sent_by_email' => 'Password sent by email.',
     ],
     'filters' => [
         'status' => 'Status',
@@ -56,6 +73,7 @@ return [
         'next' => 'next',
     ],
     'account' => [
+        'title' => 'Account',
         'activate' => 'Activate this account',
         'set_password_description' => 'Create new password and confirmation. Account will be activated',
         'password' => 'New password',
@@ -70,5 +88,6 @@ return [
         'remember_it' => 'Remember It ?',
         'sign_in_here' => 'Sign in here',
         'reset_password_confirm' => 'Reset Password',
+        'resend_activation' => 'Resend activation',
     ]
 ];

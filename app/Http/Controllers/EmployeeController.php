@@ -6,6 +6,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use App\Services\LocationService;
 use App\Http\Requests\EmployeeRequest;
 use App\Services\Shared\FormOptionService;
@@ -14,6 +16,8 @@ use App\Models\User;
 use App\Filters\EmployeeFilter;
 use App\Enums\UserStatus;
 use App\Models\Employee;
+use App\Notifications\AccountActivationNotification;
+use App\Notifications\AccountPasswordResetNotification;
 
 class EmployeeController extends Controller
 {
@@ -176,9 +180,6 @@ class EmployeeController extends Controller
     public function destroy(Employee $employee): RedirectResponse
     {
         try {
-            $employee->user->update([
-                'status' => UserStatus::BLOCKED->value,
-            ]);
             $employee->delete();
             return redirect()
                 ->route('employees.index')
@@ -224,9 +225,6 @@ class EmployeeController extends Controller
         try {
             DB::transaction(function () use ($employee) {
                 $employee->restore();
-                $employee->user->update([
-                    'status' => UserStatus::INACTIVE->value,
-                ]);
             });
             return redirect()
                 ->route('employees.trash')
@@ -239,4 +237,40 @@ class EmployeeController extends Controller
         }
     }
 
+    public function resendActivation(Employee $employee, Request $request): RedirectResponse
+    {
+        $user = $employee->user;
+        if ($user->activated_at) {
+            return back()->with( 'error', __('common.messages.account_already_activated'));
+        }
+        // make new token
+        $token = Str::random(64);
+        $user->updateQuietly([
+            'activation_token' => hash('sha256', $token),
+            'activation_expires_at' => now()->addHours(24),
+        ]);
+        $user->notify(
+            new AccountActivationNotification($token)
+        );
+        return back()->with( 'success', __('common.messages.activation_link_sent'));
+    }
+
+    public function resetAccountPassword(Employee $employee): RedirectResponse {
+        $user = $employee->user;
+        if (!$user) {
+            return back()->with('error',__('common.messages.user_not_found'));
+        }
+        if ($user->status !== UserStatus::ACTIVE) {
+            return back()->with('error',__('common.messages.account_not_active'));
+        }
+        $password = Str::password(12);
+        $user->update(['password' => Hash::make($password)]);
+        $user->notify(
+            new AccountPasswordResetNotification($password)
+        );
+        return back()->with([
+            'success' => __('common.messages.password_reset_sent'),
+            'generated_password' => $password,
+        ]);
+    }
 }

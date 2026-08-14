@@ -33,6 +33,8 @@ Route::middleware('auth')->group(function () {
     Route::prefix('employees')->name('employees.')->group(function () {
         Route::get('trash', [EmployeeController::class, 'trash'])->name('trash');
         Route::post('{employee}/restore', [EmployeeController::class, 'restore'])->withTrashed()->name('restore');
+        Route::post('{employee}/resend-activation', [EmployeeController::class, 'resendActivation'])->withTrashed()->name('resend-activation');
+        Route::post('employees/{employee}/reset-password',[EmployeeController::class, 'resetAccountPassword'])->name('reset-password');
     });
 
     Route::resources(

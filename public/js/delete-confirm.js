@@ -7,7 +7,7 @@ function confirmDelete(formId) {
             popup: 'delete-popup'
         },
         showCancelButton: true,
-        reverseButtons: false,
+        reverseButtons: true,
         confirmButtonColor: '#506ee4',
         cancelButtonColor: '#ef4d56',
         confirmButtonText: window.trans.delete,

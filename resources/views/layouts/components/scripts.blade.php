@@ -9,6 +9,7 @@
 <script src="{{ asset('plugins/apexcharts/apexcharts.min.js') }}"></script>
 <script src="{{ asset('js/toastr.min.js') }}"></script>
 <script src="{{ asset('js/delete-confirm.js') }}"></script>
+<script src="{{ asset('js/form-confirm.js') }}"></script>
 @stack('scripts')
 <!-- App js -->
 <script src="{{ asset('js/app.js') }}?v={{ time() }}"></script>

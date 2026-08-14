@@ -15,7 +15,7 @@
     @csrf
     @method('DELETE')
     <button
-            @if(empty($title)) style="width: 34px" @endif
+            @if(empty($title)) style="width: 34px; height: 34px" @endif
             type="button"
             class="btn btn-sm btn-outline-danger"
             onclick="confirmDelete('{{ $formId }}')"

@@ -48,4 +48,55 @@
     <!-- Sweet-Alert  -->
     <script src="{{ asset('plugins/sweet-alert2/sweetalert2.min.js') }}"></script>
     <script src="{{ asset('pages/jquery.sweet-alert.init.js') }}"></script>
+    @if (session('generated_password'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const password = @json(session('generated_password'));
+                Swal.fire({
+                    title: @json(__('common.messages.password_generated')),
+                    html: `<div class="text-left">
+                        <p class="mb-2"> {{ __('common.messages.password_sent_by_email') }}</p>
+                        <div class="input-group">
+                            <input
+                                type="text"
+                                id="generated-password"
+                                class="form-control"
+                                value="${password}" readonly >
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline-secondary"
+                                        id="copy-password" >
+                                        <i class="fas fa-copy"></i>
+                                        {{ __('common.button.copy') }}
+                    </button>
+                </div>
+            </div>`,
+                    icon: 'success',
+                    confirmButtonText: @json(__('common.button.close')),
+                });
+                const popup = Swal.getPopup();
+                if (!popup) { return; }
+                const copyButton = popup.querySelector('#copy-password');
+                if (!copyButton) {
+                    return;
+                }
+                copyButton.addEventListener('click', async function () {
+                    try {
+                        await navigator.clipboard.writeText(password);
+                        this.innerHTML = `<i class="fas fa-check"></i>{{ __('common.button.copied') }}`;
+                        setTimeout(() => {
+                            this.innerHTML = `
+                            <i class="fas fa-copy"></i>
+                            {{ __('common.button.copy') }}
+                            `;
+                        }, 1500);
+                    } catch (error) {
+                        Swal.showValidationMessage(
+                                @json(__('common.messages.copy_failed'))
+                        );
+                    }
+                });
+            });
+        </script>
+    @endif
 @endpush
