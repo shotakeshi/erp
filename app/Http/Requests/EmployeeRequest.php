@@ -144,7 +144,9 @@ class EmployeeRequest extends FormRequest
 
             'reporting_manager_id' => [
                 'nullable',
-                'exists:employees,id',
+                'integer',
+                Rule::exists('employees', 'id')
+                    ->whereNull('deleted_at')
             ],
 
             'date_of_joining' => [

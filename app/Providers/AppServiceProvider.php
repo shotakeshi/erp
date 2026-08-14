@@ -6,6 +6,8 @@ use Illuminate\Support\ServiceProvider;
 use App\Listeners\UpdateLastLogin;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Support\Facades\Event;
+use App\Models\User;
+use App\Observers\UserObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,5 +28,6 @@ class AppServiceProvider extends ServiceProvider
             Login::class,
             UpdateLastLogin::class,
         );
+        User::observe(UserObserver::class);
     }
 }

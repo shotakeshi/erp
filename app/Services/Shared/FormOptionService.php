@@ -5,6 +5,7 @@ use App\Models\Department;
 use App\Queries\DepartmentQuery;
 use App\Queries\EmployeeQuery;
 use App\Queries\PositionQuery;
+use App\Models\Employee;
 
 class FormOptionService
 {
@@ -16,8 +17,8 @@ class FormOptionService
 
     }
 
-    public function employeeOptions(){
-        return $this->employeeQuery->forSelect();
+    public function employeeOptions(?Employee $exceptEmployee = null){
+        return $this->employeeQuery->forSelect($exceptEmployee);
     }
 
     public function departmentOptions(){

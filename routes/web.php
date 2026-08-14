@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Auth\AccountController;
 
 Route::get('/', function () {
     return redirect('login');
@@ -16,6 +17,12 @@ Route::middleware('guest')->group(function () {
         ->name('login');
     Route::post('/sign-in', [LoginController::class, 'store'])
         ->name('login.store');
+    Route::get('/account/activate/{token}', [AccountController::class,'activate'])->name('account.activate');
+    Route::post('/account/activate/{token}', [AccountController::class,'completeActivation'])->name('account.activate.complete');
+    Route::get('forgot', [AccountController::class,'forgotPassword',])->name('account.forgot-password');
+    Route::post('send-reset-link', [AccountController::class, 'sendResetLink'])->name('account.send-reset-link');
+    Route::get('reset/{token}', [AccountController::class, 'resetPassword'])->name('password.reset');
+    Route::post('reset', [AccountController::class, 'updatePassword'])->name('password.update');
 });
 
 Route::middleware('auth')->group(function () {

@@ -9,7 +9,10 @@
     </x-page-title>
     <div class="row">
         <div class="col-lg-6 mx-auto">
-            <form class="form-horizontal form-material mb-0" action="{{ route('profiles.update-password') }}" method="POST">
+            <a href="{{ route('dashboard') }}" class="btn btn-sm btn-outline-gray">
+                <i class="fas fa-arrow-left"></i> {{ __('site.profiles.back') }}
+            </a>
+            <form class="form-horizontal form-material mt-3 mb-0" action="{{ route('profiles.update-password') }}" method="POST">
                 @csrf
                 @method('PUT')
                 <div class="card">
@@ -46,9 +49,6 @@
                                         required
                                 />
                             </div>
-                        <a href="{{ route('dashboard') }}" class="btn btn-outline-gray waves-effect waves-light mt-4">
-                            <i class="fas fa-arrow-left"></i> {{ __('site.profiles.back') }}
-                        </a>
                         <button type="submit" class="btn btn-primary waves-effect waves-light mt-4 float-right">
                             <i class="fas fa-save"></i> {{ __('site.profiles.update_password') }}
                         </button>

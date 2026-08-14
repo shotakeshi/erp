@@ -11,7 +11,7 @@
     <div class="row">
         <div class="col-lg-8 mx-auto">
             <a href="{{ route('departments.index') }}" class="btn btn-sm btn-outline-gray">
-                <i class="fas fa-arrow-left"></i> Back to Department
+                <i class="fas fa-arrow-left"></i> {{ __('site.departments.back_to_department') }}
             </a>
             <div class="float-right">
                 <a href="{{ route('departments.edit', $department) }}" class="btn btn-sm btn-outline-warning">

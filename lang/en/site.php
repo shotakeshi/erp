@@ -7,6 +7,7 @@ return [
     'tasks' => 'Tasks',
     'people' => 'People',
     'select' => 'Select',
+    'password' => 'Password',
     'employees' => [
         'title' => 'Employees',
         'list' => 'List of Employees',
@@ -85,6 +86,7 @@ return [
         'no_position' => 'No position',
         'staff' => 'staff',
         'delete' => 'Delete',
+        'back_to_department' => 'Back to Department',
     ],
     'positions' => [
         'title' => 'Positions',

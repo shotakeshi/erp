@@ -34,7 +34,10 @@ class User extends Authenticatable
         'updated_by',
         'last_login_browser',
         'last_login_platform',
-        'login_count'
+        'login_count',
+        'activation_token',
+        'activation_expires_at',
+        'email_verified_at'
     ];
 
     /**

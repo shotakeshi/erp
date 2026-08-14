@@ -35,6 +35,10 @@ return [
         'not_changed' => 'Record has been not changed.',
         'confirm_restore' => 'Are you sure you want to restore this record?',
         'password_changed' => 'Password has been changed.',
+        'activation_link_invalid' => 'Activation link is invalid.',
+        'account_activated' => 'Account activated.',
+        'password_reset_success' => 'Password reset successfully.',
+        'password_reset_link_sent' => 'Password reset link has been sent.',
     ],
     'filters' => [
         'status' => 'Status',
@@ -51,4 +55,20 @@ return [
         'previous' => 'previous',
         'next' => 'next',
     ],
+    'account' => [
+        'activate' => 'Activate this account',
+        'set_password_description' => 'Create new password and confirmation. Account will be activated',
+        'password' => 'New password',
+        'password_confirmation' => 'Confirm new password',
+        'forgot_password' => 'Forgot password?',
+        'keep_me_signed_in' => 'Keep me signed in',
+        'sign_in' => 'Sign in',
+        'credentials' => 'Enter your credentials to access the system.',
+        'enter_email' => 'Enter your Email and instructions will be sent to you!',
+        'sign_in_your_account' => 'Sign in to your account!',
+        'reset_password' => 'Reset Password For ERP',
+        'remember_it' => 'Remember It ?',
+        'sign_in_here' => 'Sign in here',
+        'reset_password_confirm' => 'Reset Password',
+    ]
 ];

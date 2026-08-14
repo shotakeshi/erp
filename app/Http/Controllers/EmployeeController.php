@@ -117,7 +117,7 @@ class EmployeeController extends Controller
             'employee' => $employee,
             'departments' => $this->formOptionService->departmentOptionsWithPositions(),
             'positions' => collect(),
-            'employees' => $this->formOptionService->employeeOptions(),
+            'employees' => $this->formOptionService->employeeOptions($employee),
             'provinces' => $this->locationService->provinces(),
         ]);
     }
