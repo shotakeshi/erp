@@ -89,5 +89,5 @@ return [
         'sign_in_here' => 'Sign in here',
         'reset_password_confirm' => 'Reset Password',
         'resend_activation' => 'Resend activation',
-    ]
+    ],
 ];
