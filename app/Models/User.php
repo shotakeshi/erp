@@ -2,12 +2,11 @@
 
 namespace App\Models;
 
-use config\database\factories\UserFactory;
+use App\Enums\UserStatus;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use App\Enums\UserStatus;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -37,7 +36,7 @@ class User extends Authenticatable
         'login_count',
         'activation_token',
         'activation_expires_at',
-        'email_verified_at'
+        'email_verified_at',
     ];
 
     /**
@@ -65,7 +64,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'status' => UserStatus::class,
-            'last_login_at' => 'datetime'
+            'last_login_at' => 'datetime',
         ];
     }
 

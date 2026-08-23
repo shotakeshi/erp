@@ -47,17 +47,12 @@ class TeamManager extends Model
         return $this->belongsTo(User::class, 'ended_by');
     }
 
-    public function scopeCurrent(Builder $query): Builder
+    public function scopeCurrentAssignment(Builder $query): Builder
     {
         return $query->whereNull('end_date')->where('is_current', true);
     }
 
-    public function scopeAdminCurrent(Builder $query): Builder
-    {
-        return $query->whereNull('end_date');
-    }
-
-    public function scopePast(Builder $query): Builder
+    public function scopePastAssignment(Builder $query): Builder
     {
         return $query->whereNotNull('end_date')->whereNull('is_current');
     }

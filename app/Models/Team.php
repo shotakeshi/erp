@@ -2,8 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\TeamStatus;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -18,11 +16,6 @@ class Team extends Model
         'name',
         'code',
         'description',
-        'status',
-    ];
-
-    protected $casts = [
-        'status' => TeamStatus::class,
     ];
 
     public function setNameAttribute(string $value): void
@@ -61,10 +54,5 @@ class Team extends Model
             ->withPivot(['start_date', 'end_date', 'is_current', 'end_reason', 'created_by', 'ended_by'])
             ->withTimestamps()
             ->wherePivotNull('end_date');
-    }
-
-    public function scopeActive(Builder $query): Builder
-    {
-        return $query->where('status', TeamStatus::ACTIVE);
     }
 }

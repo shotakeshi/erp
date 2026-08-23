@@ -47,6 +47,11 @@ class EmployeeRequest extends FormRequest
                 'max:2048',
             ],
 
+            'remove_avatar' => [
+                'nullable',
+                'boolean',
+            ],
+
             'employee_id' => [
                 'required',
                 'string',
@@ -146,7 +151,7 @@ class EmployeeRequest extends FormRequest
                 'nullable',
                 'integer',
                 Rule::exists('employees', 'id')
-                    ->whereNull('deleted_at')
+                    ->whereNull('deleted_at'),
             ],
 
             'date_of_joining' => [
@@ -181,25 +186,47 @@ class EmployeeRequest extends FormRequest
         ]);
     }
 
-    protected function passedValidation(): void
+    public function validated($key = null, $default = null): mixed
     {
-        $data = [];
+        $validated = parent::validated();
 
-        if ($this->filled('dob')) {
-            $data['dob'] = Carbon::createFromFormat(
+        foreach (['dob', 'date_of_joining'] as $dateAttribute) {
+            if (! isset($validated[$dateAttribute])) {
+                continue;
+            }
+
+            $validated[$dateAttribute] = Carbon::createFromFormat(
                 'd/m/Y',
-                $this->input('dob')
+                $validated[$dateAttribute]
             )->format('Y-m-d');
         }
 
-        if ($this->filled('date_of_joining')) {
-            $data['date_of_joining'] = Carbon::createFromFormat(
-                'd/m/Y',
-                $this->input('date_of_joining')
-            )->format('Y-m-d');
-        }
+        return data_get($validated, $key, $default);
+    }
 
-        $this->merge($data);
+    public function attributes(): array
+    {
+        return [
+            'avatar' => __('validation.attributes.avatar'),
+            'employee_id' => __('validation.attributes.employee_id'),
+            'first_name' => __('validation.attributes.first_name'),
+            'last_name' => __('validation.attributes.last_name'),
+            'email' => __('validation.attributes.email'),
+            'phone' => __('validation.attributes.phone'),
+            'dob' => __('validation.attributes.dob'),
+            'gender' => __('validation.attributes.gender'),
+            'address' => __('validation.attributes.address'),
+            'portal_code' => __('validation.attributes.portal_code'),
+            'city' => __('validation.attributes.city'),
+            'state' => __('validation.attributes.state'),
+            'department_id' => __('validation.attributes.department_id'),
+            'position_id' => __('validation.attributes.position_id'),
+            'reporting_manager_id' => __('validation.attributes.reporting_manager_id'),
+            'date_of_joining' => __('validation.attributes.date_of_joining'),
+            'contract_type' => __('validation.attributes.contract_type'),
+            'salary' => __('validation.attributes.salary'),
+            'remove_avatar' => __('validation.attributes.remove_avatar'),
+        ];
     }
 
     private function employeeId(): ?int

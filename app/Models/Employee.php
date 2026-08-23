@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Enums\ContractType;
+use App\Enums\Gender;
 use App\Enums\UserStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Enums\Gender;
-use App\Enums\ContractType;
 
 class Employee extends Model
 {
@@ -17,15 +19,15 @@ class Employee extends Model
         'user_id', 'employee_id', 'first_name', 'last_name', 'email', 'phone',
         'dob', 'gender', 'nationality', 'address', 'city', 'state', 'country', 'postal_code',
         'department_id', 'position_id', 'reporting_manager_id', 'date_of_joining',
-        'contract_type', 'salary', 'avatar'
+        'contract_type', 'salary', 'avatar',
     ];
 
     protected $casts = [
-        'dob'             => 'date',
+        'dob' => 'date',
         'date_of_joining' => 'date',
-        'salary'          => 'decimal:2',
-        'gender'          => Gender::class,
-        'contract_type'          => ContractType::class,
+        'salary' => 'decimal:2',
+        'gender' => Gender::class,
+        'contract_type' => ContractType::class,
     ];
 
     public function getFullNameAttribute(): string
@@ -56,6 +58,32 @@ class Employee extends Model
     public function position(): BelongsTo
     {
         return $this->belongsTo(Position::class);
+    }
+
+    public function teamMemberships(): HasMany
+    {
+        return $this->hasMany(TeamMembership::class);
+    }
+
+    public function teamManagerAssignments(): HasMany
+    {
+        return $this->hasMany(TeamManager::class);
+    }
+
+    public function teams(): BelongsToMany
+    {
+        return $this->belongsToMany(Team::class, 'team_memberships')
+            ->withPivot(['start_date', 'end_date', 'is_current', 'end_reason', 'created_by', 'ended_by'])
+            ->withTimestamps()
+            ->wherePivotNull('end_date');
+    }
+
+    public function managedTeams(): BelongsToMany
+    {
+        return $this->belongsToMany(Team::class, 'team_managers')
+            ->withPivot(['start_date', 'end_date', 'is_current', 'end_reason', 'created_by', 'ended_by'])
+            ->withTimestamps()
+            ->wherePivotNull('end_date');
     }
 
     public function scopeActive($query)
