@@ -1,14 +1,18 @@
 <?php
+
 namespace App\Http\Controllers\Auth;
 
+use App\Enums\UserStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\AccountRequest;
+use App\Http\Requests\Auth\PasswordResetLinkRequest;
+use App\Http\Requests\Auth\PasswordResetRequest;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class AccountController extends Controller
@@ -17,7 +21,7 @@ class AccountController extends Controller
     {
         $user = $this->findByActivationToken($token);
         abort_if(
-            !$user,
+            ! $user,
             404,
             __('common.messages.activation_link_invalid')
         );
@@ -28,29 +32,22 @@ class AccountController extends Controller
         ]);
     }
 
-    public function completeActivation( Request $request, string $token ): RedirectResponse
+    public function completeActivation(AccountRequest $request, string $token): RedirectResponse
     {
-        $request->validate([
-            'password' => [
-                'required',
-                'string',
-                'min:8',
-                'confirmed'
-            ],
-        ]);
+        $validated = $request->validated();
 
         $user = $this->findByActivationToken($token);
 
-        if (!$user) {
+        if (! $user) {
             return back()->withErrors([
                 'password' => __('common.messages.activation_link_invalid'),
             ]);
         }
 
-        DB::transaction(function () use ($user, $request) {
+        DB::transaction(function () use ($user, $validated) {
             $user->update([
-                'password' => Hash::make($request->password),
-                'status' => \App\Enums\UserStatus::ACTIVE->value,
+                'password' => Hash::make($validated['password']),
+                'status' => UserStatus::ACTIVE,
                 'email_verified_at' => now(),
                 'activated_at' => now(),
                 'activation_token' => null,
@@ -82,22 +79,15 @@ class AccountController extends Controller
             ->first();
     }
 
-    public function forgotPassword(Request $request): View
+    public function forgotPassword(): View
     {
         return view('auth.forgot-password');
     }
 
-    public function sendResetLink(Request $request): RedirectResponse
+    public function sendResetLink(PasswordResetLinkRequest $request): RedirectResponse
     {
-        $request->validate([
-            'email' => [
-                'required',
-                'email',
-            ],
-        ]);
-
         $status = Password::sendResetLink([
-            'email' => $request->email,
+            'email' => $request->validated('email'),
         ]);
 
         return $status === Password::RESET_LINK_SENT
@@ -118,30 +108,14 @@ class AccountController extends Controller
         ]);
     }
 
-    public function updatePassword(Request $request): RedirectResponse
+    public function updatePassword(PasswordResetRequest $request): RedirectResponse
     {
-        $request->validate([
-            'token' => ['required'],
-            'email' => ['required', 'email'],
-            'password' => [
-                'required',
-                'string',
-                'min:8',
-                'confirmed',
-            ],
-        ]);
-
         $status = Password::reset(
-            $request->only([
-                'email',
-                'password',
-                'password_confirmation',
-                'token',
-            ]),
+            $request->validated(),
             function ($user, string $password) {
                 $user->forceFill([
                     'password' => Hash::make($password),
-                    'remember_token' => Str::random(60)
+                    'remember_token' => Str::random(60),
                 ])->save();
             }
         );
