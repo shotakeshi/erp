@@ -43,22 +43,23 @@ class TeamController extends Controller
     {
         try {
             Team::create($request->validated());
+
             return redirect()
                 ->route('teams.index')
                 ->with('success', __('common.messages.created'));
         } catch (Throwable $e) {
             report($e);
+
             return back()
                 ->withInput()
                 ->with('error', __('common.messages.create_failed'));
         }
     }
 
-    public function show(Request $request, Team $team): View
+    public function show(Team $team): View
     {
         return view('teams.show', [
-            'team' => $this->teamQuery->detail($team),
-            'memberHistory' => $this->teamQuery->memberHistory($team, $request->only('filter')),
+            'team' => $this->teamQuery->detailForTabs($team),
         ]);
     }
 
@@ -75,11 +76,13 @@ class TeamController extends Controller
                 return back()->with('warning', __('common.messages.not_changed'));
             }
             $team->save();
+
             return redirect()
-                ->route('teams.index')
+                ->route('teams.show', $team)
                 ->with('success', __('common.messages.updated'));
         } catch (Throwable $e) {
             report($e);
+
             return back()
                 ->withInput()
                 ->with('error', __('common.messages.update_failed'));
@@ -109,7 +112,7 @@ class TeamController extends Controller
                 ->route('teams.trash')
                 ->with('success', __('common.messages.restored'));
 
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             report($e);
 
             return back()
@@ -117,5 +120,3 @@ class TeamController extends Controller
         }
     }
 }
-
-

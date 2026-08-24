@@ -66,7 +66,7 @@ class EmployeeController extends Controller
     {
         try {
             DB::transaction(function () use ($request) {
-                $employeeRequests = $request->all();
+                $employeeRequests = $request->validated();
                 if ($request->hasFile('avatar')) {
                     $employeeRequests['avatar'] = $this->fileUploadService->upload(
                         $request->file('avatar'),
@@ -125,11 +125,12 @@ class EmployeeController extends Controller
 
     public function update(EmployeeRequest $request, Employee $employee): RedirectResponse
     {
-        $employeeRequests = $request->all();
+        $employeeRequests = $request->validated();
         $oldAvatar = $employee->avatar;
         $newAvatar = null;
         try {
             DB::transaction(function () use (
+                $request,
                 $employee,
                 $employeeRequests,
                 &$newAvatar

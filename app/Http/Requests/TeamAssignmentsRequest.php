@@ -4,7 +4,6 @@ namespace App\Http\Requests;
 
 use App\Enums\UserStatus;
 use App\Models\Employee;
-use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -29,7 +28,6 @@ abstract class TeamAssignmentsRequest extends FormRequest
         return [
             function (Validator $validator): void {
                 $this->ensureEmployeesAreOperational($validator);
-                $this->ensureStartDateIsNotFuture($validator);
             },
         ];
     }
@@ -55,7 +53,7 @@ abstract class TeamAssignmentsRequest extends FormRequest
     {
         if ($validator->errors()->has('employee_ids')
             || $validator->errors()->get('employee_ids.*') !== []
-        ){
+        ) {
             return;
         }
 

@@ -2,11 +2,9 @@
 
 namespace App\Queries;
 
-use App\Enums\UserStatus;
 use App\Filters\TeamFilter;
 use App\Models\Employee;
 use App\Models\Team;
-use App\Models\TeamManager;
 use App\Models\TeamMembership;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
@@ -40,14 +38,7 @@ class TeamQuery
                 'updated_at',
                 'deleted_at',
             ])
-            ->withCount([
-                'memberships as current_members_count' => static function (Builder $query): void {
-                    $query->currentAssignment();
-                },
-                'managerAssignments as current_managers_count' => static function (Builder $query): void {
-                    $query->currentAssignment();
-                },
-            ])
+            ->tap(fn (Builder $query): Builder => $this->withCurrentAssignmentCounts($query))
             ->orderByDesc('updated_at')
             ->orderByDesc('id')
             ->paginate(20)
@@ -85,6 +76,34 @@ class TeamQuery
                 },
             ])
             ->firstOrFail();
+    }
+
+    public function detailForTabs(Team $team): Team
+    {
+        return $this->withCurrentAssignmentCounts(
+            Team::query()
+                ->whereKey($team)
+                ->select([
+                    'id',
+                    'name',
+                    'code',
+                    'description',
+                    'created_at',
+                    'updated_at',
+                ]),
+        )->firstOrFail();
+    }
+
+    private function withCurrentAssignmentCounts(Builder $query): Builder
+    {
+        return $query->withCount([
+            'memberships as current_members_count' => static function (Builder $query): void {
+                $query->currentAssignment();
+            },
+            'managerAssignments as current_managers_count' => static function (Builder $query): void {
+                $query->currentAssignment();
+            },
+        ]);
     }
 
     public function currentMembers(Team $team): EloquentCollection

@@ -10,6 +10,8 @@ enum TeamManagerEndReason: string
     case TERMINATED = 'terminated'; // Công ty chấm dứt
     case REMOVED = 'removed'; // Bị gỡ khỏi vai trò manager
     case TEAM_DELETED = 'team_deleted'; // Team bị xóa
+    case EMPLOYEE_INACTIVATED = 'employee_inactivated'; // Employee chuyển inactive
+    case EMPLOYEE_DELETED = 'employee_deleted'; // Employee đã soft-delete
 
     public function label(): string
     {
@@ -20,6 +22,8 @@ enum TeamManagerEndReason: string
             self::TERMINATED => 'Terminated',
             self::REMOVED => 'Removed',
             self::TEAM_DELETED => 'Team deleted',
+            self::EMPLOYEE_INACTIVATED => 'Employee inactivated',
+            self::EMPLOYEE_DELETED => 'Employee deleted',
         };
     }
 
