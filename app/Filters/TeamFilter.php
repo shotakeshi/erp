@@ -9,7 +9,7 @@ class TeamFilter
 {
     public function apply(Builder $query, array $filters = []): Builder
     {
-        $search = trim($filters['search']) ?? null;
+        $search = trim($filters['search'] ?? null);
         return $query
             ->when($search !== null && $search !== '', function (Builder $query) use ($search): void {
                 $query->where(function (Builder $query) use ($search): void {

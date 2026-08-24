@@ -2,58 +2,53 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\UserStatus;
+use App\Http\Requests\EmployeeRequest;
+use App\Models\Employee;
+use App\Models\User;
+use App\Notifications\AccountActivationNotification;
+use App\Notifications\AccountPasswordResetNotification;
+use App\Queries\EmployeeQuery;
+use App\Services\EmployeeLifecycleService;
+use App\Services\FileUploadService;
+use App\Services\LocationService;
+use App\Services\Shared\FormOptionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use App\Services\LocationService;
-use App\Http\Requests\EmployeeRequest;
-use App\Services\Shared\FormOptionService;
-use App\Services\FileUploadService;
-use App\Models\User;
-use App\Filters\EmployeeFilter;
-use App\Enums\UserStatus;
-use App\Models\Employee;
-use App\Notifications\AccountActivationNotification;
-use App\Notifications\AccountPasswordResetNotification;
+use Illuminate\View\View;
 
 class EmployeeController extends Controller
 {
+    private const FILTER_KEYS = [
+        'search',
+        'status',
+        'department_id',
+        'position_id',
+        'contract_type',
+    ];
+
     public function __construct(
         protected FormOptionService $formOptionService,
         protected LocationService $locationService,
         private readonly FileUploadService $fileUploadService,
-        private readonly EmployeeFilter $employeeFilter,
-    ){
+        private readonly EmployeeQuery $employeeQuery,
+        private readonly EmployeeLifecycleService $employeeLifecycleService,
+    ) {}
 
-    }
     public function index(Request $request): View
     {
-        $employees = $this->employeeFilter
-            ->apply(
-                Employee::query(),
-                $request->only([
-                    'search',
-                    'status',
-                    'department_id',
-                    'position_id',
-                    'contract_type',
-                ])
-            )
-            ->with([
-                'user',
-                'department',
-                'position',
-            ])
-            ->paginate(20)
-            ->withQueryString();
+        $employees = $this->employeeQuery->paginate(
+            $request->only(self::FILTER_KEYS),
+        );
 
         return view('employees.index', [
             'employees' => $employees,
             'departments' => $this->formOptionService->departmentOptions(),
-            'positions' => $this->formOptionService->positionOptions()
+            'positions' => $this->formOptionService->positionOptions(),
         ]);
     }
 
@@ -63,7 +58,7 @@ class EmployeeController extends Controller
             'provinces' => $this->locationService->provinces(),
             'departments' => $this->formOptionService->departmentOptionsWithPositions(),
             'positions' => collect(),
-            'employees' => $this->formOptionService->employeeOptions()
+            'employees' => $this->formOptionService->employeeOptions(),
         ]);
     }
 
@@ -86,11 +81,13 @@ class EmployeeController extends Controller
                 // make employee
                 $user->employee()->create($employeeRequests);
             });
+
             return redirect()
                 ->route('employees.index')
                 ->with('success', __('common.messages.created'));
         } catch (\Throwable $e) {
             report($e);
+
             return back()
                 ->withInput()
                 ->with('error', __('common.messages.create_failed'));
@@ -126,14 +123,13 @@ class EmployeeController extends Controller
         ]);
     }
 
-    public function update(EmployeeRequest $request, Employee $employee  ): RedirectResponse
+    public function update(EmployeeRequest $request, Employee $employee): RedirectResponse
     {
         $employeeRequests = $request->all();
         $oldAvatar = $employee->avatar;
         $newAvatar = null;
         try {
             DB::transaction(function () use (
-                $request,
                 $employee,
                 $employeeRequests,
                 &$newAvatar
@@ -165,27 +161,34 @@ class EmployeeController extends Controller
             if ( $oldAvatar && ($newAvatar || $request->boolean('remove_avatar'))) {
                 $this->fileUploadService->delete($oldAvatar);
             }
-            return back()->with( 'success',  __('common.messages.updated'));
+
+            return back()->with('success', __('common.messages.updated'));
         } catch (\Throwable $e) {
             if ($newAvatar) {
                 $this->fileUploadService->delete($newAvatar);
             }
             report($e);
+
             return back()
                 ->withInput()
-                ->with( 'error', __('common.messages.update_failed'));
+                ->with('error', __('common.messages.update_failed'));
         }
     }
 
     public function destroy(Employee $employee): RedirectResponse
     {
         try {
-            $employee->delete();
+            $this->employeeLifecycleService->softDeleteEmployee(
+                $employee,
+                auth()->user(),
+            );
+
             return redirect()
                 ->route('employees.index')
                 ->with('success', __('common.messages.deleted'));
         } catch (\Throwable $e) {
             report($e);
+
             return back()
                 ->with('error', __('common.messages.delete_failed'));
         }
@@ -193,30 +196,12 @@ class EmployeeController extends Controller
 
     public function trash(Request $request): View
     {
-        $employees = $this->employeeFilter
-            ->apply(
-                Employee::query(),
-                $request->only([
-                    'search',
-                    'status',
-                    'department_id',
-                    'position_id',
-                    'contract_type',
-                ])
-            )
-            ->onlyTrashed()
-            ->with([
-                'user',
-                'department',
-                'position',
-            ])
-            ->paginate(20)
-            ->withQueryString();
-
         return view('employees.trash', [
-            'employees' => $employees,
+            'employees' => $this->employeeQuery->paginateTrashed(
+                $request->only(self::FILTER_KEYS),
+            ),
             'departments' => $this->formOptionService->departmentOptions(),
-            'positions' => $this->formOptionService->positionOptions()
+            'positions' => $this->formOptionService->positionOptions(),
         ]);
     }
 
@@ -226,12 +211,14 @@ class EmployeeController extends Controller
             DB::transaction(function () use ($employee) {
                 $employee->restore();
             });
+
             return redirect()
                 ->route('employees.trash')
                 ->with('success', __('common.messages.restored'));
 
         } catch (\Throwable $e) {
             report($e);
+
             return back()
                 ->with('error', __('common.messages.restore_failed'));
         }
@@ -241,7 +228,7 @@ class EmployeeController extends Controller
     {
         $user = $employee->user;
         if ($user->activated_at) {
-            return back()->with( 'error', __('common.messages.account_already_activated'));
+            return back()->with('error', __('common.messages.account_already_activated'));
         }
         // make new token
         $token = Str::random(64);
@@ -252,22 +239,25 @@ class EmployeeController extends Controller
         $user->notify(
             new AccountActivationNotification($token)
         );
-        return back()->with( 'success', __('common.messages.activation_link_sent'));
+
+        return back()->with('success', __('common.messages.activation_link_sent'));
     }
 
-    public function resetAccountPassword(Employee $employee): RedirectResponse {
+    public function resetAccountPassword(Employee $employee): RedirectResponse
+    {
         $user = $employee->user;
-        if (!$user) {
-            return back()->with('error',__('common.messages.user_not_found'));
+        if (! $user) {
+            return back()->with('error', __('common.messages.user_not_found'));
         }
         if ($user->status !== UserStatus::ACTIVE) {
-            return back()->with('error',__('common.messages.account_not_active'));
+            return back()->with('error', __('common.messages.account_not_active'));
         }
         $password = Str::password(12);
         $user->update(['password' => Hash::make($password)]);
         $user->notify(
             new AccountPasswordResetNotification($password)
         );
+
         return back()->with([
             'success' => __('common.messages.password_reset_sent'),
             'generated_password' => $password,
