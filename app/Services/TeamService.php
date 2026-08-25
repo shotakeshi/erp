@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Enums\TeamManagerEndReason;
 use App\Enums\TeamMembershipEndReason;
 use App\Enums\UserStatus;
-use App\Exceptions\TeamConflictException;
 use App\Models\Employee;
 use App\Models\Team;
 use App\Models\TeamManager;
@@ -16,10 +15,10 @@ use Carbon\CarbonInterface;
 use DomainException;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\QueryException;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpFoundation\Response;
 
 class TeamService
 {
@@ -58,16 +57,15 @@ class TeamService
 
     private function closeAssignments(
         Collection $assignments,
-        CarbonInterface $effectiveDate,
+        CarbonImmutable $effectiveDate,
         TeamMembershipEndReason|TeamManagerEndReason $endReason,
         int $actorId,
     ): void {
-        $endDate = $effectiveDate->toDateString();
         foreach ($assignments as $assignment) {
             $assignment->update([
-                'end_date' => $endDate,
+                'end_date' => $effectiveDate,
                 'is_current' => null,
-                'end_reason' => $endReason->value,
+                'end_reason' => $endReason,
                 'ended_by' => $actorId,
             ]);
         }
@@ -96,6 +94,7 @@ class TeamService
             $employee,
             $endDate,
             $actor,
+            TeamMembershipEndReason::MANUAL_REMOVE,
         );
 
         return $membership;
@@ -124,11 +123,15 @@ class TeamService
             $employee,
             $endDate,
             $actor,
+            TeamManagerEndReason::REMOVED,
         );
 
         return $managerAssignment;
     }
 
+    /**
+     * @param  class-string<TeamMembership|TeamManager>  $assignmentModel
+     */
     private function addAssignments(
         string $assignmentModel,
         Team $team,
@@ -181,6 +184,10 @@ class TeamService
                 return $createdAssignments;
             });
         } catch (QueryException $exception) {
+            if ($this->isDuplicateCurrentAssignment($exception, $assignmentModel)) {
+                $this->throwConflict('site.teams.conflicts.assignment_already_current');
+            }
+
             throw $exception;
         }
     }
@@ -191,8 +198,9 @@ class TeamService
         Employee $employee,
         string $endDate,
         User $actor,
+        TeamMembershipEndReason|TeamManagerEndReason $endReason,
     ): TeamMembership|TeamManager {
-        return DB::transaction(function () use ($assignmentModel, $team, $employee, $endDate, $actor): TeamMembership|TeamManager {
+        return DB::transaction(function () use ($assignmentModel, $team, $employee, $endDate, $actor, $endReason): TeamMembership|TeamManager {
             $actorId = $this->actorId($actor);
             $lockedTeam = $this->lockTeam($team);
             $resolvedEndDate = $this->resolveAssignmentDate($endDate);
@@ -207,15 +215,15 @@ class TeamService
             );
 
             if ($currentAssignment === null) {
-                throw TeamConflictException::assignmentNotCurrent();
+                $this->throwConflict('site.teams.conflicts.assignment_not_current');
             }
 
             $this->ensureCanCloseAssignment($currentAssignment, $history, $resolvedEndDate);
 
             $attributes = [
-                'end_date' => $resolvedEndDate->toDateString(),
+                'end_date' => $resolvedEndDate,
                 'is_current' => null,
-                'end_reason' => TeamMembershipEndReason::MANUAL_REMOVE,
+                'end_reason' => $endReason,
                 'ended_by' => $actorId,
             ];
 
@@ -233,7 +241,7 @@ class TeamService
             ->firstOrFail();
 
         if ($lockedTeam->trashed()) {
-            throw TeamConflictException::teamUnavailable();
+            $this->throwConflict('site.teams.conflicts.team_unavailable');
         }
 
         return $lockedTeam;
@@ -248,7 +256,7 @@ class TeamService
             ->get();
 
         if ($employees->count() !== count($employeeIds)) {
-            throw TeamConflictException::employeeNotEligible();
+            $this->throwConflict('site.teams.conflicts.employee_not_eligible');
         }
 
         $userIds = $employees->pluck('user_id')
@@ -269,13 +277,16 @@ class TeamService
                 : $users->get($employee->user_id);
 
             if ($employee->trashed() || $user === null || $user->status !== UserStatus::ACTIVE) {
-                throw TeamConflictException::employeeNotEligible();
+                $this->throwConflict('site.teams.conflicts.employee_not_eligible');
             }
         }
 
         return $employees;
     }
 
+    /**
+     * @param  class-string<TeamMembership|TeamManager>  $assignmentModel
+     */
     private function lockAssignmentHistory(
         string $assignmentModel,
         Team $team,
@@ -290,6 +301,9 @@ class TeamService
             ->get();
     }
 
+    /**
+     * @param  class-string<TeamMembership|TeamManager>  $assignmentModel
+     */
     private function lockCurrentAssignmentsForTeam(string $assignmentModel, Team $team): EloquentCollection
     {
         return $assignmentModel::query()
@@ -305,7 +319,7 @@ class TeamService
     {
         foreach ($history as $assignment) {
             if ($assignment->end_date === null && $assignment->is_current) {
-                throw TeamConflictException::assignmentAlreadyCurrent();
+                $this->throwConflict('site.teams.conflicts.assignment_already_current');
             }
 
             if ($this->intervalsOverlap(
@@ -314,7 +328,7 @@ class TeamService
                 $this->asApplicationDate($assignment->start_date),
                 $assignment->end_date === null ? null : $this->asApplicationDate($assignment->end_date),
             )) {
-                throw TeamConflictException::assignmentIntervalOverlaps();
+                $this->throwConflict('site.teams.conflicts.assignment_interval_overlaps');
             }
         }
     }
@@ -327,7 +341,7 @@ class TeamService
         $startDate = $this->asApplicationDate($currentAssignment->start_date);
 
         if ($endDate->lt($startDate)) {
-            throw TeamConflictException::endDateBeforeStartDate();
+            $this->throwConflict('site.teams.conflicts.end_date_before_start_date');
         }
 
         foreach ($history as $assignment) {
@@ -341,7 +355,7 @@ class TeamService
                 $this->asApplicationDate($assignment->start_date),
                 $assignment->end_date === null ? null : $this->asApplicationDate($assignment->end_date),
             )) {
-                throw TeamConflictException::assignmentIntervalOverlaps();
+                $this->throwConflict('site.teams.conflicts.assignment_interval_overlaps');
             }
         }
     }
@@ -353,7 +367,7 @@ class TeamService
     ): void {
         foreach ($memberships->concat($managerAssignments) as $assignment) {
             if ($effectiveDate->lt($this->asApplicationDate($assignment->start_date))) {
-                throw TeamConflictException::endDateBeforeStartDate();
+                $this->throwConflict('site.teams.conflicts.end_date_before_start_date');
             }
         }
     }
@@ -389,7 +403,7 @@ class TeamService
         $resolvedDate = $this->asApplicationDate($date);
 
         if ($resolvedDate->gt($this->today())) {
-            throw TeamConflictException::assignmentDateInFuture();
+            $this->throwConflict('site.teams.conflicts.assignment_date_in_future');
         }
 
         return $resolvedDate;
@@ -422,4 +436,23 @@ class TeamService
         return (int) $actor->getKey();
     }
 
+    private function isDuplicateCurrentAssignment(QueryException $exception, string $assignmentModel): bool
+    {
+        $message = $exception->getMessage();
+        $table = (new $assignmentModel)->getTable();
+
+        return str_contains($message, $table)
+            && (
+                str_contains($message, 'UNIQUE constraint failed')
+                || str_contains($message, 'Duplicate entry')
+                || str_contains($message, 'duplicate key')
+            );
+    }
+
+    private function throwConflict(string $translationKey): never
+    {
+        throw ValidationException::withMessages([
+            'team' => __($translationKey),
+        ])->status(Response::HTTP_CONFLICT);
+    }
 }

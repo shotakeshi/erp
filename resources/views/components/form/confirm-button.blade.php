@@ -18,13 +18,16 @@
     <button
             type="button"
             class="{{ $class }}"
-            title="{{ $label }}"
+            title="{{ $label ?? $confirmText }}"
             data-confirm
             data-confirm-title="{{ $title }}"
             data-confirm-text="{{ $text }}"
             data-confirm-button="{{ $confirmText }}"
             data-cancel-button="{{ $cancelText }}"
     >
-        <i class="{{ $icon }}"></i> {{ $label }}
+        <i class="{{ $icon }}"></i>
+        @if ($label)
+            {{ $label }}
+        @endif
     </button>
 </form>

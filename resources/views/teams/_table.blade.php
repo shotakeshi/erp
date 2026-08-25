@@ -82,7 +82,6 @@
                                 cancel-text="{{ __('common.button.cancel') }}"
                                 icon="fas fa-trash"
                                 class="btn btn-sm btn-outline-danger"
-                                button-title="{{ __('common.button.delete') }}"
                             />
                         @endif
                     </td>

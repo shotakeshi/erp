@@ -259,10 +259,12 @@ class TeamQuery
                     'employee_id',
                     'first_name',
                     'last_name',
+                    'department_id',
                     'position_id',
                     'deleted_at',
                 ])->with([
                     'user:id,status',
+                    'department:id,name',
                     'position:id,name',
                 ]);
             },
