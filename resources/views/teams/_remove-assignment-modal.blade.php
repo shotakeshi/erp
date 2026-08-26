@@ -11,10 +11,6 @@
 <div
     class="modal fade team-remove-assignment-modal"
     id="{{ $modalId }}"
-    tabindex="-1"
-    role="dialog"
-    aria-labelledby="{{ $modalId }}-title"
-    aria-hidden="true"
     data-auto-open="{{ $shouldOpen ? 'true' : 'false' }}"
     @if ($reopenAssignment && $reopenEmployee)
         data-assignment-action="{{ route($destroyRoute, [$team, $reopenEmployee]) }}"
@@ -29,7 +25,7 @@
         ) }}"
     @endif
 >
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog">
         <div class="modal-content">
             <form method="POST" data-remove-assignment-form>
                 @csrf
@@ -39,8 +35,8 @@
                     <h5 class="modal-title" id="{{ $modalId }}-title">
                         {{ $isMemberAssignment ? __('site.teams.remove_member_title') : __('site.teams.remove_manager_title') }}
                     </h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="{{ __('common.button.cancel') }}">
-                        <span aria-hidden="true">&times;</span>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
                     </button>
                 </div>
 
@@ -59,15 +55,13 @@
                     <input type="hidden" name="remove_employee_id" value="{{ old('remove_employee_id') }}" data-remove-employee-id>
 
                     <div class="form-group mb-0">
-                        <x-form.input
+                        <x-form.datepicker
                             name="end_date"
-                            type="date"
                             label="{{ __('site.teams.end_date') }}"
-                            :value="old('end_date', now()->toDateString())"
-                            :min="$reopenAssignment?->start_date?->toDateString()"
-                            :max="now()->toDateString()"
+                            :value="old('end_date', now()->format('d/m/Y'))"
+                            :min-date="$reopenAssignment?->start_date?->format('d/m/Y')"
+                            :max-date="now()->format('d/m/Y')"
                             required
-                            aria-required="true"
                             data-remove-assignment-end-date
                         />
                     </div>

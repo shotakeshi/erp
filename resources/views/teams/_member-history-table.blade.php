@@ -14,7 +14,6 @@
                 :options="$historyFilterOptions"
                 :selected="request('filter', 'all')"
                 required
-                aria-label="{{ __('site.teams.history_filter') }}"
             />
         </div>
         <div class="col-lg-3 mt-2 mt-lg-0">
@@ -45,7 +44,7 @@
             @forelse ($memberships as $membership)
                 <tr>
                     <td>
-                        <div class="mb-1 font-weight-bold">{{ $membership->employee->full_name }}</div>
+                        <div class="font-14 mb-1 font-weight-bold">{{ $membership->employee->full_name }}</div>
                         <x-employee-lifecycle-badge :employee="$membership->employee" />
                     </td>
                     <td>{{ $membership->employee->employee_id }}</td>

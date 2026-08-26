@@ -1,4 +1,61 @@
-<div class="table-responsive">
+@php
+    $assignmentConfigs = [
+        'member' => [
+            'title' => __('site.teams.members'),
+            'count' => $team->current_members_count,
+            'addModal' => 'add-member-modal',
+            'addLabel' => __('site.teams.add_members'),
+            'history' => [
+                'route' => 'teams.members.history',
+                'label' => __('site.teams.member_history'),
+                'icon' => 'fas fa-history',
+            ],
+        ],
+        'manager' => [
+            'title' => __('site.teams.managers'),
+            'count' => $team->current_managers_count,
+            'addModal' => 'add-manager-modal',
+            'addLabel' => __('site.teams.add_managers'),
+            'history' => [
+                'route' => 'teams.managers.history',
+                'label' => __('site.teams.open_history_page'),
+                'icon' => 'fas fa-history',
+            ],
+        ],
+    ];
+    $assignmentConfig = $assignmentConfigs[$assignmentType];
+    $historyTab = $assignmentConfig['history'];
+    $hasHistoryRoute = \Illuminate\Support\Facades\Route::has($historyTab['route']);
+@endphp
+
+<div class="card-body">
+    <div class="row">
+        <div class="col-lg-6 d-flex align-items-center">
+            {{ $assignmentConfig['title'] }}
+            <span class="badge badge-soft-primary ml-1">{{ $assignmentConfig['count'] }}</span>
+        </div>
+        <div class="col-lg-6 d-flex justify-content-end">
+            @if ($hasHistoryRoute)
+                <a
+                        href="{{ route($historyTab['route'], $team) }}"
+                        class="btn btn-sm btn-outline-info mr-1"
+                >
+                    <i class="{{ $historyTab['icon'] }} mr-1"></i>
+                    {{ $historyTab['label'] }}
+                </a>
+            @endif
+            <button
+                    type="button"
+                    class="btn btn-sm btn-outline-primary"
+                    data-toggle="modal"
+                    data-target="#{{ $assignmentConfig['addModal'] }}"
+            >
+                <i class="fas fa-plus mr-1"></i>
+                {{ $assignmentConfig['addLabel'] }}
+            </button>
+        </div>
+    </div>
+    <div class="table-responsive mt-3">
     <table class="table table-bordered mb-0 table-centered">
         <thead>
             <tr>
@@ -63,7 +120,6 @@
                                     ['employee' => $employee->full_name],
                                 ) }}"
                                 title="{{ $assignmentType === 'member' ? __('site.teams.remove_member_title') : __('site.teams.remove_manager_title') }}"
-                                aria-label="{{ $assignmentType === 'member' ? __('site.teams.remove_member_title') : __('site.teams.remove_manager_title') }}"
                             >
                                 <i class="fas fa-user-minus"></i>
                             </button>
@@ -80,6 +136,8 @@
             @endforelse
         </tbody>
     </table>
+</div>
+
 </div>
 
 @include('teams._remove-assignment-modal', [

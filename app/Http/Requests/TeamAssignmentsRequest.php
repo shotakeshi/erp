@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Enums\UserStatus;
 use App\Models\Employee;
+use Carbon\Carbon;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -19,7 +20,7 @@ abstract class TeamAssignmentsRequest extends FormRequest
         return [
             'employee_ids' => ['required', 'array', 'min:1'],
             'employee_ids.*' => ['required', 'integer', 'distinct'],
-            'start_date' => ['required', 'date', 'before_or_equal:today'],
+            'start_date' => ['required', 'date_format:d/m/Y' , 'before_or_equal:today'],
         ];
     }
 
@@ -47,6 +48,24 @@ abstract class TeamAssignmentsRequest extends FormRequest
             'employee_ids.*' => __('site.teams.employee'),
             'start_date' => __('site.teams.start_date'),
         ];
+    }
+
+    public function validated($key = null, $default = null): mixed
+    {
+        $validated = parent::validated();
+        
+        foreach (['start_date'] as $dateAttribute) {
+            if (! isset($validated[$dateAttribute])) {
+                continue;
+            }
+
+            $validated[$dateAttribute] = Carbon::createFromFormat(
+                'd/m/Y',
+                $validated[$dateAttribute]
+            )->format('Y-m-d');
+        }
+
+        return data_get($validated, $key, $default);
     }
 
     private function ensureEmployeesAreOperational(Validator $validator): void

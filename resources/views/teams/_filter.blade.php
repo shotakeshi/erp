@@ -5,7 +5,6 @@
                 name="search"
                 :value="request('search')"
                 placeholder="{{ __('site.teams.search_placeholder') }}"
-                aria-label="{{ __('common.button.search') }}"
             />
         </div>
         <div class="col-lg-8">

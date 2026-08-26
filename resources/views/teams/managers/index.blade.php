@@ -13,34 +13,26 @@
 
     @include('teams._team-tabs', ['team' => $team])
 
-    <div class="card">
-        <div class="card-header d-flex flex-wrap justify-content-between align-items-center">
-            <h4 class="card-title mb-0">
-                {{ __('site.teams.managers') }}
-                <span class="badge badge-soft-primary ml-1">{{ $team->current_managers_count }}</span>
-            </h4>
-            <button
-                type="button"
-                class="btn btn-sm btn-outline-primary mt-2 mt-sm-0"
-                data-toggle="modal"
-                data-target="#add-manager-modal"
-            >
-                <i class="fas fa-plus mr-1"></i>
-                {{ __('site.teams.add_managers') }}
-            </button>
-        </div>
-        <div class="card-body">
-            @include('teams._assignments-table', [
-                'team' => $team,
-                'assignments' => $managerAssignments,
-                'assignmentType' => 'manager',
-                'destroyRoute' => 'teams.managers.destroy',
-                'emptyMessage' => __('site.teams.no_current_managers'),
-            ])
+    <div class="row mb-3">
+        <div class="col-lg-6">
+            <a href="{{ route('teams.index') }}" class="btn btn-sm btn-outline-gray">
+                <i class="fas fa-arrow-left mr-1"></i>
+                {{ __('site.teams.back_to_list') }}
+            </a>
         </div>
     </div>
 
-    @include('teams._assignment-form', [
+    <div class="card">
+        @include('teams._assignments-table', [
+            'team' => $team,
+            'assignments' => $managerAssignments,
+            'assignmentType' => 'manager',
+            'destroyRoute' => 'teams.managers.destroy',
+            'emptyMessage' => __('site.teams.no_current_managers'),
+        ])
+    </div>
+
+    @include('teams._add_assignment-modal', [
         'team' => $team,
         'employees' => $employees,
         'assignedEmployeeIds' => $assignedEmployeeIds,

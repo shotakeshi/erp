@@ -57,7 +57,6 @@
                                 class="btn btn-sm btn-outline-gray"
                                 style="width: 34px; height: 34px"
                                 title="{{ __('common.button.view') }}"
-                                aria-label="{{ __('common.button.view') }}"
                             >
                                 <i class="fas fa-eye"></i>
                             </a>
@@ -66,7 +65,6 @@
                                 class="btn btn-sm btn-outline-warning"
                                 style="width: 34px; height: 34px"
                                 title="{{ __('common.button.edit') }}"
-                                aria-label="{{ __('common.button.edit') }}"
                             >
                                 <i class="fas fa-edit"></i>
                             </a>

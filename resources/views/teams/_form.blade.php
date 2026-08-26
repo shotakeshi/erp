@@ -18,7 +18,6 @@
                         :value="$team?->name"
                         placeholder="{{ __('site.teams.name_placeholder') }}"
                         required
-                        aria-required="true"
                         autofocus
                     />
                 </div>
@@ -30,7 +29,6 @@
                         placeholder="{{ __('site.teams.code_placeholder') }}"
                         format="uppercase"
                         required
-                        aria-required="true"
                     />
                 </div>
             </div>

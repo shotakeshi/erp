@@ -10,13 +10,9 @@
 <div
     class="modal fade team-add-assignment-modal"
     id="{{ $modalId }}"
-    tabindex="-1"
-    role="dialog"
-    aria-labelledby="{{ $modalId }}-title"
-    aria-hidden="true"
     data-auto-open="{{ $shouldOpen ? 'true' : 'false' }}"
 >
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog">
         <div class="modal-content">
             <form action="{{ $storeAction }}" method="POST">
                 @csrf
@@ -27,8 +23,8 @@
                             ? __('site.teams.add_members_to_team', ['team' => $team->name])
                             : __('site.teams.add_managers_to_team', ['team' => $team->name]) }}
                     </h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="{{ __('common.button.cancel') }}">
-                        <span aria-hidden="true">&times;</span>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
                     </button>
                 </div>
 
@@ -43,7 +39,6 @@
                             class="form-control team-employee-select @error('employee_ids') is-invalid @enderror @error('employee_ids.*') is-invalid @enderror"
                             multiple
                             required
-                            aria-required="true"
                             data-placeholder="{{ __('site.teams.select_employees') }}"
                         >
                             @foreach ($employees as $employee)
@@ -67,23 +62,21 @@
                     </div>
 
                     <div class="form-group mb-0">
-                        <x-form.input
+                        <x-form.datepicker
                             name="start_date"
-                            type="date"
                             label="{{ __('site.teams.start_date') }}"
-                            :value="now()->toDateString()"
-                            :max="now()->toDateString()"
+                            :value="now()->format('d/m/Y')"
+                            :max-date="now()->format('d/m/Y')"
                             required
-                            aria-required="true"
                         />
                     </div>
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-gray" data-dismiss="modal">
+                    <button type="button" class="btn btn-sm btn-outline-gray" data-dismiss="modal">
                         {{ __('common.button.cancel') }}
                     </button>
-                    <button type="submit" class="btn btn-outline-primary">
+                    <button type="submit" class="btn btn-sm btn-outline-primary">
                         <i class="fas fa-plus mr-1"></i>
                         {{ $isMemberAssignment ? __('site.teams.add_members') : __('site.teams.add_managers') }}
                     </button>
@@ -94,10 +87,13 @@
 </div>
 
 @push('css')
+    <link href="{{ asset('plugins/daterangepicker/daterangepicker.css') }}" rel="stylesheet">
     <link href="{{ asset('plugins/select2/select2.min.css') }}" rel="stylesheet" type="text/css">
 @endpush
 
 @push('scripts')
+    <script src="{{ asset('plugins/moment/moment.js') }}"></script>
+    <script src="{{ asset('plugins/daterangepicker/daterangepicker.js') }}"></script>
     <script src="{{ asset('plugins/select2/select2.min.js') }}"></script>
-    <script src="{{ asset('js/team-assignment-form.js') }}"></script>
+    <script src="{{ asset('js/teams/team-assignment-form.js') }}"></script>
 @endpush

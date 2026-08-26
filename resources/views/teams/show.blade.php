@@ -47,18 +47,10 @@
             <div class="row">
                 <div class="col-lg-6">
                     <dl class="row mb-0">
-                        <dt class="col-sm-4">{{ __('site.teams.name') }}</dt>
+                        <dt class="col-sm-4">{{ __('site.teams.name') }}:</dt>
                         <dd class="col-sm-8">{{ $team->name }}</dd>
-                        <dt class="col-sm-4">{{ __('site.teams.code') }}</dt>
+                        <dt class="col-sm-4">{{ __('site.teams.code') }}:</dt>
                         <dd class="col-sm-8"><span class="badge badge-light">{{ $team->code }}</span></dd>
-                    </dl>
-                </div>
-                <div class="col-lg-6">
-                    <dl class="row mb-0">
-                        <dt class="col-sm-4">{{ __('site.teams.created_at') }}</dt>
-                        <dd class="col-sm-8">{{ $team->created_at?->format('d/m/Y H:i') ?? '-' }}</dd>
-                        <dt class="col-sm-4">{{ __('site.teams.updated_at') }}</dt>
-                        <dd class="col-sm-8">{{ $team->updated_at?->format('d/m/Y H:i') ?? '-' }}</dd>
                     </dl>
                 </div>
                 <div class="col-lg-12 mt-3">

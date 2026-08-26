@@ -11,7 +11,7 @@
         ]"
     />
 
-    @include('employees.teams._employee-summary', ['employee' => $employee])
+    @include('employees.teams._employee-tabs', ['employee' => $employee])
 
     <div class="card">
         <div class="card-header">

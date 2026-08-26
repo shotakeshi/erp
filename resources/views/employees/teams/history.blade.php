@@ -11,12 +11,10 @@
         ]"
     />
 
-    @include('employees.teams._employee-summary', ['employee' => $employee])
+    @include('employees.teams._employee-tabs', ['employee' => $employee])
 
     <div class="card">
-        <div class="card-header">
-            <h4 class="card-title mb-0">{{ __('site.teams.team_history') }}</h4>
-        </div>
+        <div class="card-header">{{ __('site.teams.team_history') }}</div>
         <div class="card-body">
             @include('employees.teams._memberships-table', [
                 'memberships' => $memberships,
