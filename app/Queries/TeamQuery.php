@@ -5,7 +5,6 @@ namespace App\Queries;
 use App\Filters\TeamFilter;
 use App\Models\Employee;
 use App\Models\Team;
-use App\Models\TeamMembership;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
@@ -45,6 +44,9 @@ class TeamQuery
             ->withQueryString();
     }
 
+    /**
+     * Lấy chi tiết team cùng các member và manager đang được phân công.
+     */
     public function detail(Team $team): Team
     {
         return Team::query()
@@ -78,6 +80,9 @@ class TeamQuery
             ->firstOrFail();
     }
 
+    /**
+     * Lấy thông tin của team và số lượng member, manager hiện tại cho các tab.
+     */
     public function detailForTabs(Team $team): Team
     {
         return $this->withCurrentAssignmentCounts(
@@ -97,15 +102,17 @@ class TeamQuery
     private function withCurrentAssignmentCounts(Builder $query): Builder
     {
         return $query->withCount([
-            'memberships as current_members_count' => static function (Builder $query): void {
-                $query->currentAssignment();
-            },
-            'managerAssignments as current_managers_count' => static function (Builder $query): void {
-                $query->currentAssignment();
-            },
+            'memberships as current_members_count'
+                => static fn (Builder $query) => $query->currentAssignment(),
+
+            'managerAssignments as current_managers_count'
+                => static fn (Builder $query) => $query->currentAssignment()
         ]);
     }
 
+    /**
+     * Lấy danh sách member đang được phân công vào team.
+     */
     public function currentMembers(Team $team): EloquentCollection
     {
         return $team->memberships()
@@ -122,6 +129,9 @@ class TeamQuery
             ->get();
     }
 
+    /**
+     * Lịch sử member của team, có thể lọc theo current hoặc past assignment.
+     */
     public function memberHistory(Team $team, array $filters = []): LengthAwarePaginator
     {
         $filter = $filters['filter'] ?? 'all';
@@ -139,18 +149,23 @@ class TeamQuery
                 'ended_by',
             ])
             ->with($this->memberHistoryRelations())
-            ->when($filter === 'current', static function (Builder $query): void {
-                $query->currentAssignment();
-            })
-            ->when($filter === 'past', static function (Builder $query): void {
-                $query->pastAssignment();
-            })
+            ->when(
+                $filter === 'current',
+                static fn (Builder $query) => $query->currentAssignment()
+            )
+            ->when(
+                $filter === 'past',
+                static fn (Builder $query) => $query->pastAssignment()
+            )
             ->orderByDesc('start_date')
             ->orderByDesc('id')
             ->paginate(20)
             ->withQueryString();
     }
 
+    /**
+     * Lấy danh sách manager đang được phân công vào team.
+     */
     public function currentManagers(Team $team): EloquentCollection
     {
         return $team->managerAssignments()
@@ -167,6 +182,9 @@ class TeamQuery
             ->get();
     }
 
+    /**
+     * Lấy các team mà employee đang là member.
+     */
     public function employeeCurrentTeams(Employee $employee): EloquentCollection
     {
         return $employee->teamMemberships()
@@ -185,6 +203,9 @@ class TeamQuery
             ->get();
     }
 
+    /**
+     * Lịch sử membership team của employee.
+     */
     public function employeeTeamHistory(Employee $employee): LengthAwarePaginator
     {
         return $employee->teamMemberships()
@@ -210,45 +231,9 @@ class TeamQuery
             ->withQueryString();
     }
 
-    public function operationalEmployeesForTeams(iterable $teams): EloquentCollection
-    {
-        $teamIds = collect($teams)
-            ->map(static function (Team|int $team): int {
-                return $team instanceof Team ? (int) $team->getKey() : $team;
-            })
-            ->unique()
-            ->values();
-
-        if ($teamIds->isEmpty()) {
-            return new EloquentCollection;
-        }
-
-        return Employee::query()
-            ->select([
-                'id',
-                'user_id',
-                'employee_id',
-                'first_name',
-                'last_name',
-                'position_id',
-            ])
-            ->whereNull('deleted_at')
-            ->whereIn('id', TeamMembership::query()
-                ->currentAssignment()
-                ->whereIn('team_id', Team::query()
-                    ->whereKey($teamIds->all())
-                    ->select('id'))
-                ->select('employee_id'))
-            ->active()
-            ->with([
-                'user:id,status',
-                'position:id,name',
-            ])
-            ->distinct()
-            ->orderBy('id')
-            ->get();
-    }
-
+    /**
+     * Khai báo các quan hệ employee cần eager load cho assignment.
+     */
     private function assignmentEmployeeRelations(): array
     {
         return [
@@ -271,6 +256,9 @@ class TeamQuery
         ];
     }
 
+    /**
+     * Khai báo các quan hệ cần eager load cho lịch sử membership.
+     */
     private function memberHistoryRelations(): array
     {
         return [
