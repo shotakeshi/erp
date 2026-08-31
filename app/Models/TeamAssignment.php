@@ -2,29 +2,33 @@
 
 namespace App\Models;
 
-use App\Enums\TeamManagerEndReason;
+use App\Enums\TeamAssignmentEndReason;
+use App\Enums\TeamAssignmentRole;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class TeamManager extends Model
+class TeamAssignment extends Model
 {
     protected $fillable = [
         'team_id',
         'employee_id',
+        'role',
         'start_date',
         'end_date',
         'is_current',
         'end_reason',
+        'end_reason_note',
         'created_by',
         'ended_by',
     ];
 
     protected $casts = [
+        'role' => TeamAssignmentRole::class,
+        'end_reason' => TeamAssignmentEndReason::class,
         'start_date' => 'date',
         'end_date' => 'date',
         'is_current' => 'boolean',
-        'end_reason' => TeamManagerEndReason::class,
     ];
 
     public function team(): BelongsTo
@@ -45,6 +49,21 @@ class TeamManager extends Model
     public function endedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'ended_by');
+    }
+
+    public function scopeForRole(Builder $query, TeamAssignmentRole $role): Builder
+    {
+        return $query->where('role', $role->value);
+    }
+
+    public function scopeMembers(Builder $query): Builder
+    {
+        return $query->forRole(TeamAssignmentRole::MEMBER);
+    }
+
+    public function scopeManagers(Builder $query): Builder
+    {
+        return $query->forRole(TeamAssignmentRole::MANAGER);
     }
 
     public function scopeCurrentAssignment(Builder $query): Builder

@@ -11,22 +11,24 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('team_managers', function (Blueprint $table): void {
+        Schema::create('team_assignments', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('team_id')->constrained()->restrictOnDelete();
             $table->foreignId('employee_id')->constrained()->restrictOnDelete();
+            $table->string('role', 50);
             $table->date('start_date');
             $table->date('end_date')->nullable();
             $table->boolean('is_current')->nullable();
             $table->string('end_reason', 50)->nullable();
+            $table->text('end_reason_note')->nullable();
             $table->foreignId('created_by')->nullable()->constrained('users')->restrictOnDelete();
             $table->foreignId('ended_by')->nullable()->constrained('users')->restrictOnDelete();
             $table->timestamps();
 
-            $table->unique(['team_id', 'employee_id', 'is_current']);
-            $table->index(['team_id', 'end_date']);
-            $table->index(['employee_id', 'end_date']);
-            $table->index(['team_id', 'employee_id', 'start_date', 'end_date']);
+            $table->unique(['team_id', 'employee_id', 'role', 'is_current']);
+            $table->index(['team_id', 'role', 'end_date']);
+            $table->index(['employee_id', 'role', 'end_date']);
+            $table->index(['team_id', 'employee_id', 'role', 'start_date', 'end_date'], 'idx_team_assignment');
         });
     }
 
@@ -35,6 +37,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('team_managers');
+        Schema::dropIfExists('team_assignments');
     }
 };

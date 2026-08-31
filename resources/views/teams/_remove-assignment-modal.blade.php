@@ -4,7 +4,8 @@
     $reopenAssignment = $assignments->first(
         static fn ($assignment): bool => (string) $assignment->employee_id === (string) old('remove_employee_id'),
     );
-    $shouldOpen = $errors->has('end_date') && $reopenAssignment !== null;
+    $shouldOpen = ($errors->has('end_date') || $errors->has('end_reason_note'))
+        && $reopenAssignment !== null;
     $reopenEmployee = $reopenAssignment?->employee;
 @endphp
 
@@ -63,6 +64,17 @@
                             :max-date="now()->format('d/m/Y')"
                             required
                             data-remove-assignment-end-date
+                        />
+                    </div>
+
+                    <div class="form-group mt-3 mb-0">
+                        <x-form.textarea
+                            name="end_reason_note"
+                            label="{{ __('site.teams.end_reason_note') }}"
+                            placeholder="{{ __('site.teams.end_reason_note_placeholder') }}"
+                            :rows="4"
+                            maxlength="5000"
+                            data-remove-assignment-end-reason-note
                         />
                     </div>
 

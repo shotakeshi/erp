@@ -76,6 +76,7 @@ $(function () {
         const description = modal.find('[data-remove-assignment-description]');
         const employeeId = modal.find('[data-remove-employee-id]');
         const endDate = modal.find('[data-remove-assignment-end-date]');
+        const endReasonNote = modal.find('[data-remove-assignment-end-reason-note]');
         const submitButton = form.find('[data-remove-assignment-submit]');
 
         const populateModal = function (source, preserveEndDate) {

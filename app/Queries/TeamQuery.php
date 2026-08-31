@@ -52,7 +52,7 @@ class TeamQuery
         return Team::query()
             ->whereKey($team)
             ->with([
-                'memberships' => function (Relation $query): void {
+                'memberAssignments' => function (Relation $query): void {
                     $query->currentAssignment()
                         ->select([
                             'id',
@@ -102,11 +102,11 @@ class TeamQuery
     private function withCurrentAssignmentCounts(Builder $query): Builder
     {
         return $query->withCount([
-            'memberships as current_members_count'
+            'memberAssignments as current_members_count'
                 => static fn (Builder $query) => $query->currentAssignment(),
 
             'managerAssignments as current_managers_count'
-                => static fn (Builder $query) => $query->currentAssignment()
+                => static fn (Builder $query) => $query->currentAssignment(),
         ]);
     }
 
@@ -115,7 +115,7 @@ class TeamQuery
      */
     public function currentMembers(Team $team): EloquentCollection
     {
-        return $team->memberships()
+        return $team->memberAssignments()
             ->currentAssignment()
             ->select([
                 'id',
@@ -136,7 +136,7 @@ class TeamQuery
     {
         $filter = $filters['filter'] ?? 'all';
 
-        return $team->memberships()
+        return $team->memberAssignments()
             ->select([
                 'id',
                 'team_id',
@@ -145,6 +145,7 @@ class TeamQuery
                 'end_date',
                 'is_current',
                 'end_reason',
+                'end_reason_note',
                 'created_by',
                 'ended_by',
             ])
@@ -217,6 +218,7 @@ class TeamQuery
                 'end_date',
                 'is_current',
                 'end_reason',
+                'end_reason_note',
                 'created_by',
                 'ended_by',
             ])

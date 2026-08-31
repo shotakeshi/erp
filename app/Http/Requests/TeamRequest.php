@@ -17,8 +17,11 @@ class TeamRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'code' => ['required', 'string', 'max:50'
-                , Rule::unique(Team::class, 'code')->ignore($this->route('team'))
+            'code' => [
+                'required',
+                'string',
+                'max:50',
+                Rule::unique(Team::class, 'code')->ignore($this->route('team')),
             ],
             'description' => ['nullable', 'string', 'max:5000'],
         ];

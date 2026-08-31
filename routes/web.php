@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\TeamAssignmentRole;
 use App\Http\Controllers\Auth\AccountController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DepartmentController;
@@ -7,9 +8,8 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeTeamController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TeamAssignmentController;
 use App\Http\Controllers\TeamController;
-use App\Http\Controllers\TeamManagerController;
-use App\Http\Controllers\TeamMemberController;
 use App\Services\LocationService;
 use Illuminate\Support\Facades\Route;
 
@@ -52,13 +52,17 @@ Route::middleware('auth')->group(function () {
     Route::resource('teams', TeamController::class);
 
     Route::prefix('teams/{team}')->name('teams.')->group(function () {
-        Route::get('members/history', [TeamMemberController::class, 'history'])->name('members.history');
-        Route::get('members', [TeamMemberController::class, 'index'])->name('members.index');
-        Route::post('members', [TeamMemberController::class, 'store'])->name('members.store');
-        Route::delete('members/{employee}', [TeamMemberController::class, 'destroy'])->name('members.destroy');
-        Route::get('managers', [TeamManagerController::class, 'index'])->name('managers.index');
-        Route::post('managers', [TeamManagerController::class, 'store'])->name('managers.store');
-        Route::delete('managers/{employee}', [TeamManagerController::class, 'destroy'])->name('managers.destroy');
+        Route::get('members/history', [TeamAssignmentController::class, 'memberHistory'])->name('members.history');
+        Route::get('members', [TeamAssignmentController::class, 'index'])
+            ->defaults('role', TeamAssignmentRole::MEMBER->value)
+            ->name('members.index');
+        Route::post('members', [TeamAssignmentController::class, 'memberStore'])->name('members.store');
+        Route::delete('members/{employee}', [TeamAssignmentController::class, 'memberDestroy'])->name('members.destroy');
+        Route::get('managers', [TeamAssignmentController::class, 'index'])
+            ->defaults('role', TeamAssignmentRole::MANAGER->value)
+            ->name('managers.index');
+        Route::post('managers', [TeamAssignmentController::class, 'managerStore'])->name('managers.store');
+        Route::delete('managers/{employee}', [TeamAssignmentController::class, 'managerDestroy'])->name('managers.destroy');
     });
 
     Route::resources(

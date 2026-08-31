@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\ContractType;
 use App\Enums\Gender;
+use App\Enums\TeamAssignmentRole;
 use App\Enums\UserStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -60,30 +61,39 @@ class Employee extends Model
         return $this->belongsTo(Position::class);
     }
 
+    public function teamAssignments(): HasMany
+    {
+        return $this->hasMany(TeamAssignment::class);
+    }
+
     public function teamMemberships(): HasMany
     {
-        return $this->hasMany(TeamMembership::class);
+        return $this->teamAssignments()->members();
     }
 
     public function teamManagerAssignments(): HasMany
     {
-        return $this->hasMany(TeamManager::class);
+        return $this->teamAssignments()->managers();
     }
 
     public function teams(): BelongsToMany
     {
-        return $this->belongsToMany(Team::class, 'team_memberships')
-            ->withPivot(['start_date', 'end_date', 'is_current', 'end_reason', 'created_by', 'ended_by'])
+        return $this->belongsToMany(Team::class, 'team_assignments')
+            ->withPivot(['role', 'start_date', 'end_date', 'is_current', 'end_reason', 'end_reason_note', 'created_by', 'ended_by'])
             ->withTimestamps()
-            ->wherePivotNull('end_date');
+            ->wherePivot('role', TeamAssignmentRole::MEMBER->value)
+            ->wherePivotNull('end_date')
+            ->wherePivot('is_current', true);
     }
 
     public function managedTeams(): BelongsToMany
     {
-        return $this->belongsToMany(Team::class, 'team_managers')
-            ->withPivot(['start_date', 'end_date', 'is_current', 'end_reason', 'created_by', 'ended_by'])
+        return $this->belongsToMany(Team::class, 'team_assignments')
+            ->withPivot(['role', 'start_date', 'end_date', 'is_current', 'end_reason', 'end_reason_note', 'created_by', 'ended_by'])
             ->withTimestamps()
-            ->wherePivotNull('end_date');
+            ->wherePivot('role', TeamAssignmentRole::MANAGER->value)
+            ->wherePivotNull('end_date')
+            ->wherePivot('is_current', true);
     }
 
     public function scopeActive($query)

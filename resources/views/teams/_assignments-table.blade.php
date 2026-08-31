@@ -30,10 +30,7 @@
 
 <div class="card-body">
     <div class="row">
-        <div class="col-lg-6 d-flex align-items-center">
-            {{ $assignmentConfig['title'] }}
-            <span class="badge badge-soft-primary ml-1">{{ $assignmentConfig['count'] }}</span>
-        </div>
+        <div class="col-lg-6 d-flex align-items-center">{{ $assignmentConfig['title'] }}</div>
         <div class="col-lg-6 d-flex justify-content-end">
             @if ($hasHistoryRoute)
                 <a

@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 
-abstract class RemoveAssignmentRequest extends FormRequest
+class RemoveAssignmentRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -15,7 +15,8 @@ abstract class RemoveAssignmentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'end_date' => ['required', 'date_format:d/m/Y' , 'before_or_equal:today'],
+            'end_date' => ['required', 'date_format:d/m/Y', 'before_or_equal:today'],
+            'end_reason_note' => ['nullable', 'string', 'max:5000'],
         ];
     }
 
@@ -23,7 +24,7 @@ abstract class RemoveAssignmentRequest extends FormRequest
     {
         return [
             'end_date' => __('site.teams.end_date'),
-            'end_date.before_or_equal' => __('site.teams.validation.date_cannot_be_future'),
+            'end_reason_note' => __('site.teams.end_reason_note'),
         ];
     }
 
@@ -44,5 +45,4 @@ abstract class RemoveAssignmentRequest extends FormRequest
 
         return data_get($validated, $key, $default);
     }
-
 }

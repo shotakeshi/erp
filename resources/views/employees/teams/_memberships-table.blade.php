@@ -31,6 +31,9 @@
                         {{ $membership->end_reason
                             ? __('site.teams.end_reasons.' . $membership->end_reason->value)
                             : '-' }}
+                        @if (filled($membership->end_reason_note))
+                            <small class="d-block text-muted mt-1">{{ $membership->end_reason_note }}</small>
+                        @endif
                     </td>
                 </tr>
             @empty
