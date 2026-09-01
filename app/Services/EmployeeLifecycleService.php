@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enums\TeamAssignmentEndReason;
 use App\Enums\UserStatus;
 use App\Models\Employee;
+use App\Models\TeamAssignment;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
@@ -13,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 
-class EmployeeLifecycleService
+class EmployeeLifecycleService extends BaseService
 {
     /**
      * Chuyển User status và đóng current team assignments khi cần.
@@ -33,7 +34,6 @@ class EmployeeLifecycleService
             // Lock Employee trước để đồng bộ với các thao tác liên quan đến assignment.
             $employee = Employee::withTrashed()
                 ->where('user_id', $targetUser->getKey())
-                ->orderBy('id')
                 ->lockForUpdate()
                 ->first();
 
@@ -43,15 +43,13 @@ class EmployeeLifecycleService
                 ->lockForUpdate()
                 ->firstOrFail();
 
-            // Chỉ cho phép các transition được định nghĩa trong UserStatus.
             if (! $lockedUser->status->canTransitionTo($targetStatus)) {
-                $this->throwValidationConflict('site.teams.conflicts.invalid_status_transition');
+                $this->fail(__('site.teams.conflicts.invalid_status_transition'));
             }
 
-            // Chỉ định status cần đóng assignment.
             $endReason = $this->assignmentEndReasonFor($targetStatus);
 
-            if ($employee !== null && $endReason !== null) {
+            if ($employee && $endReason) {
                 // Đóng cả membership và manager assignment cùng với status transition.
                 $this->closeCurrentAssignments(
                     $employee,
@@ -61,9 +59,9 @@ class EmployeeLifecycleService
                 );
             }
 
-            // Chỉ lưu status khi toàn bộ xử lý assignment đã thành công.
-            $lockedUser->status = $targetStatus;
-            $lockedUser->save();
+            $lockedUser->update([
+                'status' => $targetStatus,
+            ]);
 
             return $lockedUser;
         });
@@ -146,10 +144,10 @@ class EmployeeLifecycleService
         CarbonImmutable $endDate,
         EloquentCollection $assignments,
     ): void {
-        foreach ($assignments as $assignment) {
-            if ($endDate->lt($assignment->start_date)) {
-                $this->throwValidationConflict('site.teams.conflicts.end_date_before_start_date');
-            }
+        if ($assignments->contains(
+            fn (TeamAssignment $assignment) => $endDate->lt($assignment->start_date)
+        )) {
+            $this->fail(__('site.teams.conflicts.end_date_before_start_date'));
         }
     }
 
@@ -176,16 +174,9 @@ class EmployeeLifecycleService
             ->startOfDay();
 
         if ($resolvedDate->gt(today($timezone))) {
-            $this->throwValidationConflict('site.teams.conflicts.effective_date_in_future');
+            $this->fail(__('site.teams.conflicts.effective_date_in_future'));
         }
 
         return $resolvedDate;
-    }
-
-    private function throwValidationConflict(string $translationKey): never
-    {
-        throw ValidationException::withMessages([
-            'employee' => __($translationKey),
-        ])->status(Response::HTTP_CONFLICT);
     }
 }
