@@ -18,7 +18,7 @@
             'addLabel' => __('site.teams.add_managers'),
             'history' => [
                 'route' => 'teams.managers.history',
-                'label' => __('site.teams.open_history_page'),
+                'label' => __('site.teams.manager_history'),
                 'icon' => 'fas fa-history',
             ],
         ],

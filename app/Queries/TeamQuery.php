@@ -2,6 +2,7 @@
 
 namespace App\Queries;
 
+use App\Enums\TeamAssignmentRole;
 use App\Filters\TeamFilter;
 use App\Models\Employee;
 use App\Models\Team;
@@ -93,8 +94,6 @@ class TeamQuery
                     'name',
                     'code',
                     'description',
-                    'created_at',
-                    'updated_at',
                 ]),
         )->firstOrFail();
     }
@@ -102,11 +101,9 @@ class TeamQuery
     private function withCurrentAssignmentCounts(Builder $query): Builder
     {
         return $query->withCount([
-            'memberAssignments as current_members_count'
-                => static fn (Builder $query) => $query->currentAssignment(),
+            'memberAssignments as current_members_count' => static fn (Builder $query) => $query->currentAssignment(),
 
-            'managerAssignments as current_managers_count'
-                => static fn (Builder $query) => $query->currentAssignment(),
+            'managerAssignments as current_managers_count' => static fn (Builder $query) => $query->currentAssignment(),
         ]);
     }
 
@@ -134,9 +131,29 @@ class TeamQuery
      */
     public function memberHistory(Team $team, array $filters = []): LengthAwarePaginator
     {
+        return $this->assignmentHistory($team, TeamAssignmentRole::MEMBER, $filters);
+    }
+
+    /**
+     * Lịch sử manager của team, có thể lọc theo current hoặc past assignment.
+     */
+    public function managerHistory(Team $team, array $filters = []): LengthAwarePaginator
+    {
+        return $this->assignmentHistory($team, TeamAssignmentRole::MANAGER, $filters);
+    }
+
+    /**
+     * Lịch sử assignment của team theo role, có thể lọc theo current hoặc past assignment.
+     */
+    private function assignmentHistory(
+        Team $team,
+        TeamAssignmentRole $role,
+        array $filters = [],
+    ): LengthAwarePaginator {
         $filter = $filters['filter'] ?? 'all';
 
-        return $team->memberAssignments()
+        return $team->assignments()
+            ->forRole($role)
             ->select([
                 'id',
                 'team_id',
@@ -149,7 +166,7 @@ class TeamQuery
                 'created_by',
                 'ended_by',
             ])
-            ->with($this->memberHistoryRelations())
+            ->with($this->assignmentHistoryRelations())
             ->when(
                 $filter === 'current',
                 static fn (Builder $query) => $query->currentAssignment()
@@ -259,9 +276,9 @@ class TeamQuery
     }
 
     /**
-     * Khai báo các quan hệ cần eager load cho lịch sử membership.
+     * Khai báo các quan hệ cần eager load cho lịch sử assignment.
      */
-    private function memberHistoryRelations(): array
+    private function assignmentHistoryRelations(): array
     {
         return [
             ...$this->assignmentEmployeeRelations(),

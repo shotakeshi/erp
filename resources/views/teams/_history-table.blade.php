@@ -1,4 +1,5 @@
 @php
+    $emptyMessage = $emptyMessage ?? __('site.teams.no_member_history');
     $historyFilterOptions = collect(['all', 'current', 'past'])
         ->mapWithKeys(fn ($filter) => [
             $filter => __('site.teams.history_filters.' . $filter),
@@ -71,7 +72,7 @@
                 <tr>
                     <td colspan="7" class="text-center text-muted py-4">
                         <i class="fas fa-history d-block font-20 mb-2"></i>
-                        {{ __('site.teams.no_member_history') }}
+                        {{ $emptyMessage }}
                     </td>
                 </tr>
             @endforelse

@@ -7,7 +7,6 @@ use App\Http\Requests\RemoveAssignmentRequest;
 use App\Http\Requests\TeamAssignmentsRequest;
 use App\Models\Employee;
 use App\Models\Team;
-use App\Models\User;
 use App\Queries\TeamQuery;
 use App\Services\Shared\FormOptionService;
 use App\Services\TeamService;
@@ -87,6 +86,16 @@ class TeamAssignmentController extends Controller
         return view('teams.members.history', [
             'team' => $team,
             'memberships' => $this->teamQuery->memberHistory($team, $request->only('filter')),
+        ]);
+    }
+
+    public function managerHistory(Request $request, Team $team): View
+    {
+        $team = $this->teamQuery->detailForTabs($team);
+
+        return view('teams.managers.history', [
+            'team' => $team,
+            'memberships' => $this->teamQuery->managerHistory($team, $request->only('filter')),
         ]);
     }
 

@@ -53,6 +53,7 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('teams/{team}')->name('teams.')->group(function () {
         Route::get('members/history', [TeamAssignmentController::class, 'memberHistory'])->name('members.history');
+        Route::get('managers/history', [TeamAssignmentController::class, 'managerHistory'])->name('managers.history');
         Route::get('members', [TeamAssignmentController::class, 'index'])
             ->defaults('role', TeamAssignmentRole::MEMBER->value)
             ->name('members.index');
