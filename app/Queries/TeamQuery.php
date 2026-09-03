@@ -9,6 +9,7 @@ use App\Models\Team;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\Relation;
 
 class TeamQuery
@@ -19,7 +20,7 @@ class TeamQuery
 
     public function paginate(array $filters): LengthAwarePaginator
     {
-        return $this->paginateTeams(Team::query(), $filters);
+        return $this->paginateTeams(Team::query(), $filters, withPreviews: true);
     }
 
     public function paginateTrashed(array $filters): LengthAwarePaginator
@@ -27,23 +28,56 @@ class TeamQuery
         return $this->paginateTeams(Team::onlyTrashed(), $filters);
     }
 
-    private function paginateTeams(Builder $query, array $filters): LengthAwarePaginator
-    {
-        return $this->teamFilter
+    private function paginateTeams(
+        Builder $query,
+        array $filters,
+        bool $withPreviews = false,
+    ): LengthAwarePaginator {
+        $query = $this->teamFilter
             ->apply($query, $filters)
             ->select([
                 'id',
                 'name',
                 'code',
                 'logo',
-                'updated_at',
-                'deleted_at',
+                'description',
             ])
-            ->tap(fn (Builder $query): Builder => $this->withCurrentAssignmentCounts($query))
+            ->tap(fn (Builder $query): Builder => $this->withCurrentAssignmentCounts($query));
+
+        if ($withPreviews) {
+            $this->withCardPeoplePreviews($query);
+        }
+
+        return $query
             ->orderByDesc('updated_at')
             ->orderByDesc('id')
             ->paginate(20)
             ->withQueryString();
+    }
+
+    /**
+     * Load a small, role-aware preview of people for each card on the Team index.
+     */
+    private function withCardPeoplePreviews(Builder $query): Builder
+    {
+        $employee = new Employee;
+        $columns = [
+            $employee->qualifyColumn('id'),
+            $employee->qualifyColumn('first_name'),
+            $employee->qualifyColumn('last_name'),
+            $employee->qualifyColumn('avatar'),
+        ];
+
+        $preview = static function (BelongsToMany $relation) use ($columns): void {
+            $relation->select($columns)
+                     ->orderByPivot('start_date')
+                     ->limit(3);
+        };
+
+        return $query->with([
+            'members' => $preview,
+            'managers' => $preview,
+        ]);
     }
 
     /**
