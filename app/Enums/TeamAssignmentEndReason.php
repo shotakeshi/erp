@@ -24,18 +24,4 @@ enum TeamAssignmentEndReason: string
             self::EMPLOYEE_DELETED => 'Employee deleted',
         };
     }
-
-    /**
-     * @return list<array{value: string, label: string}>
-     */
-    public static function options(): array
-    {
-        return collect(self::cases())
-            ->map(fn (self $reason): array => [
-                'value' => $reason->value,
-                'label' => $reason->label(),
-            ])
-            ->values()
-            ->all();
-    }
 }

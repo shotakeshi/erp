@@ -16,6 +16,16 @@ class TeamRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'logo' => [
+                'nullable',
+                'image',
+                'mimes:jpg,jpeg,png,webp',
+                'max:2048',
+            ],
+            'remove_logo' => [
+                'nullable',
+                'boolean',
+            ],
             'name' => ['required', 'string', 'max:255'],
             'code' => [
                 'required',
@@ -32,6 +42,8 @@ class TeamRequest extends FormRequest
         return [
             'name' => __('site.teams.name'),
             'code' => __('site.teams.code'),
+            'logo' => __('site.teams.logo'),
+            'remove_logo' => __('site.teams.remove_logo'),
             'description' => __('site.teams.description'),
         ];
     }

@@ -6,6 +6,7 @@ use App\Http\Requests\TeamRequest;
 use App\Models\Team;
 use App\Models\User;
 use App\Queries\TeamQuery;
+use App\Services\FileUploadService;
 use App\Services\TeamService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,6 +19,7 @@ class TeamController extends Controller
     public function __construct(
         private readonly TeamQuery $teamQuery,
         private readonly TeamService $teamService,
+        private readonly FileUploadService $fileUploadService,
     ) {}
 
     public function index(Request $request): View
@@ -41,13 +43,30 @@ class TeamController extends Controller
 
     public function store(TeamRequest $request): RedirectResponse
     {
+        $teamLogo = null;
         try {
-            Team::create($request->validated());
+            DB::transaction(function () use ($request, &$teamLogo): void {
+                $teamRequests = $request->validated();
+
+                if ($request->hasFile('logo')) {
+                    $teamLogo = $this->fileUploadService->upload(
+                        $request->file('logo'),
+                        'teams/logos',
+                    );
+                    $teamRequests['logo'] = $teamLogo;
+                }
+
+                Team::create($teamRequests);
+            });
 
             return redirect()
                 ->route('teams.index')
                 ->with('success', __('common.messages.created'));
         } catch (Throwable $e) {
+            if ($teamLogo) {
+                $this->fileUploadService->delete($teamLogo);
+            }
+
             report($e);
 
             return back()
@@ -70,17 +89,47 @@ class TeamController extends Controller
 
     public function update(TeamRequest $request, Team $team): RedirectResponse
     {
+        $teamRequests = $request->validated();
+        $oldLogo = $team->logo;
+        $newLogo = null;
+
         try {
-            $team->fill($request->validated());
-            if (! $team->isDirty()) {
-                return back()->with('warning', __('common.messages.not_changed'));
+            DB::transaction(function () use (
+                $request,
+                $team,
+                &$teamRequests,
+                &$newLogo,
+            ): void {
+                unset(
+                    $teamRequests['remove_logo'],
+                    $teamRequests['logo']
+                );
+
+                if ($request->hasFile('logo')) {
+                    $newLogo = $this->fileUploadService->upload(
+                        $request->file('logo'),
+                        'teams/logos',
+                    );
+                    $teamRequests['logo'] = $newLogo;
+                } elseif ($request->boolean('remove_logo')) {
+                    $teamRequests['logo'] = null;
+                }
+
+                $team->update($teamRequests);
+            });
+
+            if ($oldLogo && ($newLogo || $request->boolean('remove_logo'))) {
+                $this->fileUploadService->delete($oldLogo);
             }
-            $team->save();
 
             return redirect()
                 ->route('teams.show', $team)
                 ->with('success', __('common.messages.updated'));
         } catch (Throwable $e) {
+            if ($newLogo) {
+                $this->fileUploadService->delete($newLogo);
+            }
+
             report($e);
 
             return back()

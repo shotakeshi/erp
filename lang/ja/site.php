@@ -140,7 +140,6 @@ return [
         'ended_by' => '終了処理者',
         'name_placeholder' => '例：Platform Engineering',
         'code_placeholder' => '例：PLATFORM',
-        'description_placeholder' => 'このチームの概要と責務を簡潔に入力してください。',
         'search_placeholder' => 'チーム名またはコードで検索...',
         'list_help' => '件数には、レガシーレコードを含む現在のすべての管理者割り当てが含まれます。',
         'member_count' => ':count メンバー',

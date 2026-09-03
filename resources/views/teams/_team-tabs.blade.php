@@ -26,11 +26,11 @@
         <div class="row align-items-center">
             <div class="col-lg-5">
                 <div class="media align-items-center">
-                    <span class="avatar-box thumb-lg align-self-center mr-3">
-                        <span class="avatar-title bg-soft-primary rounded-circle font-20">
-                            <i class="fas fa-users"></i>
-                        </span>
-                    </span>
+                    <img
+                        src="{{ image_url($team->logo) }}"
+                        alt="{{ $team->name }}"
+                        class="rounded-circle thumb-lg mr-3"
+                    >
                     <div class="media-body">
                         <h4 class="header-title mb-1">{{ $team->name }}</h4>
                         <span class="badge badge-classic">{{ $team->code }}</span>

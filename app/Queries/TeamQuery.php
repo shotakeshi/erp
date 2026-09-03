@@ -35,6 +35,7 @@ class TeamQuery
                 'id',
                 'name',
                 'code',
+                'logo',
                 'updated_at',
                 'deleted_at',
             ])
@@ -93,6 +94,7 @@ class TeamQuery
                     'id',
                     'name',
                     'code',
+                    'logo',
                     'description',
                 ]),
         )->firstOrFail();
@@ -214,7 +216,7 @@ class TeamQuery
                 'start_date',
             ])
             ->with([
-                'team:id,name,code,deleted_at',
+                'team:id,name,code,logo,deleted_at',
             ])
             ->orderBy('start_date')
             ->orderBy('id')
@@ -240,7 +242,7 @@ class TeamQuery
                 'ended_by',
             ])
             ->with([
-                'team:id,name,code,deleted_at',
+                'team:id,name,code,logo,deleted_at',
                 'createdBy:id,name',
                 'endedBy:id,name',
             ])
@@ -282,7 +284,7 @@ class TeamQuery
     {
         return [
             ...$this->assignmentEmployeeRelations(),
-            'team:id,name,code,deleted_at',
+            'team:id,name,code,logo,deleted_at',
             'createdBy:id,name',
             'endedBy:id,name',
         ];
