@@ -11,7 +11,7 @@
     />
 
     <div class="row">
-        <div class="col-lg-8 mx-auto">
+        <div class="col-lg-12">
             @include('teams._form', [
                 'action' => route('teams.store'),
                 'method' => 'POST',
