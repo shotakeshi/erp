@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use App\Enums\TeamAssignmentEndReason;
-use App\Enums\TeamAssignmentRole;
+use App\Enums\TeamAssignmentType;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,6 +13,7 @@ class TeamAssignment extends Model
     protected $fillable = [
         'team_id',
         'employee_id',
+        'type',
         'role',
         'start_date',
         'end_date',
@@ -24,7 +25,7 @@ class TeamAssignment extends Model
     ];
 
     protected $casts = [
-        'role' => TeamAssignmentRole::class,
+        'type' => TeamAssignmentType::class,
         'end_reason' => TeamAssignmentEndReason::class,
         'start_date' => 'date',
         'end_date' => 'date',
@@ -51,19 +52,19 @@ class TeamAssignment extends Model
         return $this->belongsTo(User::class, 'ended_by');
     }
 
-    public function scopeForRole(Builder $query, TeamAssignmentRole $role): Builder
+    public function scopeForType(Builder $query, TeamAssignmentType $type): Builder
     {
-        return $query->where('role', $role->value);
+        return $query->where('type', $type->value);
     }
 
     public function scopeMembers(Builder $query): Builder
     {
-        return $query->forRole(TeamAssignmentRole::MEMBER);
+        return $query->forType(TeamAssignmentType::MEMBER);
     }
 
     public function scopeManagers(Builder $query): Builder
     {
-        return $query->forRole(TeamAssignmentRole::MANAGER);
+        return $query->forType(TeamAssignmentType::MANAGER);
     }
 
     public function scopeCurrentAssignment(Builder $query): Builder

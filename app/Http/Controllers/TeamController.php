@@ -7,6 +7,7 @@ use App\Models\Team;
 use App\Models\User;
 use App\Queries\TeamQuery;
 use App\Services\FileUploadService;
+use App\Services\Shared\FormOptionService;
 use App\Services\TeamService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -20,6 +21,7 @@ class TeamController extends Controller
         private readonly TeamQuery $teamQuery,
         private readonly TeamService $teamService,
         private readonly FileUploadService $fileUploadService,
+        private readonly FormOptionService $formOptionService,
     ) {}
 
     public function index(Request $request): View
@@ -38,26 +40,30 @@ class TeamController extends Controller
 
     public function create(): View
     {
-        return view('teams.create');
+        return view('teams.create', [
+            'employees' => $this->formOptionService->employeeOptions(),
+            'roles' => $this->formOptionService->roleAssignmentOptions(),
+        ]);
     }
 
     public function store(TeamRequest $request): RedirectResponse
     {
         $teamLogo = null;
+
         try {
-            DB::transaction(function () use ($request, &$teamLogo): void {
-                $teamRequests = $request->validated();
+            $validated = $request->validated();
+            $members = $validated['members'] ?? [];
+            unset($validated['members']);
 
-                if ($request->hasFile('logo')) {
-                    $teamLogo = $this->fileUploadService->upload(
-                        $request->file('logo'),
-                        'teams/logos',
-                    );
-                    $teamRequests['logo'] = $teamLogo;
-                }
+            if ($request->hasFile('logo')) {
+                $teamLogo = $this->fileUploadService->upload(
+                    $request->file('logo'),
+                    'teams/logos',
+                );
+                $validated['logo'] = $teamLogo;
+            }
 
-                Team::create($teamRequests);
-            });
+            $this->teamService->createTeam($validated, $members, $request->user());
 
             return redirect()
                 ->route('teams.index')
@@ -84,39 +90,40 @@ class TeamController extends Controller
 
     public function edit(Team $team): View
     {
-        return view('teams.edit', compact('team'));
+        return view('teams.edit', [
+            'team' => $team,
+            'assignments' => $team->assignments()
+                ->currentAssignment()
+                ->with('employee.position')
+                ->orderBy('id')->get(),
+            'roles' => $this->formOptionService->roleAssignmentOptions(),
+        ]);
     }
 
     public function update(TeamRequest $request, Team $team): RedirectResponse
     {
-        $teamRequests = $request->validated();
-        $oldLogo = $team->logo;
         $newLogo = null;
-
         try {
-            DB::transaction(function () use (
-                $request,
-                $team,
-                &$teamRequests,
-                &$newLogo,
-            ): void {
-                unset(
-                    $teamRequests['remove_logo'],
-                    $teamRequests['logo']
+            $oldLogo = $team->logo;
+            $teamRequests = $request->validated();
+            $members = $teamRequests['members'] ?? [];
+            unset(
+                $teamRequests['remove_logo'],
+                $teamRequests['logo'],
+                $teamRequests['members'],
+            );
+
+            if ($request->hasFile('logo')) {
+                $newLogo = $this->fileUploadService->upload(
+                    $request->file('logo'),
+                    'teams/logos',
                 );
+                $teamRequests['logo'] = $newLogo;
+            } elseif ($request->boolean('remove_logo')) {
+                $teamRequests['logo'] = null;
+            }
 
-                if ($request->hasFile('logo')) {
-                    $newLogo = $this->fileUploadService->upload(
-                        $request->file('logo'),
-                        'teams/logos',
-                    );
-                    $teamRequests['logo'] = $newLogo;
-                } elseif ($request->boolean('remove_logo')) {
-                    $teamRequests['logo'] = null;
-                }
-
-                $team->update($teamRequests);
-            });
+            $this->teamService->updateTeam($team, $teamRequests, $members);
 
             if ($oldLogo && ($newLogo || $request->boolean('remove_logo'))) {
                 $this->fileUploadService->delete($oldLogo);

@@ -11,8 +11,8 @@
     />
 
     <div class="row">
-        <div class="col-lg-12">
-            @include('teams._form', [
+        <div class="col-lg-8 mx-auto">
+            @include('teams._form-upsert', [
                 'action' => route('teams.store'),
                 'method' => 'POST',
             ])

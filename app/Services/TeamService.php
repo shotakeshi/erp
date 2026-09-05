@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Enums\TeamAssignmentEndReason;
-use App\Enums\TeamAssignmentRole;
+use App\Enums\TeamAssignmentType;
 use App\Models\Employee;
 use App\Models\Team;
 use App\Models\TeamAssignment;
@@ -15,6 +15,54 @@ use Illuminate\Support\Facades\DB;
 
 class TeamService extends BaseService
 {
+    public function createTeam(array $teamAttributes, array $members, User $actor): void
+    {
+         DB::transaction(function () use ($teamAttributes, $members, $actor) {
+            if ($members) {
+                $this->eligibleEmployees(array_column($members, 'employee_id'));
+            }
+
+            $actorId = $actor->getKey();
+            $startDate = $this->today()->toDateString();
+
+            $team = Team::query()->create($teamAttributes);
+            $assignments = array_map(
+                static fn (array $member): array => [
+                    'employee_id' => (int) $member['employee_id'],
+                    'type' => $member['is_manager']
+                        ? TeamAssignmentType::MANAGER->value
+                        : TeamAssignmentType::MEMBER->value,
+                    'role' => $member['role'],
+                    'start_date' => $startDate,
+                    'is_current' => true,
+                    'created_by' => $actorId,
+                ],
+                $members,
+            );
+
+            $team->assignments()->createMany($assignments);
+        });
+    }
+
+    public function updateTeam(Team $team, array $teamAttributes, array $members): void
+    {
+        DB::transaction(function () use ($team, $teamAttributes, $members): void {
+            $assignments = $this->currentAssignmentsForTeam($team)->keyBy('id');
+
+            foreach ($members as $member) {
+                $assignment = $assignments->get($member['assignment_id']);
+
+                if ($assignment === null) {
+                    $this->fail(__('site.teams.conflicts.assignment_not_current'));
+                }
+
+                $assignment->update(['role' => $member['role']]);
+            }
+
+            $team->update($teamAttributes);
+        });
+    }
+
     public function deleteTeam(Team $team, User $actor): void
     {
         DB::transaction(function () use ($team, $actor): void {
@@ -44,16 +92,17 @@ class TeamService extends BaseService
         array $employeeIds,
         string $startDate,
         User $actor,
-        TeamAssignmentRole $role,
+        TeamAssignmentType $type,
+        ?string $role = null,
     ): Collection {
         $employeeIds = array_map('intval', $employeeIds);
 
-        return DB::transaction(function () use ($team, $employeeIds, $startDate, $actor, $role): Collection {
+        return DB::transaction(function () use ($team, $employeeIds, $startDate, $actor, $type, $role): Collection {
             $actorId = $actor->getKey();
             $lockedTeam = $this->lockTeam($team);
             $resolvedStartDate = $this->resolveAssignmentDate($startDate);
             $employees = $this->eligibleEmployees($employeeIds);
-            $assignmentHistory = $this->assignmentHistory($lockedTeam, $employeeIds, $role);
+            $assignmentHistory = $this->assignmentHistoryForType($lockedTeam, $employeeIds, $type);
 
             $this->validateAssignmentHistory($assignmentHistory, $resolvedStartDate);
 
@@ -64,6 +113,7 @@ class TeamService extends BaseService
                     'team_id' => $lockedTeam->getKey(),
                     'employee_id' => $employee->getKey(),
                     'role' => $role,
+                    'type' => $type,
                     'start_date' => $resolvedStartDate->toDateString(),
                     'end_date' => null,
                     'is_current' => true,
@@ -83,13 +133,13 @@ class TeamService extends BaseService
         Employee $employee,
         string $endDate,
         User $actor,
-        TeamAssignmentRole $role,
+        TeamAssignmentType $type,
         ?string $endReasonNote,
     ): TeamAssignment {
-        return DB::transaction(function () use ($team, $employee, $endDate, $actor, $role, $endReasonNote): TeamAssignment {
+        return DB::transaction(function () use ($team, $employee, $endDate, $actor, $type, $endReasonNote): TeamAssignment {
             $lockedTeam = $this->lockTeam($team);
             $resolvedEndDate = $this->resolveAssignmentDate($endDate);
-            $history = $this->assignmentHistory($lockedTeam, [$employee->getKey()], $role);
+            $history = $this->assignmentHistoryForType($lockedTeam, [$employee->getKey()], $type);
 
             $currentAssignment = $history->firstWhere('is_current', true);
             if ($currentAssignment === null) {
@@ -163,10 +213,22 @@ class TeamService extends BaseService
     private function assignmentHistory(
         Team $team,
         array $employeeIds,
-        TeamAssignmentRole $role,
     ): EloquentCollection {
         return $team->assignments()
-            ->forRole($role)
+            ->whereIn('employee_id', $employeeIds)
+            ->orderBy('employee_id')
+            ->orderBy('id')
+            ->lockForUpdate()
+            ->get();
+    }
+
+    private function assignmentHistoryForType(
+        Team $team,
+        array $employeeIds,
+        TeamAssignmentType $type,
+    ): EloquentCollection {
+        return $team->assignments()
+            ->forType($type)
             ->whereIn('employee_id', $employeeIds)
             ->orderBy('employee_id')
             ->orderBy('id')
@@ -187,15 +249,13 @@ class TeamService extends BaseService
     private function validateAssignmentHistory(Collection $history, CarbonImmutable $startDate): void
     {
         if ($history->contains(
-            fn (TeamAssignment $assignment) =>
-                $assignment->end_date === null && $assignment->is_current
+            fn (TeamAssignment $assignment) => $assignment->end_date === null && $assignment->is_current
         )) {
             $this->fail(__('site.teams.conflicts.assignment_already_current'));
         }
 
         if ($history->contains(
-            fn (TeamAssignment $assignment) =>
-                $assignment->end_date !== null && $startDate->lt($assignment->end_date)
+            fn (TeamAssignment $assignment) => $assignment->end_date !== null && $startDate->lt($assignment->end_date)
         )) {
             $this->fail(__('site.teams.conflicts.assignment_interval_overlaps'));
         }
@@ -211,7 +271,7 @@ class TeamService extends BaseService
 
         return $date;
     }
-    
+
     private function today(): CarbonImmutable
     {
         return CarbonImmutable::today(config('app.timezone'));

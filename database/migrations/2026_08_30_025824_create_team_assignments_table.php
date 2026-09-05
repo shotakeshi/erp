@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\TeamAssignmentType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -15,6 +16,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('team_id')->constrained()->restrictOnDelete();
             $table->foreignId('employee_id')->constrained()->restrictOnDelete();
+            $table->enum('type', [
+                TeamAssignmentType::MEMBER->value,
+                TeamAssignmentType::MANAGER->value,
+            ])->default(TeamAssignmentType::MEMBER->value);
             $table->string('role', 50);
             $table->date('start_date');
             $table->date('end_date')->nullable();
@@ -25,10 +30,11 @@ return new class extends Migration
             $table->foreignId('ended_by')->nullable()->constrained('users')->restrictOnDelete();
             $table->timestamps();
 
-            $table->unique(['team_id', 'employee_id', 'role', 'is_current']);
-            $table->index(['team_id', 'role', 'end_date']);
-            $table->index(['employee_id', 'role', 'end_date']);
-            $table->index(['team_id', 'employee_id', 'role', 'start_date', 'end_date'], 'idx_team_assignment');
+            $table->unique(['team_id', 'employee_id', 'is_current']);
+            $table->index(['team_id', 'type', 'end_date']);
+            $table->index(['employee_id', 'type', 'end_date']);
+            $table->index(['team_id', 'employee_id', 'start_date', 'end_date'], 'idx_team_assignment');
+            $table->index('role', 'idx_team_assignment_role');
         });
     }
 

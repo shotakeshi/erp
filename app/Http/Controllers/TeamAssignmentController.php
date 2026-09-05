@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\TeamAssignmentRole;
+use App\Enums\TeamAssignmentType;
 use App\Http\Requests\RemoveAssignmentRequest;
 use App\Http\Requests\TeamAssignmentsRequest;
 use App\Models\Employee;
@@ -22,18 +22,18 @@ class TeamAssignmentController extends Controller
         private readonly FormOptionService $formOptionService,
     ) {}
 
-    public function index(Team $team, string $role): View
+    public function index(Team $team, string $type): View
     {
-        $role = TeamAssignmentRole::from($role);
+        $type = TeamAssignmentType::from($type);
         $team = $this->teamQuery->detailForTabs($team);
 
-        $config = match ($role) {
-            TeamAssignmentRole::MEMBER => [
+        $config = match ($type) {
+            TeamAssignmentType::MEMBER => [
                 'assignments' => $this->teamQuery->currentMembers($team),
                 'view' => 'teams.members.index',
                 'key' => 'memberships',
             ],
-            TeamAssignmentRole::MANAGER => [
+            TeamAssignmentType::MANAGER => [
                 'assignments' => $this->teamQuery->currentManagers($team),
                 'view' => 'teams.managers.index',
                 'key' => 'managerAssignments',
@@ -57,7 +57,7 @@ class TeamAssignmentController extends Controller
             $validated['employee_ids'],
             $validated['start_date'],
             $request->user(),
-            TeamAssignmentRole::MEMBER,
+            TeamAssignmentType::MEMBER,
         );
 
         return redirect()
@@ -74,7 +74,7 @@ class TeamAssignmentController extends Controller
             $request,
             $team,
             $employee,
-            TeamAssignmentRole::MEMBER,
+            TeamAssignmentType::MEMBER,
             'teams.members.index',
         );
     }
@@ -108,7 +108,7 @@ class TeamAssignmentController extends Controller
             $validated['employee_ids'],
             $validated['start_date'],
             $request->user(),
-            TeamAssignmentRole::MANAGER,
+            TeamAssignmentType::MANAGER,
         );
 
         return redirect()
@@ -125,7 +125,7 @@ class TeamAssignmentController extends Controller
             $request,
             $team,
             $employee,
-            TeamAssignmentRole::MANAGER,
+            TeamAssignmentType::MANAGER,
             'teams.managers.index',
         );
     }
@@ -134,7 +134,7 @@ class TeamAssignmentController extends Controller
         RemoveAssignmentRequest $request,
         Team $team,
         Employee $employee,
-        TeamAssignmentRole $role,
+        TeamAssignmentType $type,
         string $redirectRoute,
     ): RedirectResponse {
         $validated = $request->validated();
@@ -144,7 +144,7 @@ class TeamAssignmentController extends Controller
             $employee,
             $validated['end_date'],
             $request->user(),
-            $role,
+            $type,
             $validated['end_reason_note'] ?? null,
         );
 

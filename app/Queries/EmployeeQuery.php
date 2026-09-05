@@ -23,7 +23,10 @@ class EmployeeQuery
                 'employees.employee_id',
                 'employees.first_name',
                 'employees.last_name',
-            ]);
+                'employees.avatar',
+                'employees.position_id',
+            ])
+            ->with('position:id,name');
 
         if ($exceptEmployee) {
             $excludedIds = collect([$exceptEmployee->id])

@@ -4,7 +4,7 @@ namespace App\Models;
 
 use App\Enums\ContractType;
 use App\Enums\Gender;
-use App\Enums\TeamAssignmentRole;
+use App\Enums\TeamAssignmentType;
 use App\Enums\UserStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -79,9 +79,9 @@ class Employee extends Model
     public function teams(): BelongsToMany
     {
         return $this->belongsToMany(Team::class, 'team_assignments')
-            ->withPivot(['role', 'start_date', 'end_date', 'is_current', 'end_reason', 'end_reason_note', 'created_by', 'ended_by'])
+            ->withPivot(['type', 'role', 'start_date', 'end_date', 'is_current', 'end_reason', 'end_reason_note', 'created_by', 'ended_by'])
             ->withTimestamps()
-            ->wherePivot('role', TeamAssignmentRole::MEMBER->value)
+            ->wherePivot('type', TeamAssignmentType::MEMBER->value)
             ->wherePivotNull('end_date')
             ->wherePivot('is_current', true);
     }
@@ -89,9 +89,9 @@ class Employee extends Model
     public function managedTeams(): BelongsToMany
     {
         return $this->belongsToMany(Team::class, 'team_assignments')
-            ->withPivot(['role', 'start_date', 'end_date', 'is_current', 'end_reason', 'end_reason_note', 'created_by', 'ended_by'])
+            ->withPivot(['type', 'role', 'start_date', 'end_date', 'is_current', 'end_reason', 'end_reason_note', 'created_by', 'ended_by'])
             ->withTimestamps()
-            ->wherePivot('role', TeamAssignmentRole::MANAGER->value)
+            ->wherePivot('type', TeamAssignmentType::MANAGER->value)
             ->wherePivotNull('end_date')
             ->wherePivot('is_current', true);
     }

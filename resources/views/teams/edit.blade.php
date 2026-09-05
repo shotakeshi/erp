@@ -13,7 +13,7 @@
 
     <div class="row">
         <div class="col-lg-8 mx-auto">
-            @include('teams._form', [
+            @include('teams._form-upsert', [
                 'team' => $team,
                 'action' => route('teams.update', $team),
                 'method' => 'PUT',

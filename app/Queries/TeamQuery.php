@@ -2,15 +2,17 @@
 
 namespace App\Queries;
 
-use App\Enums\TeamAssignmentRole;
+use App\Enums\TeamAssignmentType;
 use App\Filters\TeamFilter;
 use App\Models\Employee;
 use App\Models\Team;
+use App\Models\TeamAssignment;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Collection;
 
 class TeamQuery
 {
@@ -26,6 +28,14 @@ class TeamQuery
     public function paginateTrashed(array $filters): LengthAwarePaginator
     {
         return $this->paginateTeams(Team::onlyTrashed(), $filters);
+    }
+
+    public function forSelectRoles(): Collection
+    {
+        return TeamAssignment::query()
+            ->whereNotNull('role')
+            ->distinct()
+            ->pluck('role');
     }
 
     private function paginateTeams(
@@ -94,6 +104,8 @@ class TeamQuery
                             'id',
                             'team_id',
                             'employee_id',
+                            'type',
+                            'role',
                             'start_date',
                         ])
                         ->with($this->assignmentEmployeeRelations())
@@ -106,6 +118,8 @@ class TeamQuery
                             'id',
                             'team_id',
                             'employee_id',
+                            'type',
+                            'role',
                             'start_date',
                         ])
                         ->with($this->assignmentEmployeeRelations())
@@ -154,6 +168,8 @@ class TeamQuery
                 'id',
                 'team_id',
                 'employee_id',
+                'type',
+                'role',
                 'start_date',
             ])
             ->with($this->assignmentEmployeeRelations())
@@ -167,7 +183,7 @@ class TeamQuery
      */
     public function memberHistory(Team $team, array $filters = []): LengthAwarePaginator
     {
-        return $this->assignmentHistory($team, TeamAssignmentRole::MEMBER, $filters);
+        return $this->assignmentHistory($team, TeamAssignmentType::MEMBER, $filters);
     }
 
     /**
@@ -175,25 +191,27 @@ class TeamQuery
      */
     public function managerHistory(Team $team, array $filters = []): LengthAwarePaginator
     {
-        return $this->assignmentHistory($team, TeamAssignmentRole::MANAGER, $filters);
+        return $this->assignmentHistory($team, TeamAssignmentType::MANAGER, $filters);
     }
 
     /**
-     * Lịch sử assignment của team theo role, có thể lọc theo current hoặc past assignment.
+     * Lịch sử assignment của team theo type, có thể lọc theo current hoặc past assignment.
      */
     private function assignmentHistory(
         Team $team,
-        TeamAssignmentRole $role,
+        TeamAssignmentType $type,
         array $filters = [],
     ): LengthAwarePaginator {
         $filter = $filters['filter'] ?? 'all';
 
         return $team->assignments()
-            ->forRole($role)
+            ->forType($type)
             ->select([
                 'id',
                 'team_id',
                 'employee_id',
+                'type',
+                'role',
                 'start_date',
                 'end_date',
                 'is_current',
@@ -228,6 +246,8 @@ class TeamQuery
                 'id',
                 'team_id',
                 'employee_id',
+                'type',
+                'role',
                 'start_date',
             ])
             ->with($this->assignmentEmployeeRelations())
@@ -247,6 +267,8 @@ class TeamQuery
                 'id',
                 'team_id',
                 'employee_id',
+                'type',
+                'role',
                 'start_date',
             ])
             ->with([
@@ -267,6 +289,8 @@ class TeamQuery
                 'id',
                 'team_id',
                 'employee_id',
+                'type',
+                'role',
                 'start_date',
                 'end_date',
                 'is_current',

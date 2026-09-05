@@ -1,6 +1,6 @@
 <?php
 
-use App\Enums\TeamAssignmentRole;
+use App\Enums\TeamAssignmentType;
 use App\Http\Controllers\Auth\AccountController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DepartmentController;
@@ -55,12 +55,12 @@ Route::middleware('auth')->group(function () {
         Route::get('members/history', [TeamAssignmentController::class, 'memberHistory'])->name('members.history');
         Route::get('managers/history', [TeamAssignmentController::class, 'managerHistory'])->name('managers.history');
         Route::get('members', [TeamAssignmentController::class, 'index'])
-            ->defaults('role', TeamAssignmentRole::MEMBER->value)
+            ->defaults('type', TeamAssignmentType::MEMBER->value)
             ->name('members.index');
         Route::post('members', [TeamAssignmentController::class, 'memberStore'])->name('members.store');
         Route::delete('members/{employee}', [TeamAssignmentController::class, 'memberDestroy'])->name('members.destroy');
         Route::get('managers', [TeamAssignmentController::class, 'index'])
-            ->defaults('role', TeamAssignmentRole::MANAGER->value)
+            ->defaults('type', TeamAssignmentType::MANAGER->value)
             ->name('managers.index');
         Route::post('managers', [TeamAssignmentController::class, 'managerStore'])->name('managers.store');
         Route::delete('managers/{employee}', [TeamAssignmentController::class, 'managerDestroy'])->name('managers.destroy');

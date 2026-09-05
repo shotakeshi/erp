@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-enum TeamAssignmentRole: string
+enum TeamAssignmentType: string
 {
     case MEMBER = 'member';
     case MANAGER = 'manager';
