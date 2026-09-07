@@ -23,8 +23,7 @@
                 'name' => $employee?->full_name ?? '',
                 'detail' => $employee?->position?->name ?? '-',
                 'avatar_url' => $employee?->avatar ? image_url($employee->avatar) : null,
-                'role' => $member['role'],
-                'is_manager' => (bool) $member['is_manager'] ?? false,
+                'role' => $member['role'] ?? '',
             ];
         })
         ->values()
@@ -122,7 +121,6 @@
                     data-remove-label="{{ __('site.teams.remove') }}"
                     data-delete-label="{{ __('common.button.delete') }}"
                     data-add-label="{{ __('common.button.add') }}"
-                    data-manager-label="{{ __('site.teams.team_manager') }}"
                 >
                     <div class="card-header">
                         <span>{{ __('site.teams.add_member_to_team') }}</span>
@@ -145,13 +143,12 @@
                                         <th>{{ __('site.teams.employee') }}</th>
                                         <th>{{ __('site.teams.member_detail') }}</th>
                                         <th>{{ __('site.teams.role') }}</th>
-                                        <th>{{ __('site.teams.team_manager') }}</th>
                                         <th>{{ __('site.teams.actions') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody data-team-members>
                                     <tr data-team-members-empty>
-                                        <td colspan="5" class="text-center text-muted py-4">
+                                        <td colspan="4" class="text-center text-muted py-4">
                                             <i class="fas fa-users d-block font-20 mb-2"></i>
                                             {{ __('site.teams.no_members_selected') }}
                                         </td>
@@ -249,7 +246,6 @@
                                 <th>{{ __('site.teams.employee') }}</th>
                                 <th>{{ __('site.teams.member_detail') }}</th>
                                 <th>{{ __('site.teams.role') }}</th>
-                                <th>{{ __('site.teams.team_manager') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -277,17 +273,13 @@
                                             value="{{ data_get($oldMembers->get($assignment->id), 'role', $assignment->role) }}"
                                             list="team-role-suggestions"
                                             aria-label="{{ __('site.teams.role') }} — {{ $assignment->employee?->full_name }}"
-                                            required
                                         >
                                         <x-form.error :name="'members.'.$loop->index.'.role'" />
-                                    </td>
-                                    <td class="text-center">
-                                        <input type="checkbox" disabled @checked($assignment->type === \App\Enums\TeamAssignmentType::MANAGER) aria-label="{{ __('site.teams.team_manager') }}">
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="text-center text-muted py-4">
+                                    <td colspan="3" class="text-center text-muted py-4">
                                         <i class="fas fa-users d-block font-20 mb-2"></i>
                                         {{ __('site.teams.no_current_members') }}
                                     </td>

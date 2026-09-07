@@ -31,7 +31,26 @@
                         </div>
                     </div>
 
-                    @include('teams._filter', ['action' => route('teams.index')])
+                    <form action="{{ route('teams.index') }}" method="GET" class="mt-3">
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <x-form.input
+                                    name="search"
+                                    :value="request('search')"
+                                    placeholder="{{ __('site.teams.search_placeholder') }}"
+                                />
+                            </div>
+                            <div class="col-lg-8">
+                                <button type="submit" class="btn btn-outline-gray mr-3">
+                                    {{ __('common.button.search') }}
+                                </button>
+                                <a href="{{ route('teams.index') }}" class="btn btn-outline-danger">
+                                    {{ __('common.button.reset') }}
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+
                 </div>
             </div>
 
@@ -41,8 +60,8 @@
     <div class="row">
         @forelse ($teams as $team)
             @php
-                $previewEmployees = $team->managers->merge($team->members)->take(3);
-                $employeesCount = $team->current_managers_count + $team->current_members_count;
+                $previewEmployees = $team->members->take(3);
+                $employeesCount = $team->current_members_count;
                 $remainingCount = max($employeesCount - $previewEmployees->count(), 0);
             @endphp
 
@@ -74,7 +93,6 @@
                                         title="{{ __('site.teams.delete_confirmation_title') }}"
                                         text="{{ __('site.teams.delete_confirmation', [
                                             'members' => $team->current_members_count,
-                                            'managers' => $team->current_managers_count,
                                         ]) }}"
                                         confirm-text="{{ __('common.button.delete') }}"
                                         cancel-text="{{ __('common.button.cancel') }}"
@@ -124,8 +142,6 @@
                                 </div>
                             @endif
                             <small class="font-13 text-muted text-nowrap">
-                                {{ trans_choice('site.teams.manager_count', $team->current_managers_count, ['count' => $team->current_managers_count]) }}
-                                <span aria-hidden="true">&middot;</span>
                                 {{ trans_choice('site.teams.member_count', $team->current_members_count, ['count' => $team->current_members_count]) }}
                             </small>
                         </div>

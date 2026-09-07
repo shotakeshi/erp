@@ -50,7 +50,7 @@ class EmployeeLifecycleService extends BaseService
             $endReason = $this->assignmentEndReasonFor($targetStatus);
 
             if ($employee && $endReason) {
-                // Đóng cả membership và manager assignment cùng với status transition.
+                // Đóng các team assignment cùng với status transition.
                 $this->closeCurrentAssignments(
                     $employee,
                     $endReason,

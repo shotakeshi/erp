@@ -3,10 +3,11 @@
 namespace App\Services\Shared;
 
 use App\Models\Department;
+use App\Models\Employee;
+use App\Models\Team;
 use App\Queries\DepartmentQuery;
 use App\Queries\EmployeeQuery;
 use App\Queries\PositionQuery;
-use App\Models\Employee;
 use App\Queries\TeamQuery;
 
 class FormOptionService
@@ -21,6 +22,11 @@ class FormOptionService
     public function employeeOptions(?Employee $exceptEmployee = null)
     {
         return $this->employeeQuery->forSelect($exceptEmployee);
+    }
+
+    public function assignableEmployeeOptions(Team $team)
+    {
+        return $this->employeeQuery->forTeamAssignment($team);
     }
 
     public function departmentOptions()

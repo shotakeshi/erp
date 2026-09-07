@@ -16,9 +16,9 @@ $(function () {
 
     const labels = {
         add: $form.data('add-label'),
+        remove: $form.data('remove-label'),
         delete: $form.data('delete-label'),
         noEmployees: $form.data('no-employees-message'),
-        manager: $form.data('manager-label'),
     };
 
     const initAvatarByName = function (name) {
@@ -70,10 +70,24 @@ $(function () {
         return Number(employee.employee_id);
     };
 
+    const isSelected = function (employeeId) {
+        return selectedEmployees.some(function (employee) {
+            return getEmployeeId(employee) === employeeId;
+        });
+    };
+
+    const updateToggleButton = function ($button, employeeId) {
+        const employeeIsSelected = isSelected(employeeId);
+
+        $button
+            .text(employeeIsSelected ? labels.remove : labels.add)
+            .toggleClass('btn-light', ! employeeIsSelected)
+            .toggleClass('btn-outline-danger', employeeIsSelected);
+    };
+
     const renderEmployeeList = function () {
-        // Không hiển thị lại employee đã nằm trong team hoặc đã được chọn.
         const searchValue = String($search.val() || '').trim().toLowerCase();
-        const excludedIds = new Set([...members, ...selectedEmployees].map(getEmployeeId));
+        const memberIds = new Set(members.map(getEmployeeId));
 
         $employeeList.empty();
 
@@ -81,8 +95,7 @@ $(function () {
             .filter(function (employee) {
                 const employeeSearchText = [employee.name, employee.detail].join(' ').toLowerCase();
 
-                // Chỉ giữ employee chưa được chọn và khớp từ khoá search (nếu có).
-                return !excludedIds.has(getEmployeeId(employee))
+                return !memberIds.has(getEmployeeId(employee))
                     && (!searchValue || employeeSearchText.includes(searchValue));
             })
             .forEach(function (employee) {
@@ -97,7 +110,7 @@ $(function () {
                         <button
                             type="button"
                             class="btn btn-light btn-sm px-3 mr-3"
-                            data-member-add
+                            data-member-toggle
                         ></button>
                     </div>`,
                 );
@@ -109,9 +122,10 @@ $(function () {
                     'avatar-title bg-soft-primary text-primary rounded-circle',
                 );
                 $item.find('h6').text(employee.name);
-                $item.find('[data-member-add]')
-                    .text(labels.add)
+                const $toggleButton = $item.find('[data-member-toggle]')
                     .attr('data-employee-id', getEmployeeId(employee));
+
+                updateToggleButton($toggleButton, getEmployeeId(employee));
 
                 $item.appendTo($employeeList);
             });
@@ -139,9 +153,7 @@ $(function () {
             const fieldNames = {
                 employeeId: `members[${index}][employee_id]`,
                 role: `members[${index}][role]`,
-                isManager: `members[${index}][is_manager]`,
             };
-            const managerCheckboxId = `member-manager-${memberId}`;
 
             const $row = $(
                 `<tr>
@@ -160,21 +172,8 @@ $(function () {
                             type="text"
                             class="form-control"
                             list="team-role-suggestions"
-                            required
                             data-member-role
                         >
-                    </td>
-                    <td class="text-center">
-                        <div class="custom-control custom-checkbox">
-                            <input type="hidden" data-manager-value>
-                            <input
-                                type="checkbox"
-                                class="custom-control-input"
-                                value="1"
-                                data-manager-checkbox
-                            >
-                            <label class="custom-control-label" data-manager-label></label>
-                        </div>
                     </td>
                     <td class="text-center">
                         <button
@@ -209,20 +208,6 @@ $(function () {
                     'data-employee-id': memberId,
                 })
                 .val(member.role || '');
-
-            $row.find('[data-manager-value]')
-                .attr('name', fieldNames.isManager)
-                .val(member.is_manager ? '1' : '0');
-
-            $row.find('[data-manager-checkbox]')
-                .attr({
-                    id: managerCheckboxId,
-                    'data-employee-id': memberId,
-                })
-                .prop('checked', Boolean(member.is_manager));
-
-            $row.find('[data-manager-label]')
-                .attr('for', managerCheckboxId)
 
             $row.find('[data-member-delete]').attr({
                 title: labels.delete,
@@ -262,19 +247,27 @@ $(function () {
 
     $search.on('input', renderEmployeeList);
 
-    // Thêm employee vào selection trong modal, loại item đó khỏi danh sách có thể chọn.
-    $employeeList.on('click', '[data-member-add]', function () {
+    // Chỉ thay đổi selection tạm thời trong modal; item vẫn giữ nguyên trong danh sách.
+    $employeeList.on('click', '[data-member-toggle]', function () {
+        const employeeId = Number($(this).data('employee-id'));
         const employee = employees.find(function (item) {
-            return getEmployeeId(item) === Number($(this).data('employee-id'));
-        }.bind(this));
+            return getEmployeeId(item) === employeeId;
+        });
 
         if (! employee) {
             return;
         }
 
-        selectedEmployees.push(employee);
+        if (isSelected(employeeId)) {
+            selectedEmployees = selectedEmployees.filter(function (item) {
+                return getEmployeeId(item) !== employeeId;
+            });
+        } else {
+            selectedEmployees.push(employee);
+        }
+
         renderSelectedEmployeesModal();
-        renderEmployeeList();
+        updateToggleButton($(this), employeeId);
     });
 
     // Xác nhận selection, chuyển thành members để tạo các input submit trong bảng.
@@ -286,7 +279,6 @@ $(function () {
                 detail: employee.detail,
                 avatar_url: employee.avatar_url,
                 role: '',
-                is_manager: false,
             };
         }));
 
@@ -303,19 +295,6 @@ $(function () {
 
         if (member) {
             member.role = $(this).val();
-        }
-    });
-
-    // Cập nhật state và hidden input
-    $membersTable.on('change', '[data-manager-checkbox]', function () {
-        const id = Number($(this).data('employee-id'));
-        const member = members.find(function (item) {
-            return getEmployeeId(item) === id;
-        });
-
-        if (member) {
-            member.is_manager = $(this).prop('checked');
-            $(this).siblings('[data-manager-value]').val(member.is_manager ? '1' : '0');
         }
     });
 

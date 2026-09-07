@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Enums\TeamAssignmentEndReason;
-use App\Enums\TeamAssignmentType;
 use App\Models\Employee;
 use App\Models\Team;
 use App\Models\TeamAssignment;
@@ -17,7 +16,7 @@ class TeamService extends BaseService
 {
     public function createTeam(array $teamAttributes, array $members, User $actor): void
     {
-         DB::transaction(function () use ($teamAttributes, $members, $actor) {
+        DB::transaction(function () use ($teamAttributes, $members, $actor) {
             if ($members) {
                 $this->eligibleEmployees(array_column($members, 'employee_id'));
             }
@@ -29,10 +28,7 @@ class TeamService extends BaseService
             $assignments = array_map(
                 static fn (array $member): array => [
                     'employee_id' => (int) $member['employee_id'],
-                    'type' => $member['is_manager']
-                        ? TeamAssignmentType::MANAGER->value
-                        : TeamAssignmentType::MEMBER->value,
-                    'role' => $member['role'],
+                    'role' => filled($member['role'] ?? null) ? trim($member['role']) : 'member',
                     'start_date' => $startDate,
                     'is_current' => true,
                     'created_by' => $actorId,
@@ -56,7 +52,9 @@ class TeamService extends BaseService
                     $this->fail(__('site.teams.conflicts.assignment_not_current'));
                 }
 
-                $assignment->update(['role' => $member['role']]);
+                $assignment->update([
+                    'role' => filled($member['role'] ?? null) ? trim($member['role']) : 'member',
+                ]);
             }
 
             $team->update($teamAttributes);
@@ -90,19 +88,17 @@ class TeamService extends BaseService
     public function addAssignments(
         Team $team,
         array $employeeIds,
-        string $startDate,
         User $actor,
-        TeamAssignmentType $type,
         ?string $role = null,
     ): Collection {
         $employeeIds = array_map('intval', $employeeIds);
 
-        return DB::transaction(function () use ($team, $employeeIds, $startDate, $actor, $type, $role): Collection {
+        return DB::transaction(function () use ($team, $employeeIds, $actor, $role): Collection {
             $actorId = $actor->getKey();
             $lockedTeam = $this->lockTeam($team);
-            $resolvedStartDate = $this->resolveAssignmentDate($startDate);
+            $resolvedStartDate = $this->today();
             $employees = $this->eligibleEmployees($employeeIds);
-            $assignmentHistory = $this->assignmentHistoryForType($lockedTeam, $employeeIds, $type);
+            $assignmentHistory = $this->assignmentHistory($lockedTeam, $employeeIds);
 
             $this->validateAssignmentHistory($assignmentHistory, $resolvedStartDate);
 
@@ -112,8 +108,7 @@ class TeamService extends BaseService
                 $createdAssignments->push(TeamAssignment::query()->create([
                     'team_id' => $lockedTeam->getKey(),
                     'employee_id' => $employee->getKey(),
-                    'role' => $role,
-                    'type' => $type,
+                    'role' => filled($role) ? trim($role) : 'member',
                     'start_date' => $resolvedStartDate->toDateString(),
                     'end_date' => null,
                     'is_current' => true,
@@ -133,13 +128,12 @@ class TeamService extends BaseService
         Employee $employee,
         string $endDate,
         User $actor,
-        TeamAssignmentType $type,
         ?string $endReasonNote,
     ): TeamAssignment {
-        return DB::transaction(function () use ($team, $employee, $endDate, $actor, $type, $endReasonNote): TeamAssignment {
+        return DB::transaction(function () use ($team, $employee, $endDate, $actor, $endReasonNote): TeamAssignment {
             $lockedTeam = $this->lockTeam($team);
             $resolvedEndDate = $this->resolveAssignmentDate($endDate);
-            $history = $this->assignmentHistoryForType($lockedTeam, [$employee->getKey()], $type);
+            $history = $this->assignmentHistory($lockedTeam, [$employee->getKey()]);
 
             $currentAssignment = $history->firstWhere('is_current', true);
             if ($currentAssignment === null) {
@@ -215,20 +209,6 @@ class TeamService extends BaseService
         array $employeeIds,
     ): EloquentCollection {
         return $team->assignments()
-            ->whereIn('employee_id', $employeeIds)
-            ->orderBy('employee_id')
-            ->orderBy('id')
-            ->lockForUpdate()
-            ->get();
-    }
-
-    private function assignmentHistoryForType(
-        Team $team,
-        array $employeeIds,
-        TeamAssignmentType $type,
-    ): EloquentCollection {
-        return $team->assignments()
-            ->forType($type)
             ->whereIn('employee_id', $employeeIds)
             ->orderBy('employee_id')
             ->orderBy('id')

@@ -15,6 +15,8 @@ return [
         'confirm_delete' => 'はい、削除します！',
         'filter' => 'フィルター',
         'search' => '検索',
+        'grid_view' => 'グリッド表示',
+        'list_view' => 'リスト表示',
         'restore' => '復元',
         'list_of_trash' => 'ゴミ箱一覧',
         'resend' => '再送信',

@@ -41,12 +41,11 @@ class TeamRequest extends FormRequest
                 'distinct',
                 'exists:employees,id',
             ],
-            'members.*.role' => ['required', 'string', 'max:50'],
-            'members.*.is_manager' => ['required', 'boolean'],
+            'members.*.role' => ['nullable', 'string', 'max:50'],
         ];
 
         if ($this->route('team')) {
-            unset($rules['members.*.employee_id'], $rules['members.*.is_manager']);
+            unset($rules['members.*.employee_id']);
             $rules['members.*'] = ['required', 'array:assignment_id,role'];
             $rules['members.*.assignment_id'] = ['required', 'integer', 'distinct', 'exists:team_assignments,id'];
         }
@@ -66,7 +65,6 @@ class TeamRequest extends FormRequest
             'members.*.employee_id' => __('site.teams.employee'),
             'members.*.assignment_id' => __('site.teams.employee'),
             'members.*.role' => __('site.teams.role'),
-            'members.*.is_manager' => __('site.teams.team_manager'),
         ];
     }
 }

@@ -15,6 +15,8 @@ return [
         'confirm_delete' => 'Yes, delete it!',
         'filter' => 'Filters',
         'search' => 'Search',
+        'grid_view' => 'Grid view',
+        'list_view' => 'List view',
         'restore' => 'Restore',
         'list_of_trash' => 'List of trash',
         'resend' => 'Resend',

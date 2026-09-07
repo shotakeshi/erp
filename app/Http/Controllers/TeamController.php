@@ -84,7 +84,8 @@ class TeamController extends Controller
     public function show(Team $team): View
     {
         return view('teams.show', [
-            'team' => $this->teamQuery->detailForTabs($team),
+            'team' => $this->teamQuery->detail($team),
+            'employees' => $this->formOptionService->assignableEmployeeOptions($team),
         ]);
     }
 

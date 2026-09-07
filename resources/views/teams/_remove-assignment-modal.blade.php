@@ -1,6 +1,5 @@
 @php
-    $isMemberAssignment = $assignmentType === 'member';
-    $modalId = 'remove-' . $assignmentType . '-assignment-modal';
+    $modalId = 'remove-assignment-modal';
     $reopenAssignment = $assignments->first(
         static fn ($assignment): bool => (string) $assignment->employee_id === (string) old('remove_employee_id'),
     );
@@ -18,12 +17,7 @@
         data-employee-id="{{ $reopenEmployee->id }}"
         data-employee-name="{{ $reopenEmployee->full_name }}"
         data-start-date="{{ $reopenAssignment->start_date->toDateString() }}"
-        data-assignment-description="{{ __(
-            $isMemberAssignment
-                ? 'site.teams.remove_member_confirmation'
-                : 'site.teams.remove_manager_confirmation',
-            ['employee' => $reopenEmployee->full_name],
-        ) }}"
+        data-assignment-description="{{ __('site.teams.remove_member_confirmation', ['employee' => $reopenEmployee->full_name]) }}"
     @endif
 >
     <div class="modal-dialog">
@@ -34,7 +28,7 @@
 
                 <div class="modal-header">
                     <h5 class="modal-title" id="{{ $modalId }}-title">
-                        {{ $isMemberAssignment ? __('site.teams.remove_member_title') : __('site.teams.remove_manager_title') }}
+                        {{ __('site.teams.remove_member_title') }}
                     </h5>
                     <button type="button" class="close" data-dismiss="modal">
                         <span>&times;</span>
@@ -44,12 +38,7 @@
                 <div class="modal-body">
                     <p class="mb-3" data-remove-assignment-description>
                         @if ($reopenEmployee)
-                            {{ __(
-                                $isMemberAssignment
-                                    ? 'site.teams.remove_member_confirmation'
-                                    : 'site.teams.remove_manager_confirmation',
-                                ['employee' => $reopenEmployee->full_name],
-                            ) }}
+                            {{ __('site.teams.remove_member_confirmation', ['employee' => $reopenEmployee->full_name]) }}
                         @endif
                     </p>
 
@@ -79,9 +68,7 @@
                     </div>
 
                     <small class="form-text text-muted mt-3">
-                        {{ $isMemberAssignment
-                            ? __('site.teams.membership_history_retained')
-                            : __('site.teams.manager_history_retained') }}
+                        {{ __('site.teams.membership_history_retained') }}
                     </small>
                 </div>
 

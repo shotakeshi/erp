@@ -4,6 +4,7 @@ namespace App\Queries;
 
 use App\Filters\EmployeeFilter;
 use App\Models\Employee;
+use App\Models\Team;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
@@ -48,6 +49,28 @@ class EmployeeQuery
     public function paginateTrashed(array $filters): LengthAwarePaginator
     {
         return $this->paginateEmployees(Employee::onlyTrashed(), $filters);
+    }
+
+    public function forTeamAssignment(Team $team): EloquentCollection
+    {
+        return Employee::query()
+            ->active()
+            ->select([
+                'employees.id',
+                'employees.employee_id',
+                'employees.first_name',
+                'employees.last_name',
+                'employees.avatar',
+                'employees.position_id',
+            ])
+            ->with('position:id,name')
+            ->whereDoesntHave('teamAssignments',
+                fn (Builder $query) => $query
+                    ->where('team_id', $team->getKey())
+                    ->currentAssignment()
+            )
+            ->orderBy('id')
+            ->get();
     }
 
     private function paginateEmployees(Builder $query, array $filters): LengthAwarePaginator

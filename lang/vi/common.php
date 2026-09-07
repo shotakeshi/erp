@@ -15,6 +15,8 @@ return [
         'confirm_delete' => 'Xác nhận xóa!',
         'filter' => 'Lọc',
         'search' => 'Tìm kiếm',
+        'grid_view' => 'Chế độ lưới',
+        'list_view' => 'Chế độ danh sách',
         'restore' => 'Khôi phục',
         'list_of_trash' => 'Danh sách thùng rác',
         'resend' => 'Gửi lại',

@@ -19,7 +19,26 @@
                         {{ __('site.teams.back_to_list') }}
                     </a>
 
-                    @include('teams._filter', ['action' => route('teams.trash')])
+                    <form action="{{ route('teams.trash') }}" method="GET" class="mt-3">
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <x-form.input
+                                        name="search"
+                                        :value="request('search')"
+                                        placeholder="{{ __('site.teams.search_placeholder') }}"
+                                />
+                            </div>
+                            <div class="col-lg-8">
+                                <button type="submit" class="btn btn-outline-gray mr-3">
+                                    {{ __('common.button.search') }}
+                                </button>
+                                <a href="{{ route('teams.trash') }}" class="btn btn-outline-danger">
+                                    {{ __('common.button.reset') }}
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+
                 </div>
             </div>
 
@@ -89,7 +108,6 @@
                                                 title="{{ __('site.teams.delete_confirmation_title') }}"
                                                 text="{{ __('site.teams.delete_confirmation', [
                                                     'members' => $team->current_members_count,
-                                                    'managers' => $team->current_managers_count,
                                                 ]) }}"
                                                 confirm-text="{{ __('common.button.delete') }}"
                                                 cancel-text="{{ __('common.button.cancel') }}"

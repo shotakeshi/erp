@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Enums\TeamAssignmentEndReason;
-use App\Enums\TeamAssignmentType;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,7 +12,6 @@ class TeamAssignment extends Model
     protected $fillable = [
         'team_id',
         'employee_id',
-        'type',
         'role',
         'start_date',
         'end_date',
@@ -25,7 +23,6 @@ class TeamAssignment extends Model
     ];
 
     protected $casts = [
-        'type' => TeamAssignmentType::class,
         'end_reason' => TeamAssignmentEndReason::class,
         'start_date' => 'date',
         'end_date' => 'date',
@@ -50,21 +47,6 @@ class TeamAssignment extends Model
     public function endedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'ended_by');
-    }
-
-    public function scopeForType(Builder $query, TeamAssignmentType $type): Builder
-    {
-        return $query->where('type', $type->value);
-    }
-
-    public function scopeMembers(Builder $query): Builder
-    {
-        return $query->forType(TeamAssignmentType::MEMBER);
-    }
-
-    public function scopeManagers(Builder $query): Builder
-    {
-        return $query->forType(TeamAssignmentType::MANAGER);
     }
 
     public function scopeCurrentAssignment(Builder $query): Builder
