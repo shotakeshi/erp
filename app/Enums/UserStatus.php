@@ -54,6 +54,25 @@ enum UserStatus: string
         };
     }
 
+    public function canTransitionTo(self $targetStatus): bool
+    {
+        return match ($this) {
+            self::INACTIVE => $targetStatus === self::ACTIVE,
+            self::ACTIVE => in_array($targetStatus, [
+                self::ON_LEAVE,
+                self::BLOCKED,
+                self::TERMINATED,
+                self::INACTIVE,
+            ], true),
+            self::ON_LEAVE, self::BLOCKED => in_array($targetStatus, [
+                self::ACTIVE,
+                self::TERMINATED,
+                self::INACTIVE,
+            ], true),
+            self::TERMINATED => false,
+        };
+    }
+
     public static function options(): array
     {
         return collect(self::cases())

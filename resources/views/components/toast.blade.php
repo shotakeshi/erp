@@ -1,23 +1,15 @@
-@if(session('success'))
-    <script>
-        toastr.success(@json(session('success')));
-    </script>
-@endif
+@foreach (['success', 'error', 'warning', 'info'] as $type)
+    @if (session($type))
+        <script>
+            toastr.{{ $type }}(@json(session($type)));
+        </script>
+    @endif
+@endforeach
 
-@if(session('error'))
+@if ($errors->any())
     <script>
-        toastr.error(@json(session('error')));
-    </script>
-@endif
-
-@if(session('warning'))
-    <script>
-        toastr.warning(@json(session('warning')));
-    </script>
-@endif
-
-@if(session('info'))
-    <script>
-        toastr.info(@json(session('info')));
+        @foreach ($errors->all() as $error)
+            toastr.error(@json($error), '', { escapeHtml: true });
+        @endforeach
     </script>
 @endif

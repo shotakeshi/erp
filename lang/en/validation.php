@@ -195,6 +195,29 @@ return [
     |
     */
 
-    'attributes' => [],
+    'attributes' => [
+        'address' => 'Address',
+        'avatar' => 'Avatar',
+        'city' => 'Province / City',
+        'contract_type' => 'Contract type',
+        'date_of_joining' => 'Date of joining',
+        'department_id' => 'Department',
+        'dob' => 'Date of birth',
+        'email' => 'Email address',
+        'employee_id' => 'Employee ID',
+        'first_name' => 'First name',
+        'gender' => 'Gender',
+        'last_name' => 'Last name',
+        'password' => 'Password',
+        'password_confirmation' => 'Password confirmation',
+        'phone' => 'Phone number',
+        'portal_code' => 'Portal code',
+        'position_id' => 'Position',
+        'remove_avatar' => 'Remove avatar',
+        'reporting_manager_id' => 'Reporting manager',
+        'salary' => 'Salary',
+        'state' => 'Ward',
+        'token' => 'Reset token',
+    ],
 
 ];

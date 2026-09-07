@@ -6,17 +6,18 @@
 
 @if($href)
     <a href="{{ $href }}" class="btn btn-outline-{{ $type }} waves-effect waves-light mr-2 btn-sm">
-        @else
-            <button class="btn btn-outline-{{ $type }} waves-effect waves-light mr-2 btn-sm">
-                @endif
-                @if($icon)
-                <i class="{{ $icon }} me-1"></i>
-        @endif
+@else
+    <button class="btn btn-outline-{{ $type }} waves-effect waves-light mr-2 btn-sm">
+@endif
 
-        {{ $slot }}
+    @if($icon)
+        <i class="{{ $icon }} me-1"></i>
+    @endif
 
-        @if($href)
+    {{ $slot }}
+
+@if($href)
     </a>
-    @else
-        </button>
+@else
+    </button>
 @endif
