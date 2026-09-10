@@ -6,7 +6,7 @@
         title="{{ __('site.teams.edit') }}"
         :breadcrumbs="[
             ['title' => __('site.teams.title'), 'url' => route('teams.index')],
-            ['title' => $team->name, 'url' => route('teams.show', $team)],
+            ['title' => $team->name, 'url' => route('teams.members.index', $team)],
             ['title' => __('site.teams.edit')],
         ]"
     />

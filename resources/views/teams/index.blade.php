@@ -81,7 +81,7 @@
                                     <i class="fas fa-ellipsis-v font-20 text-muted"></i>
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="team-actions-{{ $team->id }}">
-                                    <a class="dropdown-item text-gray" href="{{ route('teams.show', $team) }}">
+                                    <a class="dropdown-item text-gray" href="{{ route('teams.members.index', $team) }}">
                                         {{ __('common.button.view') }}
                                     </a>
                                     <a class="dropdown-item text-warning" href="{{ route('teams.edit', $team) }}">
@@ -120,7 +120,7 @@
                             </p>
                         </div>
 
-                        <div class="d-flex flex-column justify-content-center align-items-center">
+                        <div class="d-flex justify-content-center align-items-center">
                             @if ($previewEmployees->isNotEmpty())
                                 <div class="img-group text-nowrap">
                                     @foreach ($previewEmployees as $employee)
@@ -133,15 +133,15 @@
                                         </span>
                                     @endforeach
                                     @if ($remainingCount > 0)
-                                        <a href="{{ route('teams.show', $team) }}" class="avatar-box thumb-xs align-self-center">
-                                            <span class="avatar-title bg-soft-info rounded-circle font-13 font-weight-normal">
+                                        <a href="{{ route('teams.members.index', $team) }}" class="avatar-box thumb-xs align-self-center">
+                                            <span class="avatar-title bg-soft-secondary rounded-circle font-weight-normal">
                                                 +{{ $remainingCount }}
                                             </span>
                                         </a>
                                     @endif
                                 </div>
                             @endif
-                            <small class="font-13 text-muted text-nowrap">
+                            <small class="font-13 text-muted text-nowrap ml-3">
                                 {{ trans_choice('site.teams.member_count', $team->current_members_count, ['count' => $team->current_members_count]) }}
                             </small>
                         </div>
@@ -164,4 +164,11 @@
     </div>
 @endsection
 
-@include('teams._confirmation-assets')
+@push('css')
+    <link href="{{ asset('plugins/sweet-alert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css">
+    <link href="{{ asset('plugins/animate/animate.css') }}" rel="stylesheet" type="text/css">
+@endpush
+
+@push('scripts')
+    <script src="{{ asset('plugins/sweet-alert2/sweetalert2.min.js') }}"></script>
+@endpush

@@ -22,13 +22,20 @@ class TeamAssignmentController extends Controller
         private readonly FormOptionService $formOptionService,
     ) {}
 
-    public function index(Team $team): View
+    public function index(Request $request, Team $team): View
     {
-        return view('teams.members.index', [
-            'team' => $this->teamQuery->detailForTabs($team),
+        $mode = $request->query('mode') === 'list' ? 'list' : 'grid';
+
+        $viewData = [
+            'team' => $team,
             'employees' => $this->formOptionService->assignableEmployeeOptions($team),
             'memberships' => $this->teamQuery->currentMembers($team),
-        ]);
+            'mode' => $mode,
+        ];
+
+        return $mode === 'grid'
+            ? view('teams.members.grid', $viewData)
+            : view('teams.members.list', $viewData);
     }
 
     public function store(TeamAssignmentsRequest $request, Team $team): RedirectResponse|JsonResponse
@@ -44,19 +51,17 @@ class TeamAssignmentController extends Controller
         if ($request->expectsJson()) {
             return response()->json([
                 'message' => __('common.messages.created'),
-                'redirect_url' => route('teams.show', $team),
+                'redirect_url' => route('teams.members.index', $team),
             ]);
         }
 
         return redirect()
-            ->route('teams.show', $team)
+            ->route('teams.members.index', $team)
             ->with('success', __('common.messages.created'));
     }
 
     public function history(Request $request, Team $team): View
     {
-        $team = $this->teamQuery->detailForTabs($team);
-
         return view('teams.members.history', [
             'team' => $team,
             'memberships' => $this->teamQuery->memberHistory($team, $request->only('filter')),
@@ -79,7 +84,7 @@ class TeamAssignmentController extends Controller
         );
 
         return redirect()
-            ->route('teams.show', $team)
+            ->route('teams.members.index', $team)
             ->with('success', __('common.messages.updated'));
     }
 }

@@ -74,47 +74,16 @@
                                         <span>{{ $team->description }}</span>
                                     </td>
                                     <td class="text-center text-nowrap">
-                                        @if (request()->routeIs('teams.trash'))
-                                            <x-form.confirm-button
-                                                :action="route('teams.restore', $team)"
-                                                title="{{ __('common.messages.restore_confirm') }}"
-                                                text="{{ __('common.messages.restore_sure') }}"
-                                                confirm-text="{{ __('common.button.restore') }}"
-                                                cancel-text="{{ __('common.button.cancel') }}"
-                                                icon="fas fa-undo"
-                                                class="btn btn-sm btn-outline-success"
-                                                label="{{ __('common.button.restore') }}"
-                                            />
-                                        @else
-                                            <a
-                                                href="{{ route('teams.show', $team) }}"
-                                                class="btn btn-sm btn-outline-gray"
-                                                style="width: 34px; height: 34px"
-                                                title="{{ __('common.button.view') }}"
-                                            >
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            <a
-                                                href="{{ route('teams.edit', $team) }}"
-                                                class="btn btn-sm btn-outline-warning"
-                                                style="width: 34px; height: 34px"
-                                                title="{{ __('common.button.edit') }}"
-                                            >
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <x-form.confirm-button
-                                                :action="route('teams.destroy', $team)"
-                                                method="DELETE"
-                                                title="{{ __('site.teams.delete_confirmation_title') }}"
-                                                text="{{ __('site.teams.delete_confirmation', [
-                                                    'members' => $team->current_members_count,
-                                                ]) }}"
-                                                confirm-text="{{ __('common.button.delete') }}"
-                                                cancel-text="{{ __('common.button.cancel') }}"
-                                                icon="fas fa-trash"
-                                                class="btn btn-sm btn-outline-danger"
-                                            />
-                                        @endif
+                                        <x-form.confirm-button
+                                            :action="route('teams.restore', $team)"
+                                            title="{{ __('common.messages.restore_confirm') }}"
+                                            text="{{ __('common.messages.restore_sure') }}"
+                                            confirm-text="{{ __('common.button.restore') }}"
+                                            cancel-text="{{ __('common.button.cancel') }}"
+                                            icon="fas fa-undo"
+                                            class="btn btn-sm btn-outline-success"
+                                            label="{{ __('common.button.restore') }}"
+                                        />
                                     </td>
                                 </tr>
                             @empty
@@ -135,4 +104,12 @@
     </div>
 @endsection
 
-@include('teams._confirmation-assets')
+@push('css')
+    <link href="{{ asset('plugins/sweet-alert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css">
+    <link href="{{ asset('plugins/animate/animate.css') }}" rel="stylesheet" type="text/css">
+@endpush
+
+@push('scripts')
+    <script src="{{ asset('plugins/sweet-alert2/sweetalert2.min.js') }}"></script>
+@endpush
+

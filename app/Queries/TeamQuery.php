@@ -32,7 +32,6 @@ class TeamQuery
     public function forSelectRoles(): Collection
     {
         return TeamAssignment::query()
-            ->whereNotNull('role')
             ->distinct()
             ->pluck('role');
     }
@@ -50,10 +49,10 @@ class TeamQuery
                 'code',
                 'logo',
                 'description',
-            ])
-            ->tap(fn (Builder $query): Builder => $this->withCurrentAssignmentCounts($query));
+            ]);
 
         if ($withPreviews) {
+            $this->withCurrentAssignmentCounts($query);
             $this->withCardPeoplePreviews($query);
         }
 
@@ -88,50 +87,6 @@ class TeamQuery
         ]);
     }
 
-    /**
-     * Lấy chi tiết team cùng các member đang được phân công.
-     */
-    public function detail(Team $team): Team
-    {
-        return $this->withCurrentAssignmentCounts(
-            Team::query()->whereKey($team),
-        )
-            ->with([
-                'assignments' => function (Relation $query): void {
-                    $query->currentAssignment()
-                        ->select([
-                            'id',
-                            'team_id',
-                            'employee_id',
-                            'role',
-                            'start_date',
-                        ])
-                        ->with($this->assignmentEmployeeRelations())
-                        ->orderBy('start_date')
-                        ->orderBy('id');
-                },
-            ])
-            ->firstOrFail();
-    }
-
-    /**
-     * Lấy thông tin của team và số lượng member hiện tại cho các tab.
-     */
-    public function detailForTabs(Team $team): Team
-    {
-        return $this->withCurrentAssignmentCounts(
-            Team::query()
-                ->whereKey($team)
-                ->select([
-                    'id',
-                    'name',
-                    'code',
-                    'logo',
-                    'description',
-                ]),
-        )->firstOrFail();
-    }
-
     private function withCurrentAssignmentCounts(Builder $query): Builder
     {
         return $query->withCount([
@@ -164,16 +119,6 @@ class TeamQuery
      */
     public function memberHistory(Team $team, array $filters = []): LengthAwarePaginator
     {
-        return $this->assignmentHistory($team, $filters);
-    }
-
-    /**
-     * Lịch sử assignment của team, có thể lọc theo current hoặc past assignment.
-     */
-    private function assignmentHistory(
-        Team $team,
-        array $filters = [],
-    ): LengthAwarePaginator {
         $filter = $filters['filter'] ?? 'all';
 
         return $team->assignments()
@@ -210,17 +155,16 @@ class TeamQuery
      */
     public function employeeCurrentTeams(Employee $employee): EloquentCollection
     {
-        return $employee->teamMemberships()
+        return $employee->teamAssignments()
             ->currentAssignment()
             ->select([
                 'id',
                 'team_id',
                 'employee_id',
-                'role',
                 'start_date',
             ])
             ->with([
-                'team:id,name,code,logo,deleted_at',
+                'team:id,name,code,deleted_at',
             ])
             ->orderBy('start_date')
             ->orderBy('id')
@@ -232,24 +176,18 @@ class TeamQuery
      */
     public function employeeTeamHistory(Employee $employee): LengthAwarePaginator
     {
-        return $employee->teamMemberships()
+        return $employee->teamAssignments()
             ->select([
                 'id',
                 'team_id',
                 'employee_id',
-                'role',
                 'start_date',
                 'end_date',
-                'is_current',
                 'end_reason',
                 'end_reason_note',
-                'created_by',
-                'ended_by',
             ])
             ->with([
-                'team:id,name,code,logo,deleted_at',
-                'createdBy:id,name',
-                'endedBy:id,name',
+                'team:id,name,code,deleted_at',
             ])
             ->orderByDesc('start_date')
             ->orderByDesc('id')
@@ -264,7 +202,6 @@ class TeamQuery
     {
         $columns = [
             'id',
-            'user_id',
             'avatar',
             'email',
             'phone',
@@ -278,10 +215,9 @@ class TeamQuery
         return [
             'employee' => fn (Relation $query) => $query
                 ->select($columns)->with([
-                    'user:id,status',
                     'department:id,name',
                     'position:id,name',
-                ])
+                ]),
         ];
     }
 
@@ -291,8 +227,7 @@ class TeamQuery
     private function assignmentHistoryRelations(): array
     {
         return [
-            ...$this->assignmentEmployeeRelations(),
-            'team:id,name,code,logo,deleted_at',
+            'employee:id,first_name,last_name,avatar,email',
             'createdBy:id,name',
             'endedBy:id,name',
         ];

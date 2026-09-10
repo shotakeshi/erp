@@ -83,10 +83,7 @@ class TeamController extends Controller
 
     public function show(Team $team): View
     {
-        return view('teams.show', [
-            'team' => $this->teamQuery->detail($team),
-            'employees' => $this->formOptionService->assignableEmployeeOptions($team),
-        ]);
+        return view('teams.show', []);
     }
 
     public function edit(Team $team): View
@@ -131,7 +128,7 @@ class TeamController extends Controller
             }
 
             return redirect()
-                ->route('teams.show', $team)
+                ->route('teams.index', $team)
                 ->with('success', __('common.messages.updated'));
         } catch (Throwable $e) {
             if ($newLogo) {

@@ -18,7 +18,7 @@
                             <span class="font-weight-bold">{{ $membership->team->name }}</span>
                             <span class="badge badge-soft-danger ml-1">{{ __('site.teams.team_deleted') }}</span>
                         @else
-                            <a href="{{ route('teams.show', $membership->team) }}" class="font-weight-bold text-primary">
+                            <a href="{{ route('teams.members.index', $membership->team) }}" class="font-weight-bold text-primary">
                                 {{ $membership->team->name }}
                             </a>
                         @endif

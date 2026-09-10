@@ -67,7 +67,7 @@
 
                     <div data-selected-member-inputs></div>
 
-                    <div class="d-none">
+                    <div data-add-assignment-server-errors>
                         <x-form.error name="employee_ids" />
                         <x-form.error name="employee_ids.*" />
                     </div>

@@ -1,6 +1,4 @@
-@php
-    $isGrid = request()->routeIs('teams.show');
-@endphp
+@php($isGrid = $mode === 'grid')
 
 <div class="card">
     <div class="card-body">
@@ -19,13 +17,13 @@
             </div>
             <div class="col-sm-auto ml-sm-auto mt-2 mt-sm-0">
                 <div class="list-grid-nav d-flex align-items-center">
-                    <a href="{{ route('teams.show', $team) }}" id="grid-view-button"
+                    <a href="{{ route('teams.members.index', $team) }}" id="grid-view-button"
                         class="btn btn-sm mr-1 {{ $isGrid ? 'btn-primary active' : 'btn-soft-info' }}"
                         title="{{ __('common.button.grid_view') }}" aria-label="{{ __('common.button.grid_view') }}"
                         @if ($isGrid) aria-current="page" @endif>
                         <i class="fas fa-th" aria-hidden="true"></i>
                     </a>
-                    <a href="{{ route('teams.members.index', $team) }}" id="list-view-button"
+                    <a href="{{ route('teams.members.index', ['team' => $team, 'mode' => 'list']) }}" id="list-view-button"
                         class="btn btn-sm mr-1 {{ $isGrid ? 'btn-soft-info' : 'btn-primary active' }}"
                         title="{{ __('common.button.list_view') }}" aria-label="{{ __('common.button.list_view') }}"
                         @if (! $isGrid) aria-current="page" @endif>

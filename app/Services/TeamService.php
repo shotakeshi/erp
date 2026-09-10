@@ -89,11 +89,10 @@ class TeamService extends BaseService
         Team $team,
         array $employeeIds,
         User $actor,
-        ?string $role = null,
-    ): Collection {
+    ): void {
         $employeeIds = array_map('intval', $employeeIds);
 
-        return DB::transaction(function () use ($team, $employeeIds, $actor, $role): Collection {
+        DB::transaction(function () use ($team, $employeeIds, $actor): void {
             $actorId = $actor->getKey();
             $lockedTeam = $this->lockTeam($team);
             $resolvedStartDate = $this->today();
@@ -102,13 +101,11 @@ class TeamService extends BaseService
 
             $this->validateAssignmentHistory($assignmentHistory, $resolvedStartDate);
 
-            $createdAssignments = collect();
-
             foreach ($employees as $employee) {
-                $createdAssignments->push(TeamAssignment::query()->create([
+                TeamAssignment::query()->create([
                     'team_id' => $lockedTeam->getKey(),
                     'employee_id' => $employee->getKey(),
-                    'role' => filled($role) ? trim($role) : 'member',
+                    'role' => 'member',
                     'start_date' => $resolvedStartDate->toDateString(),
                     'end_date' => null,
                     'is_current' => true,
@@ -116,10 +113,9 @@ class TeamService extends BaseService
                     'end_reason_note' => null,
                     'created_by' => $actorId,
                     'ended_by' => null,
-                ]));
+                ]);
             }
 
-            return $createdAssignments;
         });
     }
 
@@ -129,13 +125,15 @@ class TeamService extends BaseService
         string $endDate,
         User $actor,
         ?string $endReasonNote,
-    ): TeamAssignment {
-        return DB::transaction(function () use ($team, $employee, $endDate, $actor, $endReasonNote): TeamAssignment {
+    ): void {
+        DB::transaction(function () use ($team, $employee, $endDate, $actor, $endReasonNote): void {
             $lockedTeam = $this->lockTeam($team);
             $resolvedEndDate = $this->resolveAssignmentDate($endDate);
-            $history = $this->assignmentHistory($lockedTeam, [$employee->getKey()]);
-
-            $currentAssignment = $history->firstWhere('is_current', true);
+            $currentAssignment = $lockedTeam->assignments()
+                ->where('employee_id', $employee->getKey())
+                ->currentAssignment()
+                ->lockForUpdate()
+                ->first();
             if ($currentAssignment === null) {
                 $this->fail(__('site.teams.conflicts.assignment_not_current'));
             }
@@ -152,7 +150,6 @@ class TeamService extends BaseService
                 $endReasonNote,
             );
 
-            return $currentAssignment;
         });
     }
 

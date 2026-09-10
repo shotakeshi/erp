@@ -223,6 +223,10 @@ $(function () {
         };
 
         $modal.on('show.bs.modal', function () {
+            if (!shouldRestoreInitialSelection) {
+                $modal.find('[data-add-assignment-server-errors]').empty();
+            }
+
             restoreSelectedMembers(
                 shouldRestoreInitialSelection
                     ? initialMemberIds
@@ -288,6 +292,7 @@ $(function () {
 
             isSubmitting = true;
             $confirmButton.prop('disabled', true);
+            $modal.find('[data-add-assignment-server-errors]').empty();
             clearError();
 
             $.ajax({
@@ -323,6 +328,10 @@ $(function () {
         const endDate = modal.find('[data-remove-assignment-end-date]');
         const submitButton = form.find('[data-remove-assignment-submit]');
 
+        const resetSubmitButton = function () {
+            submitButton.prop('disabled', false);
+        };
+
         const populateModal = function (source, preserveEndDate) {
             form.attr('action', source.data('assignment-action'));
             description.text(source.data('assignment-description'));
@@ -336,12 +345,16 @@ $(function () {
         };
 
         modal.on('show.bs.modal', function (event) {
+            resetSubmitButton();
+
             const trigger = $(event.relatedTarget);
 
             if (trigger.length) {
                 populateModal(trigger, false);
             }
         });
+
+        modal.on('hidden.bs.modal', resetSubmitButton);
 
         form.on('submit', function () {
             submitButton.prop('disabled', true);

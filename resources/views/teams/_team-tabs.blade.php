@@ -16,13 +16,13 @@
             </div>
         </div>
     </div>
-    <div class="card-body">
-        <ul class="nav nav-pills mb-0" id="pills-tab" role="tablist">
+    <div class="card-body d-flex align-items-center">
+        <ul class="nav nav-pills mb-0 mr-3" id="pills-tab" role="tablist">
             <li class="nav-item">
-                <a href="{{ route('teams.show', $team) }}"
-                    @class(['nav-link', 'active' => request()->routeIs('teams.show')])
+                <a href="{{ route('teams.members.index', $team) }}"
+                    @class(['nav-link', 'active' => request()->routeIs('teams.members.index')])
                 >
-                    {{ __('site.teams.general') }}
+                    {{ __('site.teams.members') }}
                 </a>
             </li>
             <li class="nav-item">
@@ -33,5 +33,9 @@
                 </a>
             </li>
         </ul>
+        <a href="{{ route('teams.edit', $team) }}" class="btn btn-sm btn-outline-warning ml-auto flex-shrink-0" title="{{ __('site.teams.edit') }}">
+            <i class="fas fa-edit mr-1" aria-hidden="true"></i>
+            {{ __('site.teams.edit') }}
+        </a>
     </div>
 </div>

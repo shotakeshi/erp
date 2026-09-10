@@ -6,14 +6,14 @@
         title="{{ __('site.teams.current_members') }}"
         :breadcrumbs="[
             ['title' => __('site.teams.title'), 'url' => route('teams.index')],
-            ['title' => $team->name, 'url' => route('teams.show', $team)],
+            ['title' => $team->name, 'url' => route('teams.members.index', $team)],
             ['title' => __('site.teams.members')],
         ]"
     />
 
     @include('teams._team-tabs', ['team' => $team])
 
-    @include('teams._members-toolbar', ['team' => $team])
+    @include('teams._members-toolbar', ['team' => $team, 'mode' => $mode])
 
     <div class="card">
         <div class="card-body">
@@ -21,12 +21,11 @@
                 <table class="table table-bordered mb-0 table-centered">
                     <thead>
                         <tr>
-                            <th>{{ __('site.teams.employee') }}</th>
                             <th>{{ __('site.teams.employee_code') }}</th>
+                            <th>{{ __('site.teams.employee') }}</th>
                             <th>{{ __('site.teams.department') }}</th>
-                            <th>{{ __('site.teams.position') }}</th>
-                            <th>{{ __('site.teams.start_date') }}</th>
                             <th>{{ __('site.teams.role') }}</th>
+                            <th>{{ __('site.teams.start_date') }}</th>
                             <th class="text-center">{{ __('site.teams.actions') }}</th>
                         </tr>
                     </thead>
@@ -36,29 +35,29 @@
                                 $employee = $assignment->employee;
                             @endphp
                             <tr data-member-search="{{ $employee->full_name }} {{ $employee->position?->name }}">
+                                <td>#{{ $employee->employee_id }}</td>
                                 <td>
                                     <div class="media align-items-center">
-                                        <span class="avatar-box thumb-sm align-self-center mr-2">
-                                            <span class="avatar-title bg-soft-info rounded-circle">
-                                                <i class="fas fa-user"></i>
-                                            </span>
-                                        </span>
-                                        <div class="media-body">
-                                            @if ($employee->trashed())
-                                                <span class="font-weight-bold">{{ $employee->full_name }}</span>
-                                            @else
-                                                <a href="{{ route('employees.show', $employee) }}" class="font-weight-bold text-primary">
-                                                    {{ $employee->full_name }}
-                                                </a>
-                                            @endif
+                                        <div class="media">
+                                            <a class="" href="{{ route('employees.show', $employee) }}">
+                                                <img src="{{ image_url($employee->avatar) }}" alt="{{ $employee->full_name }}" class="rounded-circle thumb-md">
+                                            </a>
+                                            <div class="media-body align-self-center ml-3">
+                                                @if ($employee->trashed())
+                                                    <span class="font-weight-bold">{{ $employee->full_name }}</span>
+                                                @else
+                                                    <a href="{{ route('employees.show', $employee) }}" class="font-weight-bold text-primary">
+                                                        {{ $employee->full_name }}
+                                                    </a>
+                                                @endif
+                                                <p class="mb-0 font-12 text-muted">{{ $employee->email }}</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </td>
-                                <td>{{ $employee->employee_id }}</td>
-                                <td>{{ $employee->department?->name ?? '-' }}</td>
-                                <td>{{ $employee->position?->name ?? '-' }}</td>
-                                <td class="text-nowrap">{{ $assignment->start_date->format('d/m/Y') }}</td>
+                                <td>{{ $employee->department?->name ?? '--' }} - {{ $employee->position?->name ?? '--' }}</td>
                                 <td>{{ $assignment->role ?: '-' }}</td>
+                                <td class="text-nowrap">{{ $assignment->start_date->format('d/m/Y') }}</td>
                                 <td class="text-center">
                                     @if ($employee->trashed())
                                         <span class="text-muted font-12" title="{{ __('site.teams.deleted_employee_action_unavailable') }}">
@@ -73,7 +72,6 @@
                                             data-target="#remove-assignment-modal"
                                             data-assignment-action="{{ route('teams.members.destroy', [$team, $employee]) }}"
                                             data-employee-id="{{ $employee->id }}"
-                                            data-employee-name="{{ $employee->full_name }}"
                                             data-start-date="{{ $assignment->start_date->toDateString() }}"
                                             data-assignment-description="{{ __('site.teams.remove_member_confirmation', ['employee' => $employee->full_name]) }}"
                                             title="{{ __('site.teams.remove_member_title') }}"

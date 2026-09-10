@@ -15,7 +15,6 @@
     @if ($reopenAssignment && $reopenEmployee)
         data-assignment-action="{{ route($destroyRoute, [$team, $reopenEmployee]) }}"
         data-employee-id="{{ $reopenEmployee->id }}"
-        data-employee-name="{{ $reopenEmployee->full_name }}"
         data-start-date="{{ $reopenAssignment->start_date->toDateString() }}"
         data-assignment-description="{{ __('site.teams.remove_member_confirmation', ['employee' => $reopenEmployee->full_name]) }}"
     @endif
@@ -63,7 +62,6 @@
                             placeholder="{{ __('site.teams.end_reason_note_placeholder') }}"
                             :rows="4"
                             maxlength="5000"
-                            data-remove-assignment-end-reason-note
                         />
                     </div>
 

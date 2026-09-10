@@ -116,7 +116,6 @@
                 <div
                     class="card"
                     id="team-create-form"
-                    data-empty-message="{{ __('site.teams.no_members_selected') }}"
                     data-no-employees-message="{{ __('site.teams.no_available_employees') }}"
                     data-remove-label="{{ __('site.teams.remove') }}"
                     data-delete-label="{{ __('common.button.delete') }}"
@@ -292,7 +291,7 @@
                     <x-form-actions
                         :show-reset="false"
                         show-cancel
-                        :url-cancel="route('teams.show', $team)"
+                        :url-cancel="route('teams.members.index', $team)"
                     />
                 </div>
             </div>

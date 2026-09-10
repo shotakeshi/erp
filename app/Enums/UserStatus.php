@@ -57,7 +57,7 @@ enum UserStatus: string
     public function canTransitionTo(self $targetStatus): bool
     {
         return match ($this) {
-            self::INACTIVE => $targetStatus === self::ACTIVE,
+            self::INACTIVE, self::TERMINATED => $targetStatus === self::ACTIVE,
             self::ACTIVE => in_array($targetStatus, [
                 self::ON_LEAVE,
                 self::BLOCKED,
@@ -69,7 +69,6 @@ enum UserStatus: string
                 self::TERMINATED,
                 self::INACTIVE,
             ], true),
-            self::TERMINATED => false,
         };
     }
 

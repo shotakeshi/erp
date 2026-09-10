@@ -15,7 +15,6 @@ use App\Services\LocationService;
 use App\Services\Shared\FormOptionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -75,7 +74,7 @@ class EmployeeController extends Controller
                 }
                 //  make user
                 $user = User::create([
-                    'name' => $employeeRequests['first_name'] . ' ' . $employeeRequests['last_name'],
+                    'name' => $employeeRequests['first_name'].' '.$employeeRequests['last_name'],
                     'email' => $employeeRequests['email'],
                 ]);
                 // make employee
@@ -136,7 +135,7 @@ class EmployeeController extends Controller
                 &$newAvatar
             ) {
                 $employee->user->update([
-                    'name' => trim( "{$employeeRequests['first_name']} {$employeeRequests['last_name']}"),
+                    'name' => trim("{$employeeRequests['first_name']} {$employeeRequests['last_name']}"),
                     'email' => $employeeRequests['email'],
                 ]);
 
@@ -159,7 +158,7 @@ class EmployeeController extends Controller
                 $employee->update($employeeRequests);
             });
 
-            if ( $oldAvatar && ($newAvatar || $request->boolean('remove_avatar'))) {
+            if ($oldAvatar && ($newAvatar || $request->boolean('remove_avatar'))) {
                 $this->fileUploadService->delete($oldAvatar);
             }
 

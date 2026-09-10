@@ -9,8 +9,8 @@ $(function () {
     const $search = $modal.find('[data-member-search]');
     const $confirm = $modal.find('[data-member-confirm]');
 
-    const employees = JSON.parse($('[data-team-employees]').text()) || '[]';
-    let members = JSON.parse($('[data-team-initial-members]').text()) || '[]';
+    const employees = JSON.parse($('[data-team-employees]').text());
+    let members = JSON.parse($('[data-team-initial-members]').text());
 
     let selectedEmployees = [];
 
