@@ -4,140 +4,12 @@ $(function () {
     const $modal = $('#invite-members-modal');
     const $membersTable = $form.find('[data-team-members]');
     const $emptyRow = $membersTable.find('[data-team-members-empty]').first().clone();
-    const $employeeList = $modal.find('[data-employee-list]');
-    const $selectedMembers = $modal.find('[data-selected-members]');
-    const $search = $modal.find('[data-member-search]');
     const $confirm = $modal.find('[data-member-confirm]');
-
-    const employees = JSON.parse($('[data-team-employees]').text());
     let members = JSON.parse($('[data-team-initial-members]').text());
-
-    let selectedEmployees = [];
-
-    const labels = {
-        add: $form.data('add-label'),
-        remove: $form.data('remove-label'),
-        delete: $form.data('delete-label'),
-        noEmployees: $form.data('no-employees-message'),
-    };
-
-    const initAvatarByName = function (name) {
-        return name
-            .split(' ')
-            .filter(Boolean)
-            .slice(0, 2)
-            .map(function (part) {
-                return part.charAt(0).toUpperCase();
-            })
-            .join('');
-    };
-
-    const appendAvatar = function ($avatarContainer, employee, avatarClass, fallbackClass) {
-        if (employee.avatar_url) {
-            $('<img>', {
-                src: employee.avatar_url,
-                alt: employee.name,
-                title: employee.name,
-                class: `rounded-circle ${avatarClass}`,
-            }).appendTo($avatarContainer);
-
-            return;
-        }
-
-        $('<span>', {
-            class: `avatar-box ${avatarClass}`,
-            title: employee.name,
-        }).append($('<span>', {
-            class: fallbackClass,
-            text: initAvatarByName(employee.name),
-        })).appendTo($avatarContainer);
-    };
-
-    const renderSelectedEmployeesModal = function () {
-        $selectedMembers.empty();
-
-        selectedEmployees.forEach(function (employee) {
-            appendAvatar(
-                $selectedMembers,
-                employee,
-                'thumb-xs mr-1 mb-1',
-                'avatar-title bg-primary rounded-circle border border-white font-12 text-white',
-            );
-        });
-    };
-
-    const getEmployeeId = function (employee) {
-        return Number(employee.employee_id);
-    };
-
-    const isSelected = function (employeeId) {
-        return selectedEmployees.some(function (employee) {
-            return getEmployeeId(employee) === employeeId;
-        });
-    };
-
-    const updateToggleButton = function ($button, employeeId) {
-        const employeeIsSelected = isSelected(employeeId);
-
-        $button
-            .text(employeeIsSelected ? labels.remove : labels.add)
-            .toggleClass('btn-light', ! employeeIsSelected)
-            .toggleClass('btn-outline-danger', employeeIsSelected);
-    };
-
-    const renderEmployeeList = function () {
-        const searchValue = String($search.val() || '').trim().toLowerCase();
-        const memberIds = new Set(members.map(getEmployeeId));
-
-        $employeeList.empty();
-
-        employees
-            .filter(function (employee) {
-                const employeeSearchText = [employee.name, employee.detail].join(' ').toLowerCase();
-
-                return !memberIds.has(getEmployeeId(employee))
-                    && (!searchValue || employeeSearchText.includes(searchValue));
-            })
-            .forEach(function (employee) {
-                const $item = $(
-                    `<div class="d-flex align-items-center justify-content-between mb-3">
-                        <div class="media align-items-center">
-                            <span data-member-avatar></span>
-                            <div class="media-body">
-                                <h6 class="m-0"></h6>
-                            </div>
-                        </div>
-                        <button
-                            type="button"
-                            class="btn btn-light btn-sm px-3 mr-3"
-                            data-member-toggle
-                        ></button>
-                    </div>`,
-                );
-
-                appendAvatar(
-                    $item.find('[data-member-avatar]'),
-                    employee,
-                    'thumb-sm mr-3',
-                    'avatar-title bg-soft-primary text-primary rounded-circle',
-                );
-                $item.find('h6').text(employee.name);
-                const $toggleButton = $item.find('[data-member-toggle]')
-                    .attr('data-employee-id', getEmployeeId(employee));
-
-                updateToggleButton($toggleButton, getEmployeeId(employee));
-
-                $item.appendTo($employeeList);
-            });
-
-        // empty employee
-        if (! $employeeList.children().length) {
-            $('<p>', {
-                class: 'text-center text-muted mb-0 py-3',
-                text: labels.noEmployees,
-            }).appendTo($employeeList);
-        }
-    };
+    const picker = TeamEmployeePicker.create($modal.find('[data-employee-picker]'));
+    const appendAvatar = TeamEmployeePicker.appendAvatar;
+    const getEmployeeId = (employee) => Number(employee.employee_id);
+    const labels = { delete: $form.data('delete-label') };
 
     // Render members và các input sẽ được gửi khi submit form.
     const renderMembers = function () {
@@ -220,59 +92,13 @@ $(function () {
     };
 
     $modal.on('show.bs.modal', function () {
-        selectedEmployees = [];
-        $search.val('');
-        renderSelectedEmployeesModal();
-        renderEmployeeList();
+        picker.open([], members.map(getEmployeeId));
     });
-
-    $modal.on('shown.bs.modal', function () {
-        if ($.fn.slimscroll && ! $employeeList.parent().hasClass('slimScrollDiv')) {
-            $employeeList.slimscroll({
-                position: 'right',
-                size: '6px',
-                color: '#a2b1d070',
-                wheelStep: 5,
-                touchScrollStep: 50,
-                alwaysVisible: false,
-            });
-        }
-    });
-
-    $modal.on('hidden.bs.modal', function () {
-        selectedEmployees = [];
-        $search.val('');
-        renderSelectedEmployeesModal();
-    });
-
-    $search.on('input', renderEmployeeList);
-
-    // Chỉ thay đổi selection tạm thời trong modal; item vẫn giữ nguyên trong danh sách.
-    $employeeList.on('click', '[data-member-toggle]', function () {
-        const employeeId = Number($(this).data('employee-id'));
-        const employee = employees.find(function (item) {
-            return getEmployeeId(item) === employeeId;
-        });
-
-        if (! employee) {
-            return;
-        }
-
-        if (isSelected(employeeId)) {
-            selectedEmployees = selectedEmployees.filter(function (item) {
-                return getEmployeeId(item) !== employeeId;
-            });
-        } else {
-            selectedEmployees.push(employee);
-        }
-
-        renderSelectedEmployeesModal();
-        updateToggleButton($(this), employeeId);
-    });
+    $modal.on('hidden.bs.modal', picker.close);
 
     // Xác nhận selection, chuyển thành members để tạo các input submit trong bảng.
     $confirm.on('click', function () {
-        members.push(...selectedEmployees.map(function (employee) {
+        members.push(...picker.selected().map(function (employee) {
             return {
                 employee_id: getEmployeeId(employee),
                 name: employee.name,

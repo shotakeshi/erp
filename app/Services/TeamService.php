@@ -97,9 +97,7 @@ class TeamService extends BaseService
             $lockedTeam = $this->lockTeam($team);
             $resolvedStartDate = $this->today();
             $employees = $this->eligibleEmployees($employeeIds);
-            $assignmentHistory = $this->assignmentHistory($lockedTeam, $employeeIds);
-
-            $this->validateAssignmentHistory($assignmentHistory, $resolvedStartDate);
+            $this->validateAssignmentHistory($lockedTeam, $employeeIds, $resolvedStartDate);
 
             foreach ($employees as $employee) {
                 TeamAssignment::query()->create([
@@ -201,18 +199,6 @@ class TeamService extends BaseService
         return $employees;
     }
 
-    private function assignmentHistory(
-        Team $team,
-        array $employeeIds,
-    ): EloquentCollection {
-        return $team->assignments()
-            ->whereIn('employee_id', $employeeIds)
-            ->orderBy('employee_id')
-            ->orderBy('id')
-            ->lockForUpdate()
-            ->get();
-    }
-
     private function currentAssignmentsForTeam(Team $team): EloquentCollection
     {
         return $team->assignments()
@@ -223,17 +209,16 @@ class TeamService extends BaseService
             ->get();
     }
 
-    private function validateAssignmentHistory(Collection $history, CarbonImmutable $startDate): void
+    private function validateAssignmentHistory(Team $team, array $employeeIds, CarbonImmutable $startDate): void
     {
-        if ($history->contains(
-            fn (TeamAssignment $assignment) => $assignment->end_date === null && $assignment->is_current
-        )) {
+        $assignments = $team->assignments()->whereIn('employee_id', $employeeIds);
+
+        if ((clone $assignments)->currentAssignment()->lockForUpdate()->first(['id']) !== null) {
             $this->fail(__('site.teams.conflicts.assignment_already_current'));
         }
 
-        if ($history->contains(
-            fn (TeamAssignment $assignment) => $assignment->end_date !== null && $startDate->lt($assignment->end_date)
-        )) {
+        if ((clone $assignments)->where('end_date', '>', $startDate->endOfDay()->toDateString())
+            ->lockForUpdate()->first(['id']) !== null) {
             $this->fail(__('site.teams.conflicts.assignment_interval_overlaps'));
         }
     }

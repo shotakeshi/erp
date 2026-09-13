@@ -53,263 +53,52 @@ $(function () {
 
     const initializeAddAssignmentModal = function ($modal) {
         const $form = $modal.find('[data-add-assignment-form]');
-        const $employeeList = $modal.find('[data-assignment-employee-list]');
-        const $selectedMembers = $modal.find('[data-selected-members]');
         const $selectedMemberInputs = $modal.find('[data-selected-member-inputs]');
-        const $search = $modal.find('[data-assignment-member-search]');
         const $errorMessage = $modal.find('[data-add-assignment-error]');
         const $confirmButton = $form.find('[data-add-assignment-confirm]');
-        const employees = JSON.parse($('[data-assignment-employees]').text());
-        const initialMemberIds = JSON.parse($('[data-assignment-initial-member-ids]').text());
-        const labels = {
-            add: $modal.data('add-label'),
-            remove: $modal.data('remove-label'),
-            noEmployees: $modal.data('no-employees-message'),
-            requestFailed: $modal.data('request-failed-message'),
-        };
-        let selectedMembers = [];
+        const initialEmployees = JSON.parse($('[data-assignment-employees]').text());
         let shouldRestoreInitialSelection = $modal.attr('data-auto-open') === 'true';
         let isSubmitting = false;
-
-        const getEmployeeId = function (employee) {
-            return Number(employee.employee_id);
-        };
-
-        const initAvatarByName = function (name) {
-            return name
-                .split(' ')
-                .filter(Boolean)
-                .slice(0, 2)
-                .map(function (part) {
-                    return part.charAt(0).toUpperCase();
-                })
-                .join('');
-        };
-
-        const appendAvatar = function ($avatarContainer, employee, avatarClass, fallbackClass) {
-            if (employee.avatar_url) {
-                $('<img>', {
-                    src: employee.avatar_url,
-                    alt: employee.name,
-                    title: employee.name,
-                    class: `rounded-circle ${avatarClass}`,
-                }).appendTo($avatarContainer);
-
-                return;
-            }
-
-            $('<span>', {
-                class: `avatar-box ${avatarClass}`,
-                title: employee.name,
-            }).append($('<span>', {
-                class: fallbackClass,
-                text: initAvatarByName(employee.name),
-            })).appendTo($avatarContainer);
-        };
-
-        const isSelected = function (employeeId) {
-            return selectedMembers.some(function (employee) {
-                return getEmployeeId(employee) === employeeId;
-            });
-        };
-
-        const clearError = function () {
-            $errorMessage.addClass('d-none').empty();
-        };
-
-        const displayError = function (message) {
-            $errorMessage.text(message).removeClass('d-none');
-        };
-
-        const updateToggleButton = function ($button, employeeId) {
-            const employeeIsSelected = isSelected(employeeId);
-
-            $button
-                .text(employeeIsSelected ? labels.remove : labels.add)
-                .toggleClass('btn-light', ! employeeIsSelected)
-                .toggleClass('btn-outline-danger', employeeIsSelected);
-        };
-
-        const renderSelectedMembers = function () {
-            $selectedMembers.empty();
+        const picker = TeamEmployeePicker.create($modal.find('[data-employee-picker]'), function (employees) {
             $selectedMemberInputs.empty();
-
-            selectedMembers.forEach(function (employee) {
-                appendAvatar(
-                    $selectedMembers,
-                    employee,
-                    'thumb-xs mr-1 mb-1',
-                    'avatar-title bg-primary rounded-circle border border-white font-12 text-white',
-                );
-
-                $('<input>', {
-                    type: 'hidden',
-                    name: 'employee_ids[]',
-                    value: getEmployeeId(employee),
-                }).appendTo($selectedMemberInputs);
+            employees.forEach(function (employee) {
+                $('<input>', { type: 'hidden', name: 'employee_ids[]', value: employee.employee_id })
+                    .appendTo($selectedMemberInputs);
             });
-        };
-
-        const renderEmployeeList = function () {
-            const searchValue = String($search.val() || '').trim().toLowerCase();
-
-            $employeeList.empty();
-
-            employees
-                .filter(function (employee) {
-                    const employeeSearchText = [employee.name, employee.detail]
-                        .join(' ')
-                        .toLowerCase();
-
-                    return !searchValue || employeeSearchText.includes(searchValue);
-                })
-                .forEach(function (employee) {
-                    const employeeId = getEmployeeId(employee);
-                    const $item = $(
-                        `<div class="d-flex align-items-center justify-content-between mb-3">
-                            <div class="media align-items-center">
-                                <span data-assignment-member-avatar></span>
-                                <div class="media-body">
-                                    <h6 class="m-0" data-assignment-member-name></h6>
-                                    <span class="text-muted font-12" data-assignment-member-detail></span>
-                                </div>
-                            </div>
-                            <button
-                                type="button"
-                                class="btn btn-light btn-sm px-3 mr-3"
-                                data-assignment-member-toggle
-                            ></button>
-                        </div>`,
-                    );
-                    const $toggleButton = $item.find('[data-assignment-member-toggle]');
-
-                    appendAvatar(
-                        $item.find('[data-assignment-member-avatar]'),
-                        employee,
-                        'thumb-sm mr-3',
-                        'avatar-title bg-soft-primary text-primary rounded-circle',
-                    );
-                    $item.find('[data-assignment-member-name]').text(employee.name);
-                    $item.find('[data-assignment-member-detail]').text(employee.detail || '-');
-                    $toggleButton.attr('data-employee-id', employeeId);
-                    updateToggleButton($toggleButton, employeeId);
-
-                    $item.appendTo($employeeList);
-                });
-
-            if (! $employeeList.children().length) {
-                $('<p>', {
-                    class: 'text-center text-muted mb-0 py-3',
-                    text: labels.noEmployees,
-                }).appendTo($employeeList);
-            }
-        };
-
-        const restoreSelectedMembers = function (employeeIds) {
-            const selectedEmployeeIds = new Set(employeeIds.map(Number));
-
-            selectedMembers = employees.filter(function (employee) {
-                return selectedEmployeeIds.has(getEmployeeId(employee));
-            });
-        };
-
-        const errorFromResponse = function (response) {
-            const errors = response.responseJSON?.errors || {};
-            const firstError = Object.values(errors).flat()[0];
-
-            return firstError
-                || response.responseJSON?.message
-                || labels.requestFailed;
-        };
+            $errorMessage.addClass('d-none').empty();
+        });
 
         $modal.on('show.bs.modal', function () {
             if (!shouldRestoreInitialSelection) {
                 $modal.find('[data-add-assignment-server-errors]').empty();
             }
-
-            restoreSelectedMembers(
-                shouldRestoreInitialSelection
-                    ? initialMemberIds
-                    : [],
-            );
+            picker.open(shouldRestoreInitialSelection ? initialEmployees : []);
             shouldRestoreInitialSelection = false;
-            $search.val('');
-            clearError();
-            renderSelectedMembers();
-            renderEmployeeList();
         });
-
-        $modal.on('shown.bs.modal', function () {
-            if ($.fn.slimscroll && ! $employeeList.parent().hasClass('slimScrollDiv')) {
-                $employeeList.slimscroll({
-                    position: 'right',
-                    size: '6px',
-                    color: '#a2b1d070',
-                    wheelStep: 5,
-                    touchScrollStep: 50,
-                    alwaysVisible: false,
-                });
-            }
-        });
-
-        $modal.on('hidden.bs.modal', function () {
-            selectedMembers = [];
-            $search.val('');
-            clearError();
-        });
-
-        $search.on('input', renderEmployeeList);
-
-        $employeeList.on('click', '[data-assignment-member-toggle]', function () {
-            const employeeId = Number($(this).data('employee-id'));
-            const employee = employees.find(function (item) {
-                return getEmployeeId(item) === employeeId;
-            });
-
-            if (!employee) {
-                return;
-            }
-
-            if (isSelected(employeeId)) {
-                selectedMembers = selectedMembers.filter(function (member) {
-                    return getEmployeeId(member) !== employeeId;
-                });
-            } else {
-                selectedMembers.push(employee);
-            }
-
-            clearError();
-            renderSelectedMembers();
-            updateToggleButton($(this), employeeId);
-        });
+        $modal.on('hidden.bs.modal', picker.close);
 
         $form.on('submit', function (event) {
             event.preventDefault();
-
             if (isSubmitting) {
                 return;
             }
-
             isSubmitting = true;
             $confirmButton.prop('disabled', true);
             $modal.find('[data-add-assignment-server-errors]').empty();
-            clearError();
+            $errorMessage.addClass('d-none').empty();
 
             $.ajax({
                 url: $form.attr('action'),
                 method: $form.attr('method'),
                 data: $form.serialize(),
-                headers: {
-                    Accept: 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
-                },
+                dataType: 'json',
+                headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
             }).done(function (response) {
-                $modal.one('hidden.bs.modal', function () {
-                    window.location.assign(response.redirect_url || $form.attr('action'));
-                });
-                $modal.modal('hide');
+                window.location.assign(response.redirect_url || $form.attr('action'));
             }).fail(function (response) {
-                displayError(errorFromResponse(response));
+                const firstError = Object.values(response.responseJSON?.errors || {}).flat()[0];
+                $errorMessage.text(firstError || response.responseJSON?.message || $modal.data('request-failed-message'))
+                    .removeClass('d-none');
             }).always(function () {
                 isSubmitting = false;
                 $confirmButton.prop('disabled', false);
@@ -350,6 +139,9 @@ $(function () {
             const trigger = $(event.relatedTarget);
 
             if (trigger.length) {
+                form.find('[name="end_reason_note"]').val('');
+                form.find('.is-invalid').removeClass('is-invalid');
+                form.find('.invalid-feedback').remove();
                 populateModal(trigger, false);
             }
         });

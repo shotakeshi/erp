@@ -5,21 +5,11 @@
 
      $employeeById = $employees->keyBy('id');
 
-    $employeeOptions = $employees
-        ->map(fn ($employee) => [
-            'employee_id' => (int) $employee->id,
-            'name' => $employee->full_name,
-            'detail' => $employee->position?->name ?? '-',
-            'avatar_url' => $employee->avatar ? image_url($employee->avatar) : null,
-        ])
-        ->values()
-        ->all();
-
     $initialMembers = collect($method === 'POST' ? old('members', []) : [])
         ->map(function ($member) use ($employeeById): array {
-            $employee = $employeeById->get($member['employee_id']);
+            $employee = $employeeById->get($member['employee_id'] ?? null);
             return [
-                'employee_id' => $member['employee_id'],
+                'employee_id' => $member['employee_id'] ?? null,
                 'name' => $employee?->full_name ?? '',
                 'detail' => $employee?->position?->name ?? '-',
                 'avatar_url' => $employee?->avatar ? image_url($employee->avatar) : null,
@@ -116,16 +106,13 @@
                 <div
                     class="card"
                     id="team-create-form"
-                    data-no-employees-message="{{ __('site.teams.no_available_employees') }}"
-                    data-remove-label="{{ __('site.teams.remove') }}"
                     data-delete-label="{{ __('common.button.delete') }}"
-                    data-add-label="{{ __('common.button.add') }}"
                 >
                     <div class="card-header">
                         <span>{{ __('site.teams.add_member_to_team') }}</span>
                         <button
                             type="button"
-                            class="btn btn-sm btn-outline-danger float-right"
+                            class="btn btn-sm btn-outline-primary float-right"
                             data-toggle="modal"
                             data-target="#invite-members-modal"
                         >
@@ -193,27 +180,7 @@
                         </button>
                     </div>
                     <div class="modal-body p-3">
-                        <div class="input-group mb-3">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text bg-light border-0 text-muted pl-3 pr-2">
-                                    <i class="fas fa-search"></i>
-                                </span>
-                            </div>
-                            <input
-                                type="search"
-                                class="form-control bg-light border-0 pl-0"
-                                placeholder="{{ __('site.teams.search_employee_placeholder') }}"
-                                aria-label="{{ __('site.teams.search_employee_placeholder') }}"
-                                data-member-search
-                            >
-                        </div>
-
-                        <div class="d-flex align-items-center mb-3">
-                            <h6 class="mb-0 mr-3">{{ __('site.teams.members') }}:</h6>
-                            <div class="d-flex align-items-center flex-wrap" data-selected-members></div>
-                        </div>
-
-                        <div class="team-members-scroll pr-1" data-employee-list></div>
+                        @include('teams._employee-picker', ['employeeOptionsUrl' => route('teams.employee-options')])
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-light px-4" data-dismiss="modal">
@@ -227,7 +194,6 @@
             </div>
         </div>
 
-        <script type="application/json" data-team-employees>@json($employeeOptions)</script>
         <script type="application/json" data-team-initial-members>@json($initialMembers)</script>
     @else
         @php

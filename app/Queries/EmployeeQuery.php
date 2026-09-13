@@ -6,8 +6,10 @@ use App\Filters\EmployeeFilter;
 use App\Models\Employee;
 use App\Models\Team;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Support\Str;
 
 class EmployeeQuery
 {
@@ -71,6 +73,43 @@ class EmployeeQuery
             )
             ->orderBy('id')
             ->get();
+    }
+
+    public function searchTeamEmployees(?Team $team, string $search, array $excludedIds = []): Paginator
+    {
+        $query = $this->teamEmployeeOptionsQuery()
+            ->when($team !== null, fn (Builder $query) => $query->whereDoesntHave(
+                'teamAssignments',
+                fn (Builder $assignments) => $assignments->where('team_id', $team->getKey())->currentAssignment(),
+            ))
+            ->when($excludedIds !== [], fn (Builder $query) => $query->whereNotIn('id', $excludedIds));
+
+        return $this->searchTeamMember($query, $search)->orderBy('id')->simplePaginate(20);
+    }
+
+    public function selectedTeamEmployees(array $employeeIds): EloquentCollection
+    {
+        return $this->teamEmployeeOptionsQuery()->whereIn('id', $employeeIds)->get();
+    }
+
+    public function searchTeamMember(Builder $query, string $search): Builder
+    {
+        foreach (preg_split('/\s+/u', trim(Str::ascii($search)), -1, PREG_SPLIT_NO_EMPTY) as $word) {
+            $query->where(function (Builder $query) use ($word): void {
+                $query->where('first_name', 'like', "%{$word}%")
+                    ->orWhere('last_name', 'like', "%{$word}%")
+                    ->orWhereHas('position', fn (Builder $position) => $position->where('name', 'like', "%{$word}%"));
+            });
+        }
+
+        return $query;
+    }
+
+    private function teamEmployeeOptionsQuery(): Builder
+    {
+        return Employee::query()->active()
+            ->select(['id', 'first_name', 'last_name', 'avatar', 'position_id'])
+            ->with('position:id,name');
     }
 
     private function paginateEmployees(Builder $query, array $filters): LengthAwarePaginator

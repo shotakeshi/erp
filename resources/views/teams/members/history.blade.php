@@ -80,7 +80,14 @@
                                         <span class="badge badge-soft-success">{{ __('site.teams.history_filters.current') }}</span>
                                     @endif
                                 </td>
-                                <td>{{ $membership->end_reason_note ?? '-'}}</td>
+                                <td>
+                                    {{ $membership->end_reason
+                                        ? __('site.teams.end_reasons.' . $membership->end_reason->value)
+                                        : '-' }}
+                                    @if (filled($membership->end_reason_note))
+                                        <small class="d-block text-muted mt-1">{{ $membership->end_reason_note }}</small>
+                                    @endif
+                                </td>
                                 <td>{{ $membership->createdBy?->name ?? __('site.teams.system_or_legacy') }}</td>
                                 <td>{{ $membership->endedBy?->name ?? '-' }}</td>
                             </tr>

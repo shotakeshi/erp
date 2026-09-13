@@ -17,6 +17,7 @@ class TeamQuery
 {
     public function __construct(
         private readonly TeamFilter $teamFilter,
+        private readonly EmployeeQuery $employeeQuery,
     ) {}
 
     public function paginate(array $filters): LengthAwarePaginator
@@ -97,10 +98,13 @@ class TeamQuery
     /**
      * Lấy danh sách member đang được phân công vào team.
      */
-    public function currentMembers(Team $team): EloquentCollection
+    public function currentMembers(Team $team, string $search = ''): LengthAwarePaginator
     {
         return $team->assignments()
             ->currentAssignment()
+            ->when($search !== '', fn (Builder $query) => $query->whereHas(
+                'employee', fn (Builder $employee) => $this->employeeQuery->searchTeamMember($employee, $search),
+            ))
             ->select([
                 'id',
                 'team_id',
@@ -111,7 +115,8 @@ class TeamQuery
             ->with($this->assignmentEmployeeRelations())
             ->orderBy('start_date')
             ->orderBy('id')
-            ->get();
+            ->paginate(20)
+            ->withQueryString();
     }
 
     /**

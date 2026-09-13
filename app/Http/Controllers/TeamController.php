@@ -38,10 +38,12 @@ class TeamController extends Controller
         ]);
     }
 
-    public function create(): View
+    public function create(Request $request): View
     {
         return view('teams.create', [
-            'employees' => $this->formOptionService->employeeOptions(),
+            'employees' => $this->formOptionService->selectedTeamEmployees(
+                collect($request->old('members', []))->pluck('employee_id')->filter()->all(),
+            ),
             'roles' => $this->formOptionService->roleAssignmentOptions(),
         ]);
     }

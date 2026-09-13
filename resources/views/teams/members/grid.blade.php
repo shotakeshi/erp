@@ -24,7 +24,7 @@
                 $employee = $assignment->employee;
             @endphp
 
-            <div class="col-sm-6 col-lg-3 mb-3" data-member-search="{{ $employee->full_name }} {{ $employee->position?->name }}">
+            <div class="col-sm-6 col-lg-3 mb-3">
                 <div class="card team-card">
                     <div class="card-body text-center">
                         <div class="d-flex justify-content-between">
@@ -69,13 +69,9 @@
                         >
 
                         <h5 class="client-name mb-2">
-                            @if ($employee->trashed())
-                                <span>{{ $employee->full_name }}</span>
-                            @else
-                                <a href="{{ route('employees.edit', $employee) }}" class="text-primary">
-                                    {{ $employee->full_name }}
-                                </a>
-                            @endif
+                            <a href="{{ route('employees.edit', $employee) }}" class="text-primary">
+                                {{ $employee->full_name }}
+                            </a>
                         </h5>
 
                         <p class="font-12 text-muted mb-2">{{ $assignment->role ?: '-' }}</p>
@@ -90,13 +86,6 @@
                                 {{ $employee->phone ?: '-' }}
                             </span>
                         </div>
-
-                        @if ($employee->trashed())
-                            <span class="text-muted font-12" title="{{ __('site.teams.deleted_employee_action_unavailable') }}">
-                                <i class="fas fa-lock mr-1" aria-hidden="true"></i>
-                                {{ __('site.teams.action_unavailable') }}
-                            </span>
-                        @endif
                     </div>
                 </div>
             </div>
@@ -110,9 +99,11 @@
         @endforelse
     </div>
 
+    <x-pagination :paginator="$memberships" />
+
     @include('teams._remove-assignment-modal', [
         'team' => $team,
-        'assignments' => $memberships,
+        'assignments' => $memberships->getCollection(),
         'destroyRoute' => 'teams.members.destroy',
     ])
 

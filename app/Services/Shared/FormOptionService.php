@@ -29,6 +29,16 @@ class FormOptionService
         return $this->employeeQuery->forTeamAssignment($team);
     }
 
+    public function selectedTeamEmployees(array $employeeIds)
+    {
+        return $this->employeeQuery->selectedTeamEmployees($employeeIds);
+    }
+
+    public function searchTeamEmployees(?Team $team, string $search, array $excludedIds)
+    {
+        return $this->employeeQuery->searchTeamEmployees($team, $search, $excludedIds);
+    }
+
     public function departmentOptions()
     {
         return $this->departmentQuery->forSelect();

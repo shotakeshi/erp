@@ -91,9 +91,7 @@
                                         :action="route('teams.destroy', $team)"
                                         method="DELETE"
                                         title="{{ __('site.teams.delete_confirmation_title') }}"
-                                        text="{{ __('site.teams.delete_confirmation', [
-                                            'members' => $team->current_members_count,
-                                        ]) }}"
+                                        text="{{ __('site.teams.delete_confirmation') }}"
                                         confirm-text="{{ __('common.button.delete') }}"
                                         cancel-text="{{ __('common.button.cancel') }}"
                                         icon=""

@@ -44,6 +44,7 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::prefix('teams')->name('teams.')->group(function () {
+        Route::get('employee-options', [TeamAssignmentController::class, 'employeeOptions'])->name('employee-options');
         Route::get('trash', [TeamController::class, 'trash'])->name('trash');
         Route::post('{team}/restore', [TeamController::class, 'restore'])->withTrashed()->name('restore');
     });
@@ -51,6 +52,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('teams', TeamController::class);
 
     Route::prefix('teams/{team}')->name('teams.')->group(function () {
+        Route::get('employee-options', [TeamAssignmentController::class, 'employeeOptions'])->name('members.employee-options');
         Route::get('members/history', [TeamAssignmentController::class, 'history'])->name('members.history');
         Route::get('members', [TeamAssignmentController::class, 'index'])->name('members.index');
         Route::post('members', [TeamAssignmentController::class, 'store'])->name('members.store');
