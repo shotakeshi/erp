@@ -2,6 +2,7 @@
 
 namespace App\Queries;
 
+use App\Filters\EmployeeFilter;
 use App\Filters\TeamFilter;
 use App\Models\Employee;
 use App\Models\Team;
@@ -18,6 +19,7 @@ class TeamQuery
     public function __construct(
         private readonly TeamFilter $teamFilter,
         private readonly EmployeeQuery $employeeQuery,
+        private readonly EmployeeFilter $employeeFilter,
     ) {}
 
     public function paginate(array $filters): LengthAwarePaginator
@@ -96,14 +98,14 @@ class TeamQuery
     }
 
     /**
-     * Lấy danh sách member đang được phân công vào team.
+     * Get the list of members currently assigned to the team.
      */
     public function currentMembers(Team $team, string $search = ''): LengthAwarePaginator
     {
         return $team->assignments()
             ->currentAssignment()
             ->when($search !== '', fn (Builder $query) => $query->whereHas(
-                'employee', fn (Builder $employee) => $this->employeeQuery->searchTeamMember($employee, $search),
+                'employee', fn (Builder $employee) => $this->employeeFilter->searchTeamMember($employee, $search),
             ))
             ->select([
                 'id',
@@ -120,7 +122,7 @@ class TeamQuery
     }
 
     /**
-     * Lịch sử member của team, có thể lọc theo current hoặc past assignment.
+     * Team member history, filterable by current or past assignment.
      */
     public function memberHistory(Team $team, array $filters = []): LengthAwarePaginator
     {
@@ -156,7 +158,7 @@ class TeamQuery
     }
 
     /**
-     * Lấy các team mà employee đang được phân công.
+     * Get the teams an employee is currently assigned to.
      */
     public function employeeCurrentTeams(Employee $employee): EloquentCollection
     {
@@ -177,7 +179,7 @@ class TeamQuery
     }
 
     /**
-     * Lịch sử membership team của employee.
+     * Employee team membership history.
      */
     public function employeeTeamHistory(Employee $employee): LengthAwarePaginator
     {
@@ -201,7 +203,7 @@ class TeamQuery
     }
 
     /**
-     * Khai báo các quan hệ employee cần eager load cho assignment.
+     * Declare employee relations to eager load for assignments.
      */
     private function assignmentEmployeeRelations(): array
     {
@@ -227,7 +229,7 @@ class TeamQuery
     }
 
     /**
-     * Khai báo các quan hệ cần eager load cho lịch sử assignment.
+     * Declare relations to eager load for assignment history.
      */
     private function assignmentHistoryRelations(): array
     {

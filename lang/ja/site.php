@@ -189,13 +189,10 @@ return [
         ],
         'conflicts' => [
             'assignment_already_current' => 'この従業員には既にこのチームへの有効な割り当てがあります。',
-            'assignment_date_in_future' => '割り当て日に未来の日付を指定することはできません。',
-            'assignment_interval_overlaps' => '割り当て期間が既存の割り当てと重複しています。',
             'assignment_not_current' => 'この従業員の有効な割り当てが見つかりませんでした。',
             'employee_not_eligible' => '1人以上の従業員が割り当ての対象外です。',
             'end_date_before_start_date' => '終了日は開始日より前の日付にすることはできません。',
             'invalid_status_transition' => '選択されたステータス変更は許可されていません。',
-            'effective_date_in_future' => '有効日に未来の日付を指定することはできません。',
             'team_unavailable' => 'このチームは利用できなくなりました。',
         ],
     ],

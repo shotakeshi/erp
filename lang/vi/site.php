@@ -189,13 +189,10 @@ return [
         ],
         'conflicts' => [
             'assignment_already_current' => 'Nhân viên đã có phân công đang hoạt động trong Team này.',
-            'assignment_date_in_future' => 'Ngày phân công không được nằm trong tương lai.',
-            'assignment_interval_overlaps' => 'Thời gian phân công bị trùng với một phân công hiện có.',
             'assignment_not_current' => 'Không tìm thấy phân công đang hoạt động cho nhân viên này.',
             'employee_not_eligible' => 'Một hoặc nhiều nhân viên không đủ điều kiện để được phân công.',
             'end_date_before_start_date' => 'Ngày kết thúc không được sớm hơn ngày bắt đầu.',
             'invalid_status_transition' => 'Không thể thực hiện chuyển đổi trạng thái đã chọn.',
-            'effective_date_in_future' => 'Ngày hiệu lực không được nằm trong tương lai.',
             'team_unavailable' => 'Team này không còn khả dụng.',
         ],
     ],

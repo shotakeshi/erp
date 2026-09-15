@@ -189,13 +189,10 @@ return [
         ],
         'conflicts' => [
             'assignment_already_current' => 'The employee already has an active assignment to this team.',
-            'assignment_date_in_future' => 'The assignment date cannot be in the future.',
-            'assignment_interval_overlaps' => 'The assignment period overlaps an existing assignment.',
             'assignment_not_current' => 'No active assignment was found for this employee.',
             'employee_not_eligible' => 'One or more employees are not eligible for assignment.',
             'end_date_before_start_date' => 'The end date cannot be earlier than the start date.',
             'invalid_status_transition' => 'The selected status transition is not allowed.',
-            'effective_date_in_future' => 'The effective date cannot be in the future.',
             'team_unavailable' => 'This team is no longer available.',
         ],
     ],

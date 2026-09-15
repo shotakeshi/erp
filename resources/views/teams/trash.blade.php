@@ -74,6 +74,14 @@
                                         <span>{{ $team->description }}</span>
                                     </td>
                                     <td class="text-center text-nowrap">
+                                        <a
+                                            href="{{ route('teams.show', $team) }}"
+                                            class="btn btn-sm btn-outline-gray mr-1"
+                                            title="{{ __('common.button.view') }}"
+                                        >
+                                            <i class="fas fa-eye mr-1" aria-hidden="true"></i>
+                                            {{ __('common.button.view') }}
+                                        </a>
                                         <x-form.confirm-button
                                             :action="route('teams.restore', $team)"
                                             title="{{ __('common.messages.restore_confirm') }}"
@@ -112,4 +120,3 @@
 @push('scripts')
     <script src="{{ asset('plugins/sweet-alert2/sweetalert2.min.js') }}"></script>
 @endpush
-

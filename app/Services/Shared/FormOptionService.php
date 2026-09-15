@@ -24,11 +24,6 @@ class FormOptionService
         return $this->employeeQuery->forSelect($exceptEmployee);
     }
 
-    public function assignableEmployeeOptions(Team $team)
-    {
-        return $this->employeeQuery->forTeamAssignment($team);
-    }
-
     public function selectedTeamEmployees(array $employeeIds)
     {
         return $this->employeeQuery->selectedTeamEmployees($employeeIds);

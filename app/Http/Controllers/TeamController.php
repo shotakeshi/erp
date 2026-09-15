@@ -83,9 +83,14 @@ class TeamController extends Controller
         }
     }
 
-    public function show(Team $team): View
+    public function show(Request $request, int $teamId): View
     {
-        return view('teams.show', []);
+        $team = Team::withTrashed()->findOrFail($teamId);
+
+        return view('teams.show', [
+            'team' => $team,
+            'memberships' => $this->teamQuery->memberHistory($team, $request->only('filter')),
+        ]);
     }
 
     public function edit(Team $team): View
