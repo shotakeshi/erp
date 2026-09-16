@@ -80,7 +80,6 @@
                                             title="{{ __('common.button.view') }}"
                                         >
                                             <i class="fas fa-eye mr-1" aria-hidden="true"></i>
-                                            {{ __('common.button.view') }}
                                         </a>
                                         <x-form.confirm-button
                                             :action="route('teams.restore', $team)"

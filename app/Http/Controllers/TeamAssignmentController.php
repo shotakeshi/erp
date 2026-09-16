@@ -17,6 +17,10 @@ use Illuminate\View\View;
 
 class TeamAssignmentController extends Controller
 {
+    private const LIST_VIEW = 'list';
+
+    private const GRID_VIEW = 'grid';
+
     public function __construct(
         private readonly TeamQuery $teamQuery,
         private readonly TeamService $teamService,
@@ -25,7 +29,7 @@ class TeamAssignmentController extends Controller
 
     public function index(TeamSearchRequest $request, Team $team): View
     {
-        $mode = $request->query('mode') === 'list' ? 'list' : 'grid';
+        $mode = $request->query('mode') === self::LIST_VIEW ? self::LIST_VIEW : self::GRID_VIEW;
 
         $viewData = [
             'team' => $team,
@@ -34,7 +38,7 @@ class TeamAssignmentController extends Controller
             'mode' => $mode,
         ];
 
-        return $mode === 'grid'
+        return $mode === self::GRID_VIEW
             ? view('teams.members.grid', $viewData)
             : view('teams.members.list', $viewData);
     }

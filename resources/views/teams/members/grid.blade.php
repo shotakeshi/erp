@@ -22,6 +22,7 @@
         @forelse ($memberships as $assignment)
             @php
                 $employee = $assignment->employee;
+                $employeeIsDeleted = $employee->trashed();
             @endphp
 
             <div class="col-sm-6 col-lg-3 mb-3">
@@ -41,9 +42,11 @@
                                     <i class="fas fa-ellipsis-v font-20 text-muted"></i>
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="team-actions-{{ $assignment->id }}">
-                                    <a class="dropdown-item text-gray" href="{{ route('employees.show', $employee) }}">
-                                        {{ __('common.button.view') }}
-                                    </a>
+                                    @if (! $employeeIsDeleted)
+                                        <a class="dropdown-item text-gray" href="{{ route('employees.show', $employee) }}">
+                                            {{ __('common.button.view') }}
+                                        </a>
+                                    @endif
                                     <a
                                         type="button"
                                         class="dropdown-item text-danger"
@@ -69,9 +72,13 @@
                         >
 
                         <h5 class="client-name mb-2">
-                            <a href="{{ route('employees.edit', $employee) }}" class="text-primary">
-                                {{ $employee->full_name }}
-                            </a>
+                            @if ($employeeIsDeleted)
+                                <span>{{ $employee->full_name }}</span>
+                            @else
+                                <a href="{{ route('employees.edit', $employee) }}" class="text-primary">
+                                    {{ $employee->full_name }}
+                                </a>
+                            @endif
                         </h5>
 
                         <p class="font-12 text-muted mb-2">{{ $assignment->role ?: '-' }}</p>
@@ -86,6 +93,13 @@
                                 {{ $employee->phone ?: '-' }}
                             </span>
                         </div>
+
+                        @if ($employeeIsDeleted)
+                            <span class="text-danger font-12" title="{{ __('site.teams.deleted_employee_action_unavailable') }}">
+                                <i class="ti ti-close mr-1" aria-hidden="true"></i>
+                                {{ __('site.teams.employee_deleted') }}
+                            </span>
+                        @endif
                     </div>
                 </div>
             </div>

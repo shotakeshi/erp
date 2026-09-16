@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\TeamRequest;
 use App\Models\Team;
-use App\Models\User;
 use App\Queries\TeamQuery;
 use App\Services\FileUploadService;
 use App\Services\Shared\FormOptionService;
@@ -150,16 +149,20 @@ class TeamController extends Controller
         }
     }
 
-    public function destroy(Request $request, Team $team): RedirectResponse
+    public function destroy(Team $team): RedirectResponse
     {
-        /** @var User $actor */
-        $actor = $request->user();
+        try {
+            $team->delete();
 
-        $this->teamService->deleteTeam($team, $actor);
+            return redirect()
+                ->route('teams.index')
+                ->with('success', __('common.messages.deleted'));
+        } catch (Throwable $e) {
+            report($e);
 
-        return redirect()
-            ->route('teams.index')
-            ->with('success', __('common.messages.deleted'));
+            return back()
+                ->with('error', __('common.messages.delete_failed'));
+        }
     }
 
     public function restore(Team $team): RedirectResponse

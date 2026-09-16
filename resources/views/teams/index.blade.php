@@ -92,11 +92,11 @@
                                         method="DELETE"
                                         title="{{ __('site.teams.delete_confirmation_title') }}"
                                         text="{{ __('site.teams.delete_confirmation') }}"
-                                        confirm-text="{{ __('common.button.delete') }}"
+                                        confirm-text="{{ __('site.teams.archive') }}"
                                         cancel-text="{{ __('common.button.cancel') }}"
                                         icon=""
                                         class="dropdown-item text-danger"
-                                        label="{{ __('common.button.delete') }}"
+                                        label="{{ __('site.teams.archive') }}"
                                     />
                                 </div>
                             </div>

@@ -33,19 +33,31 @@
                         @forelse ($memberships as $assignment)
                             @php
                                 $employee = $assignment->employee;
+                                $employeeIsDeleted = $employee->trashed();
                             @endphp
                             <tr>
                                 <td>#{{ $employee->employee_id }}</td>
                                 <td>
                                     <div class="media align-items-center">
                                         <div class="media">
-                                            <a class="" href="{{ route('employees.show', $employee) }}">
+                                            @if ($employeeIsDeleted)
                                                 <img src="{{ image_url($employee->avatar) }}" alt="{{ $employee->full_name }}" class="rounded-circle thumb-md">
-                                            </a>
-                                            <div class="media-body align-self-center ml-3">
-                                                <a href="{{ route('employees.show', $employee) }}" class="font-weight-bold text-primary">
-                                                    {{ $employee->full_name }}
+                                            @else
+                                                <a class="" href="{{ route('employees.show', $employee) }}">
+                                                    <img src="{{ image_url($employee->avatar) }}" alt="{{ $employee->full_name }}" class="rounded-circle thumb-md">
                                                 </a>
+                                            @endif
+                                            <div class="media-body align-self-center ml-3">
+                                                @if ($employeeIsDeleted)
+                                                    <span class="font-weight-bold">{{ $employee->full_name }}</span>
+                                                    <span class="badge badge-soft-danger ml-1">
+                                                         <i class="ti ti-close mr-1" aria-hidden="true"></i>{{ __('site.teams.employee_deleted') }}
+                                                    </span>
+                                                @else
+                                                    <a href="{{ route('employees.show', $employee) }}" class="font-weight-bold text-primary">
+                                                        {{ $employee->full_name }}
+                                                    </a>
+                                                @endif
                                                 <p class="mb-0 font-12 text-muted">{{ $employee->email }}</p>
                                             </div>
                                         </div>

@@ -43,15 +43,27 @@
                 </thead>
                 <tbody>
                     @forelse ($memberships as $membership)
+                        @php
+                            $employee = $membership->employee;
+                        @endphp
                         <tr>
                             <td>
                                 <div class="media">
-                                    <a class="" href="{{ route('employees.show', $membership->employee) }}">
-                                        <img src="{{ image_url($membership->employee->avatar) }}" alt="{{ $membership->employee->full_name }}" class="rounded-circle thumb-md">
-                                    </a>
+                                    @if ($employee->trashed())
+                                        <img src="{{ image_url($employee->avatar) }}" alt="{{ $employee->full_name }}" class="rounded-circle thumb-md">
+                                    @else
+                                        <a class="" href="{{ route('employees.show', $employee) }}">
+                                            <img src="{{ image_url($employee->avatar) }}" alt="{{ $employee->full_name }}" class="rounded-circle thumb-md">
+                                        </a>
+                                    @endif
                                     <div class="media-body align-self-center ml-3">
-                                        <p class="font-14 font-weight-bold mb-0">{{ $membership->employee->full_name }}</p>
-                                        <p class="mb-0 font-12 text-muted">{{ $membership->employee->email }}</p>
+                                        <p class="font-14 font-weight-bold mb-0">
+                                            {{ $employee->full_name }}
+                                            @if ($employee->trashed())
+                                                <span class="badge badge-soft-danger ml-1">{{ __('site.teams.employee_deleted') }}</span>
+                                            @endif
+                                        </p>
+                                        <p class="mb-0 font-12 text-muted">{{ $employee->email }}</p>
                                     </div>
                                 </div><!--end media-->
                             </td>

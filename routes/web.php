@@ -56,7 +56,7 @@ Route::middleware('auth')->group(function () {
         Route::get('members/history', [TeamAssignmentController::class, 'history'])->name('members.history');
         Route::get('members', [TeamAssignmentController::class, 'index'])->name('members.index');
         Route::post('members', [TeamAssignmentController::class, 'store'])->name('members.store');
-        Route::delete('members/{employee}', [TeamAssignmentController::class, 'destroy'])->name('members.destroy');
+        Route::delete('members/{employee}', [TeamAssignmentController::class, 'destroy'])->withTrashed()->name('members.destroy');
     });
 
     Route::resources(

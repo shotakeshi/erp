@@ -215,20 +215,26 @@
                         </thead>
                         <tbody>
                             @forelse ($assignments as $assignment)
+                                @php $employee = $assignment->employee @endphp
                                 <tr>
                                     <td>
                                         <div class="media align-items-center">
                                             <span class="avatar-box thumb-sm mr-2">
-                                                @if ($assignment->employee?->avatar)
-                                                    <img src="{{ image_url($assignment->employee->avatar) }}" class="thumb-sm rounded-circle" alt="">
+                                                @if ($employee->avatar)
+                                                    <img src="{{ image_url($employee->avatar) }}" class="thumb-sm rounded-circle" alt="">
                                                 @else
                                                     <span class="avatar-title bg-soft-info rounded-circle"><i class="fas fa-user"></i></span>
                                                 @endif
                                             </span>
-                                            <span>{{ $assignment->employee?->full_name ?? '-' }}</span>
+                                            <span>{{ $employee->full_name ?? '-' }}</span>
+                                            @if($employee->trashed())
+                                            <span class="badge badge-soft-danger ml-1">
+                                                 <i class="ti ti-close mr-1" aria-hidden="true"></i>{{ __('site.teams.employee_deleted') }}
+                                            </span>
+                                            @endif
                                         </div>
                                     </td>
-                                    <td>{{ $assignment->employee?->position?->name ?? '-' }}</td>
+                                    <td>{{ $employee?->position?->name ?? '-' }}</td>
                                     <td>
                                         <input type="hidden" name="members[{{ $loop->index }}][assignment_id]" value="{{ $assignment->id }}">
                                         <input
@@ -237,7 +243,7 @@
                                             class="form-control @error('members.'.$loop->index.'.role') is-invalid @enderror"
                                             value="{{ data_get($oldMembers->get($assignment->id), 'role', $assignment->role) }}"
                                             list="team-role-suggestions"
-                                            aria-label="{{ __('site.teams.role') }} — {{ $assignment->employee?->full_name }}"
+                                            aria-label="{{ __('site.teams.role') }} — {{ $employee?->full_name }}"
                                         >
                                         <x-form.error :name="'members.'.$loop->index.'.role'" />
                                     </td>

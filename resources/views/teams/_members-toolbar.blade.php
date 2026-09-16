@@ -32,7 +32,7 @@
             </div>
             <div class="col-lg-6 mt-2 mt-lg-0">
                 <div class="list-grid-nav d-flex align-items-center justify-content-lg-end">
-                    <a href="{{ route('teams.members.index', ['team' => $team, 'search' => request('search')]) }}" id="grid-view-button"
+                    <a href="{{ route('teams.members.index', ['team' => $team, 'mode' => 'grid', 'search' => request('search')]) }}" id="grid-view-button"
                         class="btn btn-sm mr-1 {{ $isGrid ? 'btn-primary active' : 'btn-soft-info' }}"
                         title="{{ __('common.button.grid_view') }}" aria-label="{{ __('common.button.grid_view') }}"
                         @if ($isGrid) aria-current="page" @endif>

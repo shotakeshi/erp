@@ -44,8 +44,7 @@ class TeamService extends BaseService
     public function updateTeam(Team $team, array $teamAttributes, array $members): void
     {
         DB::transaction(function () use ($team, $teamAttributes, $members): void {
-            $availableTeam = $this->availableTeam($team);
-            $assignments = $this->currentAssignmentsForTeam($availableTeam)->keyBy('id');
+            $assignments = $this->currentAssignmentsForTeam($team)->keyBy('id');
 
             foreach ($members as $member) {
                 $assignment = $assignments->get($member['assignment_id']);
@@ -59,25 +58,7 @@ class TeamService extends BaseService
                 ]);
             }
 
-            $availableTeam->update($teamAttributes);
-        });
-    }
-
-    public function deleteTeam(Team $team, User $actor): void
-    {
-        DB::transaction(function () use ($team, $actor): void {
-            $availableTeam = $this->availableTeam($team);
-            $assignments = $this->currentAssignmentsForTeam($availableTeam);
-            $endDate = today();
-
-            $this->closeAssignments(
-                $assignments,
-                $endDate,
-                TeamAssignmentEndReason::TEAM_DELETED,
-                $actor->getKey(),
-            );
-
-            $availableTeam->delete();
+            $team->update($teamAttributes);
         });
     }
 
@@ -90,14 +71,13 @@ class TeamService extends BaseService
 
         DB::transaction(function () use ($team, $employeeIds, $actor): void {
             $actorId = $actor->getKey();
-            $availableTeam = $this->availableTeam($team);
             $startDate = today()->toDateString();
             $employees = $this->eligibleEmployees($employeeIds);
-            $this->validateCurrentAssignments($availableTeam, $employeeIds);
+            $this->validateCurrentAssignments($team, $employeeIds);
 
             foreach ($employees as $employee) {
                 TeamAssignment::query()->create([
-                    'team_id' => $availableTeam->getKey(),
+                    'team_id' => $team->getKey(),
                     'employee_id' => $employee->getKey(),
                     'role' => 'member',
                     'start_date' => $startDate,
@@ -121,9 +101,8 @@ class TeamService extends BaseService
         ?string $endReasonNote,
     ): void {
         DB::transaction(function () use ($team, $employee, $endDate, $actor, $endReasonNote): void {
-            $availableTeam = $this->availableTeam($team);
             $endDate = CarbonImmutable::parse($endDate)->startOfDay();
-            $currentAssignment = $availableTeam->assignments()
+            $currentAssignment = $team->assignments()
                 ->where('employee_id', $employee->getKey())
                 ->currentAssignment()
                 ->first();
@@ -164,25 +143,11 @@ class TeamService extends BaseService
         }
     }
 
-    private function availableTeam(Team $team): Team
-    {
-        $availableTeam = Team::withTrashed()
-            ->whereKey($team->getKey())
-            ->firstOrFail();
-
-        if ($availableTeam->trashed()) {
-            $this->fail(__('site.teams.conflicts.team_unavailable'));
-        }
-
-        return $availableTeam;
-    }
-
     private function eligibleEmployees(array $employeeIds): EloquentCollection
     {
         $employees = Employee::query()
             ->whereIn('id', $employeeIds)
             ->active()
-            ->orderBy('id')
             ->get();
 
         if ($employees->count() !== count($employeeIds)) {

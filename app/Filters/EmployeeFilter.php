@@ -14,28 +14,23 @@ class EmployeeFilter
         return $query
             ->when(
                 $filters['search'] ?? null,
-                fn (Builder $query, $value) =>
-                $this->search($query, $value)
+                fn (Builder $query, $value) => $this->search($query, $value)
             )
             ->when(
                 $filters['status'] ?? null,
-                fn (Builder $query, $value) =>
-                $this->status($query, $value)
+                fn (Builder $query, $value) => $this->status($query, $value)
             )
             ->when(
                 $filters['department_id'] ?? null,
-                fn (Builder $query, $value) =>
-                $query->where('department_id', $value)
+                fn (Builder $query, $value) => $query->where('department_id', $value)
             )
             ->when(
                 $filters['position_id'] ?? null,
-                fn (Builder $query, $value) =>
-                $query->where('position_id', $value)
+                fn (Builder $query, $value) => $query->where('position_id', $value)
             )
             ->when(
                 $filters['contract_type'] ?? null,
-                fn (Builder $query, $value) =>
-                $query->where('contract_type', $value)
+                fn (Builder $query, $value) => $query->where('contract_type', $value)
             );
     }
 

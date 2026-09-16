@@ -9,7 +9,6 @@ use App\Models\User;
 use App\Notifications\AccountActivationNotification;
 use App\Notifications\AccountPasswordResetNotification;
 use App\Queries\EmployeeQuery;
-use App\Services\EmployeeLifecycleService;
 use App\Services\FileUploadService;
 use App\Services\LocationService;
 use App\Services\Shared\FormOptionService;
@@ -35,7 +34,6 @@ class EmployeeController extends Controller
         protected LocationService $locationService,
         private readonly FileUploadService $fileUploadService,
         private readonly EmployeeQuery $employeeQuery,
-        private readonly EmployeeLifecycleService $employeeLifecycleService,
     ) {}
 
     public function index(Request $request): View
@@ -178,10 +176,7 @@ class EmployeeController extends Controller
     public function destroy(Employee $employee): RedirectResponse
     {
         try {
-            $this->employeeLifecycleService->softDeleteEmployee(
-                $employee,
-                auth()->user(),
-            );
+            $employee->delete();
 
             return redirect()
                 ->route('employees.index')

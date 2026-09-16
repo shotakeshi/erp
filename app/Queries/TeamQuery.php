@@ -213,6 +213,7 @@ class TeamQuery
             'email',
             'phone',
             'employee_id',
+            'deleted_at',
             'first_name',
             'last_name',
             'department_id',
@@ -234,7 +235,7 @@ class TeamQuery
     private function assignmentHistoryRelations(): array
     {
         return [
-            'employee:id,first_name,last_name,avatar,email',
+            'employee:id,first_name,last_name,avatar,email,deleted_at',
             'createdBy:id,name',
             'endedBy:id,name',
         ];
