@@ -14,19 +14,19 @@
 
     <div class="row mt-3">
         <div class="col-lg-12">
-            @include('teams._members-toolbar', ['team' => $team, 'mode' => $mode])
+            @include('teams.members._toolbar', ['team' => $team, 'mode' => $mode])
         </div>
     </div>
 
     <div class="row">
-        @forelse ($memberships as $assignment)
+        @forelse ($assignments as $assignment)
             @php
                 $employee = $assignment->employee;
                 $employeeIsDeleted = $employee->trashed();
             @endphp
 
-            <div class="col-sm-6 col-lg-3 mb-3">
-                <div class="card team-card">
+            <div class="col-sm-6 col-lg-3">
+                <div class="card team-card" style="height: 270px">
                     <div class="card-body text-center">
                         <div class="d-flex justify-content-between">
                             <span class="text-muted">{{ $employee->employee_id }}</span>
@@ -41,9 +41,11 @@
                                 >
                                     <i class="fas fa-ellipsis-v font-20 text-muted"></i>
                                 </a>
-                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="team-actions-{{ $assignment->id }}">
+                                <div class="dropdown-menu dropdown-menu-right"
+                                     aria-labelledby="team-actions-{{ $assignment->id }}">
                                     @if (! $employeeIsDeleted)
-                                        <a class="dropdown-item text-gray" href="{{ route('employees.show', $employee) }}">
+                                        <a class="dropdown-item text-gray"
+                                           href="{{ route('employees.show', $employee) }}">
                                             {{ __('common.button.view') }}
                                         </a>
                                     @endif
@@ -81,21 +83,22 @@
                             @endif
                         </h5>
 
-                        <p class="font-12 text-muted mb-2">{{ $assignment->role ?: '-' }}</p>
+                        <p class="font-12 text-muted mb-2">{{ $assignment->role }}</p>
 
                         <div class="font-12 text-muted text-nowrap mb-2">
                             <span class="mr-2">
                                 <i class="fas fa-envelope text-info mr-1" aria-hidden="true"></i>
-                                {{ $employee->email ?: '-' }}
+                                {{ $employee->email }}
                             </span>
                             <span>
                                 <i class="fas fa-phone text-info mr-1" aria-hidden="true"></i>
-                                {{ $employee->phone ?: '-' }}
+                                {{ format_phone($employee->phone) ?: '-' }}
                             </span>
                         </div>
 
                         @if ($employeeIsDeleted)
-                            <span class="text-danger font-12" title="{{ __('site.teams.deleted_employee_action_unavailable') }}">
+                            <span class="text-danger font-12"
+                                  title="{{ __('site.teams.deleted_employee_action_unavailable') }}">
                                 <i class="ti ti-close mr-1" aria-hidden="true"></i>
                                 {{ __('site.teams.employee_deleted') }}
                             </span>
@@ -113,11 +116,11 @@
         @endforelse
     </div>
 
-    <x-pagination :paginator="$memberships" />
+    <x-pagination :paginator="$assignments"/>
 
     @include('teams._remove-assignment-modal', [
         'team' => $team,
-        'assignments' => $memberships->getCollection(),
+        'assignments' => $assignments->getCollection(),
         'destroyRoute' => 'teams.members.destroy',
     ])
 

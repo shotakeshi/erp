@@ -42,9 +42,9 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($memberships as $membership)
+                    @forelse ($assignments as $assignment)
                         @php
-                            $employee = $membership->employee;
+                            $employee = $assignment->employee;
                         @endphp
                         <tr>
                             <td>
@@ -67,26 +67,26 @@
                                     </div>
                                 </div><!--end media-->
                             </td>
-                            <td>{{ $membership->role }}</td>
+                            <td>{{ $assignment->role }}</td>
                             <td class="text-nowrap">
-                                {{ $membership->start_date->format('d/m/Y') }}
+                                {{ $assignment->start_date->format('d/m/Y') }}
                                 <i class="fas fa-long-arrow-alt-right"></i>
-                                @if ($membership->end_date)
-                                    {{ $membership->end_date->format('d/m/Y') }}
+                                @if ($assignment->end_date)
+                                    {{ $assignment->end_date->format('d/m/Y') }}
                                 @else
                                     <span class="badge badge-soft-success">{{ __('site.teams.history_filters.current') }}</span>
                                 @endif
                             </td>
                             <td>
-                                {{ $membership->end_reason
-                                    ? __('site.teams.end_reasons.' . $membership->end_reason->value)
+                                {{ $assignment->end_reason
+                                    ? __('site.teams.end_reasons.' . $assignment->end_reason->value)
                                     : '-' }}
-                                @if (filled($membership->end_reason_note))
-                                    <small class="d-block text-muted mt-1">{{ $membership->end_reason_note }}</small>
+                                @if (filled($assignment->end_reason_note))
+                                    <small class="d-block text-muted mt-1">{{ $assignment->end_reason_note }}</small>
                                 @endif
                             </td>
-                            <td>{{ $membership->createdBy?->name ?? __('site.teams.system_or_legacy') }}</td>
-                            <td>{{ $membership->endedBy?->name ?? '-' }}</td>
+                            <td>{{ $assignment->createdBy?->name ?? __('site.teams.system_or_legacy') }}</td>
+                            <td>{{ $assignment->endedBy?->name ?? '-' }}</td>
                         </tr>
                     @empty
                         <tr>
@@ -100,6 +100,6 @@
             </table>
         </div>
 
-        <x-pagination :paginator="$memberships" />
+        <x-pagination :paginator="$assignments" />
     </div>
 </div>

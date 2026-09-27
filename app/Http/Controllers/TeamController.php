@@ -88,7 +88,7 @@ class TeamController extends Controller
 
         return view('teams.show', [
             'team' => $team,
-            'memberships' => $this->teamQuery->memberHistory($team, $request->only('filter')),
+            'assignments' => $this->teamQuery->assignmentHistories($team, $request->only('filter')),
         ]);
     }
 

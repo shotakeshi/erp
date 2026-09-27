@@ -44,11 +44,10 @@ class TeamService extends BaseService
     public function updateTeam(Team $team, array $teamAttributes, array $members): void
     {
         DB::transaction(function () use ($team, $teamAttributes, $members): void {
-            $assignments = $this->currentAssignmentsForTeam($team)->keyBy('id');
+            $assignments = $team->assignments()->currentAssignment()->get()->keyBy('id');
 
             foreach ($members as $member) {
                 $assignment = $assignments->get($member['assignment_id']);
-
                 if ($assignment === null) {
                     $this->fail(__('site.teams.conflicts.assignment_not_current'));
                 }
@@ -155,13 +154,6 @@ class TeamService extends BaseService
         }
 
         return $employees;
-    }
-
-    private function currentAssignmentsForTeam(Team $team): EloquentCollection
-    {
-        return $team->assignments()
-            ->currentAssignment()
-            ->get();
     }
 
     private function validateCurrentAssignments(Team $team, array $employeeIds): void

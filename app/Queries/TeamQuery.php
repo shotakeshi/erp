@@ -100,7 +100,7 @@ class TeamQuery
     /**
      * Get the list of members currently assigned to the team.
      */
-    public function currentMembers(Team $team, string $search = ''): LengthAwarePaginator
+    public function currentAssignments(Team $team, string $search = ''): LengthAwarePaginator
     {
         return $team->assignments()
             ->currentAssignment()
@@ -124,7 +124,7 @@ class TeamQuery
     /**
      * Team member history, filterable by current or past assignment.
      */
-    public function memberHistory(Team $team, array $filters = []): LengthAwarePaginator
+    public function assignmentHistories(Team $team, array $filters = []): LengthAwarePaginator
     {
         $filter = $filters['filter'] ?? 'all';
 
@@ -142,7 +142,11 @@ class TeamQuery
                 'created_by',
                 'ended_by',
             ])
-            ->with($this->assignmentHistoryRelations())
+            ->with(
+                'employee:id,first_name,last_name,avatar,email,deleted_at',
+                'createdBy:id,name',
+                'endedBy:id,name',
+            )
             ->when(
                 $filter === 'current',
                 static fn (Builder $query) => $query->currentAssignment()
@@ -151,53 +155,8 @@ class TeamQuery
                 $filter === 'past',
                 static fn (Builder $query) => $query->pastAssignment()
             )
-            ->orderByDesc('start_date')
-            ->orderByDesc('id')
-            ->paginate(20)
-            ->withQueryString();
-    }
-
-    /**
-     * Get the teams an employee is currently assigned to.
-     */
-    public function employeeCurrentTeams(Employee $employee): EloquentCollection
-    {
-        return $employee->teamAssignments()
-            ->currentAssignment()
-            ->select([
-                'id',
-                'team_id',
-                'employee_id',
-                'start_date',
-            ])
-            ->with([
-                'team:id,name,code,deleted_at',
-            ])
-            ->orderBy('start_date')
+            ->orderByDesc('is_current')
             ->orderBy('id')
-            ->get();
-    }
-
-    /**
-     * Employee team membership history.
-     */
-    public function employeeTeamHistory(Employee $employee): LengthAwarePaginator
-    {
-        return $employee->teamAssignments()
-            ->select([
-                'id',
-                'team_id',
-                'employee_id',
-                'start_date',
-                'end_date',
-                'end_reason',
-                'end_reason_note',
-            ])
-            ->with([
-                'team:id,name,code,deleted_at',
-            ])
-            ->orderByDesc('start_date')
-            ->orderByDesc('id')
             ->paginate(20)
             ->withQueryString();
     }
@@ -226,18 +185,6 @@ class TeamQuery
                     'department:id,name',
                     'position:id,name',
                 ]),
-        ];
-    }
-
-    /**
-     * Declare relations to eager load for assignment history.
-     */
-    private function assignmentHistoryRelations(): array
-    {
-        return [
-            'employee:id,first_name,last_name,avatar,email,deleted_at',
-            'createdBy:id,name',
-            'endedBy:id,name',
         ];
     }
 }

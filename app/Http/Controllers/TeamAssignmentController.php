@@ -34,7 +34,7 @@ class TeamAssignmentController extends Controller
         $viewData = [
             'team' => $team,
             'employees' => $this->formOptionService->selectedTeamEmployees($request->old('employee_ids', [])),
-            'memberships' => $this->teamQuery->currentMembers($team, $request->validated('search') ?? ''),
+            'assignments' => $this->teamQuery->currentAssignments($team, $request->validated('search') ?? ''),
             'mode' => $mode,
         ];
 
@@ -88,7 +88,7 @@ class TeamAssignmentController extends Controller
     {
         return view('teams.members.history', [
             'team' => $team,
-            'memberships' => $this->teamQuery->memberHistory($team, $request->only('filter')),
+            'assignments' => $this->teamQuery->assignmentHistories($team, $request->only('filter')),
         ]);
     }
 

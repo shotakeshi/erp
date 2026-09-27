@@ -68,7 +68,8 @@
             <div class="col-sm-6 col-lg-3">
                 <div class="card team-card">
                     <div class="card-body">
-                        <div class="d-flex justify-content-end">
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">{{ $team->code }}</span>
                             <div class="dropdown d-inline-block">
                                 <a
                                     type="button"
@@ -122,7 +123,7 @@
                             @if ($previewEmployees->isNotEmpty())
                                 <div class="img-group text-nowrap">
                                     @foreach ($previewEmployees as $employee)
-                                        <span class="user-avatar user-avatar-group" title="{{ $employee->fullname }}">
+                                        <span class="user-avatar user-avatar-group uitooltip" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{ $employee->fullname }}">
                                             <img
                                                 src="{{ image_url($employee->avatar) }}"
                                                 alt="{{ $employee->fullname }}"

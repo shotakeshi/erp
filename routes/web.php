@@ -39,8 +39,6 @@ Route::middleware('auth')->group(function () {
         Route::post('{employee}/restore', [EmployeeController::class, 'restore'])->withTrashed()->name('restore');
         Route::post('{employee}/resend-activation', [EmployeeController::class, 'resendActivation'])->withTrashed()->name('resend-activation');
         Route::post('{employee}/reset-password', [EmployeeController::class, 'resetAccountPassword'])->name('reset-password');
-        Route::get('{employee}/teams', [EmployeeTeamController::class, 'index'])->name('teams.index');
-        Route::get('{employee}/teams/history', [EmployeeTeamController::class, 'history'])->name('teams.history');
     });
 
     Route::prefix('teams')->name('teams.')->group(function () {
