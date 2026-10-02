@@ -52,28 +52,50 @@ class EmployeeQuery
         return $this->paginateEmployees(Employee::onlyTrashed(), $filters);
     }
 
+    public function searchEmployees(string $search, array $excludedIds = []): Paginator
+    {
+        return $this->searchEmployeeOptions(
+            $this->employeeOptionsQuery(),
+            $search,
+            $excludedIds,
+        );
+    }
+
     public function searchTeamEmployees(?Team $team, string $search, array $excludedIds = []): Paginator
     {
-        $query = $this->teamEmployeeOptionsQuery()
+        $query = $this->employeeOptionsQuery()
             ->when($team !== null, fn (Builder $query) => $query->whereDoesntHave(
                 'teamAssignments',
                 fn (Builder $assignments) => $assignments->where('team_id', $team->getKey())->currentAssignment(),
-            ))
-            ->when($excludedIds !== [], fn (Builder $query) => $query->whereNotIn('id', $excludedIds));
+            ));
 
-        return $this->employeeFilter->searchTeamMember($query, $search)->orderBy('id')->simplePaginate(20);
+        return $this->searchEmployeeOptions($query, $search, $excludedIds);
     }
 
-    public function selectedTeamEmployees(array $employeeIds): EloquentCollection
+    public function selectedEmployees(array $employeeIds): EloquentCollection
     {
-        return $this->teamEmployeeOptionsQuery()->whereIn('id', $employeeIds)->get();
+        return $this->employeeOptionsQuery()->whereIn('id', $employeeIds)->get();
     }
 
-    private function teamEmployeeOptionsQuery(): Builder
+    private function employeeOptionsQuery(): Builder
     {
         return Employee::query()->active()
             ->select(['id', 'first_name', 'last_name', 'avatar', 'position_id'])
             ->with('position:id,name');
+    }
+
+    private function searchEmployeeOptions(Builder $query, string $search, array $excludedIds): Paginator
+    {
+        return $this->employeeFilter
+            ->searchEmployeeOption(
+                $query->when(
+                    $excludedIds !== [],
+                    fn (Builder $query) => $query->whereNotIn('id', $excludedIds),
+                ),
+                $search,
+            )
+            ->orderBy('id')
+            ->simplePaginate(20);
     }
 
     private function paginateEmployees(Builder $query, array $filters): LengthAwarePaginator

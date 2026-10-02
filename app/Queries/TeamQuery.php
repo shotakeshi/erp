@@ -39,6 +39,14 @@ class TeamQuery
             ->pluck('role');
     }
 
+    public function forSelect(): EloquentCollection
+    {
+        return Team::query()
+            ->select(['id', 'name'])
+            ->orderBy('name')
+            ->get();
+    }
+
     private function paginateTeams(
         Builder $query,
         array $filters,
@@ -105,7 +113,7 @@ class TeamQuery
         return $team->assignments()
             ->currentAssignment()
             ->when($search !== '', fn (Builder $query) => $query->whereHas(
-                'employee', fn (Builder $employee) => $this->employeeFilter->searchTeamMember($employee, $search),
+                'employee', fn (Builder $employee) => $this->employeeFilter->searchEmployeeOption($employee, $search),
             ))
             ->select([
                 'id',

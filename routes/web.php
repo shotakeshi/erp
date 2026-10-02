@@ -4,9 +4,9 @@ use App\Http\Controllers\Auth\AccountController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\EmployeeController;
-use App\Http\Controllers\EmployeeTeamController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TeamAssignmentController;
 use App\Http\Controllers\TeamController;
 use App\Services\LocationService;
@@ -48,6 +48,12 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::resource('teams', TeamController::class);
+
+    Route::prefix('projects')->name('projects.')->group(function () {
+        Route::get('employee-options', [ProjectController::class, 'employeeOptions'])->name('employee-options');
+    });
+
+    Route::resource('projects', ProjectController::class);
 
     Route::prefix('teams/{team}')->name('teams.')->group(function () {
         Route::get('employee-options', [TeamAssignmentController::class, 'employeeOptions'])->name('members.employee-options');

@@ -8,6 +8,7 @@ use App\Models\Team;
 use App\Queries\DepartmentQuery;
 use App\Queries\EmployeeQuery;
 use App\Queries\PositionQuery;
+use App\Queries\ProjectQuery;
 use App\Queries\TeamQuery;
 
 class FormOptionService
@@ -16,6 +17,7 @@ class FormOptionService
         protected EmployeeQuery $employeeQuery,
         protected DepartmentQuery $departmentQuery,
         protected PositionQuery $positionQuery,
+        protected ProjectQuery $projectQuery,
         protected TeamQuery $teamQuery
     ) {}
 
@@ -24,9 +26,14 @@ class FormOptionService
         return $this->employeeQuery->forSelect($exceptEmployee);
     }
 
-    public function selectedTeamEmployees(array $employeeIds)
+    public function selectedEmployees(array $employeeIds)
     {
-        return $this->employeeQuery->selectedTeamEmployees($employeeIds);
+        return $this->employeeQuery->selectedEmployees($employeeIds);
+    }
+
+    public function searchEmployees(string $search, array $excludedIds)
+    {
+        return $this->employeeQuery->searchEmployees($search, $excludedIds);
     }
 
     public function searchTeamEmployees(?Team $team, string $search, array $excludedIds)
@@ -54,8 +61,18 @@ class FormOptionService
         return $this->positionQuery->forSelect();
     }
 
-    public function roleAssignmentOptions()
+    public function roleTeamAssignmentOptions()
     {
         return $this->teamQuery->forSelectRoles();
+    }
+
+    public function roleProjectMemberOptions()
+    {
+        return $this->projectQuery->forSelectRoles();
+    }
+
+    public function teamOptions()
+    {
+        return $this->teamQuery->forSelect();
     }
 }
