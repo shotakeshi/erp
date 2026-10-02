@@ -33,7 +33,7 @@ class TeamAssignmentController extends Controller
 
         $viewData = [
             'team' => $team,
-            'employees' => $this->formOptionService->selectedTeamEmployees($request->old('employee_ids', [])),
+            'employees' => $this->formOptionService->selectedEmployees($request->old('employee_ids', [])),
             'assignments' => $this->teamQuery->currentAssignments($team, $request->validated('search') ?? ''),
             'mode' => $mode,
         ];

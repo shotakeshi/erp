@@ -40,10 +40,10 @@ class TeamController extends Controller
     public function create(Request $request): View
     {
         return view('teams.create', [
-            'employees' => $this->formOptionService->selectedTeamEmployees(
+            'employees' => $this->formOptionService->selectedEmployees(
                 collect($request->old('members', []))->pluck('employee_id')->filter()->all(),
             ),
-            'roles' => $this->formOptionService->roleAssignmentOptions(),
+            'roles' => $this->formOptionService->roleTeamAssignmentOptions(),
         ]);
     }
 
@@ -100,7 +100,7 @@ class TeamController extends Controller
                 ->currentAssignment()
                 ->with('employee.position')
                 ->orderBy('id')->get(),
-            'roles' => $this->formOptionService->roleAssignmentOptions(),
+            'roles' => $this->formOptionService->roleTeamAssignmentOptions(),
         ]);
     }
 

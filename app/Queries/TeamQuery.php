@@ -113,7 +113,7 @@ class TeamQuery
         return $team->assignments()
             ->currentAssignment()
             ->when($search !== '', fn (Builder $query) => $query->whereHas(
-                'employee', fn (Builder $employee) => $this->employeeFilter->searchTeamMember($employee, $search),
+                'employee', fn (Builder $employee) => $this->employeeFilter->searchEmployeeOption($employee, $search),
             ))
             ->select([
                 'id',
