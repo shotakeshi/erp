@@ -15,9 +15,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('project_id')->constrained()->restrictOnDelete();
             $table->foreignId('employee_id')->constrained()->restrictOnDelete();
-            $table->string('project_role', 50);
+            $table->string('role');
             $table->date('start_date');
             $table->date('end_date')->nullable();
+            $table->string('end_reason', 50)->nullable();
+            $table->text('end_reason_note')->nullable();
             $table->foreignId('created_by')->nullable()->constrained('users')->restrictOnDelete();
             $table->timestamps();
         });

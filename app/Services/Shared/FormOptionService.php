@@ -58,4 +58,9 @@ class FormOptionService
     {
         return $this->teamQuery->forSelectRoles();
     }
+
+    public function teamOptions()
+    {
+        return $this->teamQuery->forSelect();
+    }
 }

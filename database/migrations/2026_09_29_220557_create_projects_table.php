@@ -46,6 +46,7 @@ return new class extends Migration
             $table->string('project_url', 2048)->nullable();
             $table->foreignId('created_by')->nullable()->constrained('users')->restrictOnDelete();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

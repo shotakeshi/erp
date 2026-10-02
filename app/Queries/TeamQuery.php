@@ -39,6 +39,14 @@ class TeamQuery
             ->pluck('role');
     }
 
+    public function forSelect(): EloquentCollection
+    {
+        return Team::query()
+            ->select(['id', 'name'])
+            ->orderBy('name')
+            ->get();
+    }
+
     private function paginateTeams(
         Builder $query,
         array $filters,

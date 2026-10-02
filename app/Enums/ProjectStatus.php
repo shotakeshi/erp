@@ -12,12 +12,17 @@ enum ProjectStatus: string
 
     public function label(): string
     {
+        return __('site.projects.statuses.'.$this->value);
+    }
+
+    public function badgeClass(): string
+    {
         return match ($this) {
-            self::PLANNING => 'Planning',
-            self::ACTIVE => 'Active',
-            self::ON_HOLD => 'On Hold',
-            self::COMPLETED => 'Completed',
-            self::CANCELLED => 'Cancelled',
+            self::PLANNING => 'badge badge-soft-info',
+            self::ACTIVE => 'badge badge-soft-success',
+            self::ON_HOLD => 'badge badge-soft-warning',
+            self::COMPLETED => 'badge badge-soft-primary',
+            self::CANCELLED => 'badge badge-soft-danger',
         };
     }
 
