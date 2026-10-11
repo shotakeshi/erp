@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('project_members', function (Blueprint $table): void {
+        Schema::create('project_assignments', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('project_id')->constrained()->restrictOnDelete();
             $table->foreignId('employee_id')->constrained()->restrictOnDelete();
@@ -20,8 +20,12 @@ return new class extends Migration
             $table->date('end_date')->nullable();
             $table->string('end_reason', 50)->nullable();
             $table->text('end_reason_note')->nullable();
+            $table->boolean('is_current')->nullable()->after('end_date');
             $table->foreignId('created_by')->nullable()->constrained('users')->restrictOnDelete();
+            $table->foreignId('ended_by')->nullable()->constrained('users')->restrictOnDelete();
             $table->timestamps();
+
+            $table->unique(['project_id', 'employee_id', 'is_current']);
         });
     }
 

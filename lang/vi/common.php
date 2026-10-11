@@ -92,4 +92,11 @@ return [
         'reset_password_confirm' => 'Đặt lại mật khẩu',
         'resend_activation' => 'Gửi lại kích hoạt',
     ],
+    'employee_picker' => [
+        'search' => 'Tìm kiếm nhân viên...',
+        'loading' => 'Đang tải danh sách nhân viên...',
+        'error' => 'Không tải được danh sách nhân viên.',
+        'empty' => 'Không có nhân viên đủ điều kiện.',
+        'retry' => 'Thử lại',
+    ],
 ];

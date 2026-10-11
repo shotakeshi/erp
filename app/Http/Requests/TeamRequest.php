@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Models\Team;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class TeamRequest extends FormRequest
@@ -11,6 +12,13 @@ class TeamRequest extends FormRequest
     public function authorize(): bool
     {
         return true;
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'code' => Str::upper(trim((string) $this->input('code'))),
+        ]);
     }
 
     public function rules(): array

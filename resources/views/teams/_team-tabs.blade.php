@@ -1,3 +1,8 @@
+@php
+    $membersTab = \App\Http\Controllers\TeamController::MEMBERS_TAB;
+    $historyTab = \App\Http\Controllers\TeamController::HISTORY_TAB;
+@endphp
+
 <div class="card">
     <div class="card-body">
         <div class="row align-items-center">
@@ -16,28 +21,42 @@
             </div>
         </div>
     </div>
-    @if (! $team->trashed())
-        <div class="card-body d-flex align-items-center">
-            <ul class="nav nav-pills mb-0 mr-3" id="pills-tab" role="tablist">
+    <div class="card-body d-flex align-items-center">
+        <ul class="nav nav-pills mb-0 mr-3" id="team-tabs" role="tablist">
+            @unless ($team->trashed())
                 <li class="nav-item">
-                    <a href="{{ route('teams.members.index', $team) }}"
-                        @class(['nav-link', 'active' => request()->routeIs('teams.members.index')])
+                    <a
+                        @class(['nav-link', 'active' => $activeTab === $membersTab])
+                        id="team-members-tab"
+                        data-toggle="pill"
+                        href="#team-members"
+                        role="tab"
+                        aria-controls="team-members"
+                        aria-selected="{{ $activeTab === $membersTab ? 'true' : 'false' }}"
                     >
                         {{ __('site.teams.members') }}
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a href="{{ route('teams.members.history', $team) }}"
-                        @class(['nav-link', 'active' => request()->routeIs(['teams.members.history', 'teams.show'])])
-                    >
-                        {{ __('site.teams.member_history') }}
-                    </a>
-                </li>
-            </ul>
+            @endunless
+            <li class="nav-item">
+                <a
+                    @class(['nav-link', 'active' => $activeTab === $historyTab])
+                    id="team-history-tab"
+                    data-toggle="pill"
+                    href="#team-history"
+                    role="tab"
+                    aria-controls="team-history"
+                    aria-selected="{{ $activeTab === $historyTab ? 'true' : 'false' }}"
+                >
+                    {{ __('site.teams.member_history') }}
+                </a>
+            </li>
+        </ul>
+        @unless ($team->trashed())
             <a href="{{ route('teams.edit', $team) }}" class="btn btn-sm btn-outline-warning ml-auto flex-shrink-0" title="{{ __('site.teams.edit') }}">
                 <i class="fas fa-edit mr-1" aria-hidden="true"></i>
                 {{ __('site.teams.edit') }}
             </a>
-        </div>
-    @endif
+        @endunless
+    </div>
 </div>

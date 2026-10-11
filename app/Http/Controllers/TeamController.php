@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AssignmentPageRequest;
 use App\Http\Requests\TeamRequest;
 use App\Models\Team;
 use App\Queries\TeamQuery;
@@ -10,12 +11,19 @@ use App\Services\Shared\FormOptionService;
 use App\Services\TeamService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use Throwable;
 
 class TeamController extends Controller
 {
+    public const MEMBERS_TAB = 'members';
+
+    public const HISTORY_TAB = 'history';
+
+    public const GRID_MODE = 'grid';
+
+    public const LIST_MODE = 'list';
+
     public function __construct(
         private readonly TeamQuery $teamQuery,
         private readonly TeamService $teamService,
@@ -82,13 +90,24 @@ class TeamController extends Controller
         }
     }
 
-    public function show(Request $request, int $teamId): View
+    public function show(AssignmentPageRequest $request, int $teamId): View
     {
         $team = Team::withTrashed()->findOrFail($teamId);
+        $activeTab = $team->trashed()
+            ? self::HISTORY_TAB
+            : ($request->validated('tab') === self::HISTORY_TAB ? self::HISTORY_TAB : self::MEMBERS_TAB);
 
         return view('teams.show', [
             'team' => $team,
-            'assignments' => $this->teamQuery->assignmentHistories($team, $request->only('filter')),
+            'activeTab' => $activeTab,
+            'mode' => $request->validated('mode') === self::LIST_MODE ? self::LIST_MODE : self::GRID_MODE,
+            'assignments' => $this->teamQuery
+                ->currentAssignments($team, $request->validated('search') ?? '')
+                ->appends('tab', self::MEMBERS_TAB),
+            'histories' => $this->teamQuery
+                ->assignmentHistories($team)
+                ->appends('tab', self::HISTORY_TAB),
+            'employees' => $this->formOptionService->selectedEmployees($request->old('employee_ids', [])),
         ]);
     }
 
@@ -134,7 +153,7 @@ class TeamController extends Controller
             }
 
             return redirect()
-                ->route('teams.index', $team)
+                ->route('teams.index')
                 ->with('success', __('common.messages.updated'));
         } catch (Throwable $e) {
             if ($newLogo) {
@@ -168,9 +187,7 @@ class TeamController extends Controller
     public function restore(Team $team): RedirectResponse
     {
         try {
-            DB::transaction(function () use ($team) {
-                $team->restore();
-            });
+            $team->restore();
 
             return redirect()
                 ->route('teams.trash')

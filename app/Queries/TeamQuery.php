@@ -16,6 +16,8 @@ use Illuminate\Support\Collection;
 
 class TeamQuery
 {
+    public const HISTORY_PAGE_NAME = 'history_page';
+
     public function __construct(
         private readonly TeamFilter $teamFilter,
         private readonly EmployeeQuery $employeeQuery,
@@ -36,6 +38,7 @@ class TeamQuery
     {
         return TeamAssignment::query()
             ->distinct()
+            ->orderBy('role')
             ->pluck('role');
     }
 
@@ -130,12 +133,10 @@ class TeamQuery
     }
 
     /**
-     * Team member history, filterable by current or past assignment.
+     * Team member history.
      */
-    public function assignmentHistories(Team $team, array $filters = []): LengthAwarePaginator
+    public function assignmentHistories(Team $team): LengthAwarePaginator
     {
-        $filter = $filters['filter'] ?? 'all';
-
         return $team->assignments()
             ->select([
                 'id',
@@ -155,17 +156,9 @@ class TeamQuery
                 'createdBy:id,name',
                 'endedBy:id,name',
             )
-            ->when(
-                $filter === 'current',
-                static fn (Builder $query) => $query->currentAssignment()
-            )
-            ->when(
-                $filter === 'past',
-                static fn (Builder $query) => $query->pastAssignment()
-            )
             ->orderByDesc('is_current')
             ->orderBy('id')
-            ->paginate(20)
+            ->paginate(20, pageName: self::HISTORY_PAGE_NAME)
             ->withQueryString();
     }
 

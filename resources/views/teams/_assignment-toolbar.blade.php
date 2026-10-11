@@ -1,13 +1,15 @@
 @php
-    $isGrid = $mode === 'grid';
-    $resetUrl = route('teams.members.index', ['team' => $team, 'mode' => $mode]);
+    $membersTab = \App\Http\Controllers\TeamController::MEMBERS_TAB;
+    $isGrid = $mode === \App\Http\Controllers\TeamController::GRID_MODE;
+    $resetUrl = route('teams.show', ['team' => $team, 'tab' => $membersTab, 'mode' => $mode]);
 @endphp
 
 <div class="card">
     <div class="card-body">
         <div class="row align-items-center">
             <div class="col-lg-6">
-                <form action="{{ route('teams.members.index', $team) }}" method="GET">
+                <form action="{{ route('teams.show', $team) }}" method="GET">
+                    <input type="hidden" name="tab" value="{{ $membersTab }}">
                     <input type="hidden" name="mode" value="{{ $mode }}">
                     <div class="row">
                         <div class="col-lg-8">
@@ -32,19 +34,19 @@
             </div>
             <div class="col-lg-6 mt-2 mt-lg-0">
                 <div class="list-grid-nav d-flex align-items-center justify-content-lg-end">
-                    <a href="{{ route('teams.members.index', ['team' => $team, 'mode' => 'grid', 'search' => request('search')]) }}" id="grid-view-button"
+                    <a href="{{ route('teams.show', ['team' => $team, 'tab' => $membersTab, 'mode' => 'grid', 'search' => request('search')]) }}" id="grid-view-button"
                         class="btn btn-sm mr-1 {{ $isGrid ? 'btn-primary active' : 'btn-soft-info' }}"
                         title="{{ __('common.button.grid_view') }}" aria-label="{{ __('common.button.grid_view') }}"
                         @if ($isGrid) aria-current="page" @endif>
                         <i class="fas fa-th" aria-hidden="true"></i>
                     </a>
-                    <a href="{{ route('teams.members.index', ['team' => $team, 'mode' => 'list', 'search' => request('search')]) }}" id="list-view-button"
+                    <a href="{{ route('teams.show', ['team' => $team, 'tab' => $membersTab, 'mode' => 'list', 'search' => request('search')]) }}" id="list-view-button"
                         class="btn btn-sm mr-1 {{ $isGrid ? 'btn-soft-info' : 'btn-primary active' }}"
                         title="{{ __('common.button.list_view') }}" aria-label="{{ __('common.button.list_view') }}"
                         @if (! $isGrid) aria-current="page" @endif>
                         <i class="fas fa-list" aria-hidden="true"></i>
                     </a>
-                    <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#add-member-modal">
+                    <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#add-assignment-modal">
                         <i class="fas fa-plus mr-1" aria-hidden="true"></i>
                         {{ __('site.teams.add_members') }}
                     </button>

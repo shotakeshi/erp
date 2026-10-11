@@ -92,4 +92,11 @@ return [
         'reset_password_confirm' => 'パスワード再設定',
         'resend_activation' => '有効化リンクを再送信',
     ],
+    'employee_picker' => [
+        'search' => '従業員を検索...',
+        'loading' => '従業員を読み込み中...',
+        'error' => '従業員を読み込めませんでした。',
+        'empty' => '対象となる従業員はいません。',
+        'retry' => '再試行',
+    ],
 ];
