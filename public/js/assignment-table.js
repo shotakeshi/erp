@@ -3,7 +3,7 @@
  * enter a role, and submit as members[index][employee_id|role].
  * Uses EmployeePicker (employee-picker.js) when initialized; call init after DOM ready.
  *
- * Markup: [data-assignment-rows] holds the empty row [data-assignment-empty];
+ * [data-assignment-rows] holds the empty row [data-assignment-empty];
  * the modal contains [data-employee-picker] and the [data-assignment-confirm] button.
  */
 (function () {

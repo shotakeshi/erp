@@ -4,6 +4,7 @@ namespace App\Queries;
 
 use App\Filters\EmployeeFilter;
 use App\Models\Employee;
+use App\Models\Project;
 use App\Models\Team;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Contracts\Pagination\Paginator;
@@ -52,21 +53,23 @@ class EmployeeQuery
         return $this->paginateEmployees(Employee::onlyTrashed(), $filters);
     }
 
-    public function searchEmployees(string $search, array $excludedIds = []): Paginator
-    {
-        return $this->searchEmployeeOptions(
-            $this->employeeOptionsQuery(),
-            $search,
-            $excludedIds,
-        );
-    }
-
     public function searchTeamEmployees(?Team $team, string $search, array $excludedIds = []): Paginator
     {
         $query = $this->employeeOptionsQuery()
             ->when($team !== null, fn (Builder $query) => $query->whereDoesntHave(
                 'teamAssignments',
                 fn (Builder $assignments) => $assignments->where('team_id', $team->getKey())->currentAssignment(),
+            ));
+
+        return $this->searchEmployeeOptions($query, $search, $excludedIds);
+    }
+
+    public function searchProjectEmployees(?Project $project, string $search, array $excludedIds = []): Paginator
+    {
+        $query = $this->employeeOptionsQuery()
+            ->when($project !== null, fn (Builder $query) => $query->whereDoesntHave(
+                'projectAssignments',
+                fn (Builder $assignments) => $assignments->where('project_id', $project->getKey())->currentAssignment(),
             ));
 
         return $this->searchEmployeeOptions($query, $search, $excludedIds);

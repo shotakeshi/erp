@@ -18,9 +18,9 @@ return new class extends Migration
             $table->string('role');
             $table->date('start_date');
             $table->date('end_date')->nullable();
+            $table->boolean('is_current')->nullable();
             $table->string('end_reason', 50)->nullable();
             $table->text('end_reason_note')->nullable();
-            $table->boolean('is_current')->nullable()->after('end_date');
             $table->foreignId('created_by')->nullable()->constrained('users')->restrictOnDelete();
             $table->foreignId('ended_by')->nullable()->constrained('users')->restrictOnDelete();
             $table->timestamps();
@@ -34,6 +34,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('project_members');
+        Schema::dropIfExists('project_assignments');
     }
 };

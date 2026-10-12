@@ -66,24 +66,27 @@ class Project extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    public function projectMembers(): HasMany
+    public function assignments(): HasMany
     {
-        return $this->hasMany(ProjectMember::class);
+        return $this->hasMany(ProjectAssignment::class);
     }
 
     public function members(): BelongsToMany
     {
-        return $this->belongsToMany(Employee::class, 'project_members')
+        return $this->belongsToMany(Employee::class, 'project_assignments')
             ->withTrashed()
             ->withPivot([
                 'role',
                 'start_date',
                 'end_date',
+                'is_current',
                 'end_reason',
                 'end_reason_note',
                 'created_by',
+                'ended_by',
             ])
             ->withTimestamps()
-            ->wherePivotNull('end_date');
+            ->wherePivotNull('end_date')
+            ->wherePivot('is_current', true);
     }
 }

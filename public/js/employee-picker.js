@@ -1,6 +1,6 @@
 /**
  * Shared employee picker for the selection modal (Team, Project).
- * Markup: resources/views/components/employee-picker.blade.php.
+ * resources/views/components/employee-picker.blade.php.
  */
 (function () {
     const normalize = (value) => value.trim().toLocaleLowerCase()
