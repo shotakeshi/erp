@@ -45,7 +45,7 @@ class ProjectService extends BaseService
         });
     }
 
-    public function updateProject(Project $project, array $projectAttributes): void
+    public function updateProject(Project $project, array $projectAttributes, array $members = []): void
     {
         $managerId = $projectAttributes['manager_id'] ?? null;
 
@@ -53,7 +53,21 @@ class ProjectService extends BaseService
             $this->validateEmployees([(int) $managerId]);
         }
 
-        $project->update($projectAttributes);
+        DB::transaction(function () use ($project, $projectAttributes, $members): void {
+            $assignments = $project->assignments()->currentAssignment()->get()->keyBy('id');
+
+            foreach ($members as $member) {
+                $assignment = $assignments->get((int) $member['assignment_id']);
+
+                if ($assignment === null) {
+                    $this->fail(__('site.projects.conflicts.assignment_not_current'));
+                }
+
+                $assignment->update(['role' => trim($member['role'])]);
+            }
+
+            $project->update($projectAttributes);
+        });
     }
 
     public function addAssignments(Project $project, array $employeeIds, User $actor): void

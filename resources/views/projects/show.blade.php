@@ -10,7 +10,7 @@
         ]"
     />
 
-    @include('projects._project-tabs', ['project' => $project, 'activeTab' => $activeTab])
+    @include('projects.partials._project-tabs', ['project' => $project, 'activeTab' => $activeTab])
 
     <div class="tab-content mt-3" id="project-tab-content">
         <div
@@ -58,7 +58,12 @@
                         <div class="col-md-6 mb-3">
                             <p class="text-muted mb-1">{{ __('site.projects.project_url') }}</p>
                             @if ($project->project_url)
-                                <a href="{{ $project->project_url }}" target="_blank" rel="noopener noreferrer" class="font-weight-bold text-info text-break">
+                                <a
+                                    href="{{ $project->project_url }}"
+                                    class="font-weight-bold text-info text-break"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
                                     {{ $project->project_url }}
                                 </a>
                             @else
@@ -81,11 +86,11 @@
             role="tabpanel"
             aria-labelledby="project-members-tab"
         >
-            @include('projects._assignment-toolbar', ['project' => $project])
+            @include('projects.assignments._toolbar', ['project' => $project])
 
-            @include('projects._assignment-grid', ['project' => $project, 'assignments' => $assignments])
+            @include('projects.assignments._card', ['project' => $project, 'assignments' => $assignments])
 
-            <x-pagination :paginator="$assignments"/>
+            <x-pagination :paginator="$assignments" />
         </div>
 
         <div
@@ -108,10 +113,17 @@
         lang-prefix="site.projects"
     />
 
-    @include('projects._add-assignment-modal', [
-        'project' => $project,
-        'selectedEmployees' => $selectedEmployees,
-    ])
+    <x-employee-picker-modal
+        id="project-add-assignment-modal"
+        :title="__('site.projects.members_modal_title')"
+        :url="route('projects.assignments.employee-options', $project)"
+        :action="route('projects.assignments.store', $project)"
+        :labels="[
+            'remove' => __('site.projects.remove_member'),
+            'members' => __('site.projects.members'),
+        ]"
+        :initial-employees="$initialEmployees"
+    />
 @endsection
 
 @push('css')

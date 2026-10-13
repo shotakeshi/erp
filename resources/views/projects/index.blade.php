@@ -37,7 +37,7 @@
                                     placeholder="{{ __('site.projects.search_placeholder') }}"
                                 />
                             </div>
-                            <div class="col-lg-8">
+                            <div class="col-lg-8 mt-3 mt-lg-0">
                                 <button type="submit" class="btn btn-outline-gray mr-3">
                                     {{ __('common.button.search') }}
                                 </button>
@@ -54,7 +54,7 @@
 
     <div class="row">
         @forelse ($projects as $project)
-            @include('projects._card', ['project' => $project])
+            @include('projects.partials._card', ['project' => $project])
         @empty
             <div class="col-12">
                 <div class="card">

@@ -70,7 +70,7 @@
         };
 
         const renderEmployee = function (employee, id) {
-            const $row = $('<div>', { class: 'd-flex align-items-center justify-content-between mb-3' });
+            const $row = $('<div>', { class: 'd-flex align-items-center justify-content-between mb-3 mr-3' });
             const $person = $('<div>', { class: 'media align-items-center mr-2' });
             appendAvatar($person, employee, 'thumb-sm mr-3', 'avatar-title bg-soft-primary text-primary rounded-circle');
             $('<div>', { class: 'media-body' })

@@ -19,11 +19,19 @@
             <form action="{{ route('projects.trash') }}" method="GET" class="mt-3">
                 <div class="row">
                     <div class="col-lg-4">
-                        <x-form.input name="search" :value="request('search')" placeholder="{{ __('site.projects.search_placeholder') }}" />
+                        <x-form.input
+                            name="search"
+                            :value="request('search')"
+                            placeholder="{{ __('site.projects.search_placeholder') }}"
+                        />
                     </div>
                     <div class="col-lg-8">
-                        <button type="submit" class="btn btn-outline-gray mr-3">{{ __('common.button.search') }}</button>
-                        <a href="{{ route('projects.trash') }}" class="btn btn-outline-danger">{{ __('common.button.reset') }}</a>
+                        <button type="submit" class="btn btn-outline-gray mr-3">
+                            {{ __('common.button.search') }}
+                        </button>
+                        <a href="{{ route('projects.trash') }}" class="btn btn-outline-danger">
+                            {{ __('common.button.reset') }}
+                        </a>
                     </div>
                 </div>
             </form>
@@ -45,7 +53,9 @@
                     <tbody>
                         @forelse ($projects as $project)
                             <tr>
-                                <td><span class="badge badge-classic">{{ $project->code }}</span></td>
+                                <td>
+                                    <span class="badge badge-classic">{{ $project->code }}</span>
+                                </td>
                                 <td>{{ $project->name }}</td>
                                 <td>{{ $project->description ?: '-' }}</td>
                                 <td class="text-center">
@@ -63,7 +73,10 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="text-center text-muted py-4">{{ __('site.projects.no_projects') }}</td>
+                                <td colspan="4" class="text-center text-muted py-4">
+                                    <i class="fas fa-folder-open d-block font-20 mb-2" aria-hidden="true"></i>
+                                    {{ __('site.projects.no_projects') }}
+                                </td>
                             </tr>
                         @endforelse
                     </tbody>

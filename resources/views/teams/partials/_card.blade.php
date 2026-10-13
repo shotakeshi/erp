@@ -18,7 +18,7 @@
                         aria-haspopup="true"
                         aria-expanded="false"
                     >
-                        <i class="fas fa-ellipsis-v font-20 text-muted"></i>
+                        <i class="fas fa-ellipsis-v font-16 text-muted"></i>
                     </a>
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="team-actions-{{ $team->id }}">
                         <a class="dropdown-item text-gray" href="{{ route('teams.show', $team) }}">
@@ -62,10 +62,15 @@
                 @if ($previewEmployees->isNotEmpty())
                     <div class="img-group text-nowrap">
                         @foreach ($previewEmployees as $employee)
-                            <span class="user-avatar user-avatar-group uitooltip" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{ $employee->fullname }}">
+                            <span
+                                class="user-avatar user-avatar-group"
+                                data-toggle="tooltip"
+                                data-placement="top"
+                                data-original-title="{{ $employee->full_name }}"
+                            >
                                 <img
                                     src="{{ image_url($employee->avatar) }}"
-                                    alt="{{ $employee->fullname }}"
+                                    alt="{{ $employee->full_name }}"
                                     class="rounded-circle thumb-xs"
                                 >
                             </span>
@@ -80,7 +85,7 @@
                     </div>
                 @endif
                 <small class="font-13 text-muted text-nowrap ml-3">
-                    {{ trans_choice('site.teams.member_count', $team->current_members_count, ['count' => $team->current_members_count]) }}
+                    {{ trans_choice('site.teams.member_count', $employeesCount, ['count' => $employeesCount]) }}
                 </small>
             </div>
         </div>

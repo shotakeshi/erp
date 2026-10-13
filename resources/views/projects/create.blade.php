@@ -12,7 +12,7 @@
 
     <div class="row">
         <div class="col-lg-8 mx-auto">
-            @include('projects._form-upsert', [
+            @include('projects.partials._form-upsert', [
                 'action' => route('projects.store'),
                 'method' => 'POST',
             ])

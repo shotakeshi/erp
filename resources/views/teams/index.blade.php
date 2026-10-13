@@ -1,5 +1,6 @@
 @push('title', __('site.teams.title'))
 @extends('layouts.master')
+
 @section('content')
     <x-page-title
         title="{{ __('site.teams.title') }}"
@@ -23,9 +24,9 @@
                                 {{ __('site.teams.add') }}
                             </x-action-button>
                         </div>
-                        <div class="col-lg-6">
-                            <a href="{{ route('teams.trash') }}" class="btn btn-sm btn-outline-gray float-right">
-                                <i class="fas fa-trash-alt"></i>
+                        <div class="col-lg-6 text-lg-right mt-2 mt-lg-0">
+                            <a href="{{ route('teams.trash') }}" class="btn btn-sm btn-outline-gray">
+                                <i class="fas fa-trash mr-1" aria-hidden="true"></i>
                                 {{ __('common.button.list_of_trash') }}
                             </a>
                         </div>
@@ -40,7 +41,7 @@
                                     placeholder="{{ __('site.teams.search_placeholder') }}"
                                 />
                             </div>
-                            <div class="col-lg-8">
+                            <div class="col-lg-8 mt-3 mt-lg-0">
                                 <button type="submit" class="btn btn-outline-gray mr-3">
                                     {{ __('common.button.search') }}
                                 </button>
@@ -50,21 +51,19 @@
                             </div>
                         </div>
                     </form>
-
                 </div>
             </div>
-
         </div>
     </div>
 
     <div class="row">
         @forelse ($teams as $team)
-            @include('teams._card', ['team' => $team])
+            @include('teams.partials._card', ['team' => $team])
         @empty
             <div class="col-12">
                 <div class="card">
                     <div class="card-body text-center text-muted py-4">
-                        <i class="fas fa-users d-block font-20 mb-2"></i>
+                        <i class="fas fa-users d-block font-20 mb-2" aria-hidden="true"></i>
                         {{ __('site.teams.no_teams') }}
                     </div>
                 </div>

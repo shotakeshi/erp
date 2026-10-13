@@ -31,16 +31,14 @@ class ProjectRequest extends FormRequest
     public function rules(): array
     {
         $project = $this->route('project');
-        $managerId = (int) $this->input('manager_id');
-        $teamId = (int) $this->input('team_id');
         $managerExistsRule = Rule::exists('employees', 'id')->whereNull('deleted_at');
         $teamExistsRule = Rule::exists('teams', 'id')->whereNull('deleted_at');
 
-        if ($project instanceof Project && $managerId === $project->manager_id) {
+        if ($project instanceof Project && (int) $this->input('manager_id') === $project->manager_id) {
             $managerExistsRule = Rule::exists('employees', 'id');
         }
 
-        if ($project instanceof Project && $teamId === $project->team_id) {
+        if ($project instanceof Project && (int) $this->input('team_id') === $project->team_id) {
             $teamExistsRule = Rule::exists('teams', 'id');
         }
 
@@ -52,7 +50,7 @@ class ProjectRequest extends FormRequest
                 'required',
                 'string',
                 'max:50',
-                Rule::unique(Project::class, 'code')->ignore($this->route('project')),
+                Rule::unique(Project::class, 'code')->ignore($project),
             ],
             'project_type' => ['required', new Enum(ProjectType::class)],
             'description' => ['nullable', 'string', 'max:5000'],
@@ -73,13 +71,19 @@ class ProjectRequest extends FormRequest
             ],
             'department_id' => ['nullable', 'integer', 'exists:departments,id'],
             'project_url' => ['nullable', 'url', 'max:2048'],
+            'members' => ['nullable', 'array'],
         ];
 
         if ($this->isMethod('post')) {
             $rules += [
-                'members' => ['nullable', 'array'],
                 'members.*' => ['required', 'array:employee_id,role'],
                 'members.*.employee_id' => ['required', 'integer', 'distinct', 'exists:employees,id'],
+                'members.*.role' => ['required', 'string', 'max:255'],
+            ];
+        } else {
+            $rules += [
+                'members.*' => ['required', 'array:assignment_id,role'],
+                'members.*.assignment_id' => ['required', 'integer', 'distinct', 'exists:project_assignments,id'],
                 'members.*.role' => ['required', 'string', 'max:255'],
             ];
         }
@@ -112,6 +116,7 @@ class ProjectRequest extends FormRequest
             'project_url' => __('site.projects.project_url'),
             'members' => __('site.projects.members'),
             'members.*.employee_id' => __('site.projects.employee'),
+            'members.*.assignment_id' => __('site.projects.employee'),
             'members.*.role' => __('site.projects.role'),
         ];
     }

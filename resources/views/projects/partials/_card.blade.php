@@ -24,7 +24,7 @@
                             aria-expanded="false"
                             aria-label="{{ __('site.projects.actions') }}"
                         >
-                            <i class="fas fa-ellipsis-v font-20 text-muted" aria-hidden="true"></i>
+                            <i class="fas fa-ellipsis-v font-16 text-muted" aria-hidden="true"></i>
                         </button>
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="project-actions-{{ $project->id }}">
                             <a class="dropdown-item text-gray" href="{{ route('projects.show', $project) }}">
@@ -83,12 +83,14 @@
                 @if ($previewMembers->isNotEmpty())
                     <div class="img-group text-nowrap">
                         @foreach ($previewMembers as $member)
-                            <span class="user-avatar user-avatar-group uitooltip"
+                            <span
+                                class="user-avatar user-avatar-group"
                                 data-toggle="tooltip"
                                 data-placement="top"
                                 data-original-title="{{ $member->full_name }}"
                             >
-                                <img src="{{ image_url($member->avatar) }}"
+                                <img
+                                    src="{{ image_url($member->avatar) }}"
                                     alt="{{ $member->full_name }}"
                                     class="rounded-circle thumb-xs"
                                 >

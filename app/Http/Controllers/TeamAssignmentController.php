@@ -30,7 +30,7 @@ class TeamAssignmentController extends Controller
         return response()->json($this->formOptionService->employeePickerPayload($employees));
     }
 
-    public function store(TeamAssignmentsRequest $request, Team $team): RedirectResponse|JsonResponse
+    public function store(TeamAssignmentsRequest $request, Team $team): RedirectResponse
     {
         $validated = $request->validated();
 
@@ -39,13 +39,6 @@ class TeamAssignmentController extends Controller
             $validated['employee_ids'],
             $request->user(),
         );
-
-        if ($request->expectsJson()) {
-            return response()->json([
-                'message' => __('common.messages.created'),
-                'redirect_url' => route('teams.show', [$team, 'tab' => TeamController::MEMBERS_TAB]),
-            ]);
-        }
 
         return redirect()
             ->route('teams.show', [$team, 'tab' => TeamController::MEMBERS_TAB])

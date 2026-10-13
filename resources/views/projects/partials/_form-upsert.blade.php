@@ -1,20 +1,11 @@
 @php
     $project = $project ?? null;
-    $employees = $employees ?? collect();
-    $managers = $managers ?? $employees;
+    $managers = $managers ?? collect();
+    $initialMembers = $initialMembers ?? [];
+    $assignments = $assignments ?? collect();
     $teams = $teams ?? collect();
     $departments = $departments ?? collect();
     $roles = $roles ?? collect();
-    $memberInputs = old('members', []);
-    $projectType = $project?->project_type;
-    $projectStatus = $project?->status;
-    $projectPriority = $project?->priority;
-    $projectTypeValue = $projectType instanceof \App\Enums\ProjectType ? $projectType->value : $projectType;
-    $projectStatusValue = $projectStatus instanceof \App\Enums\ProjectStatus ? $projectStatus->value : $projectStatus;
-    $projectPriorityValue = $projectPriority instanceof \App\Enums\ProjectPriority ? $projectPriority->value : $projectPriority;
-    $formatDate = static fn ($date): ?string => $date
-        ? \Illuminate\Support\Carbon::parse($date)->format('d/m/Y')
-        : null;
     $projectTypeOptions = collect(\App\Enums\ProjectType::cases())
         ->mapWithKeys(fn (\App\Enums\ProjectType $type): array => [$type->value => __('site.projects.types.' . $type->value)])
         ->all();
@@ -28,14 +19,6 @@
     <link href="{{ asset('css/dropify/dropify.min.css') }}" rel="stylesheet">
     <link href="{{ asset('plugins/daterangepicker/daterangepicker.css') }}" rel="stylesheet">
     <link href="{{ asset('plugins/select2/select2.min.css') }}" rel="stylesheet" type="text/css">
-@endpush
-
-@push('scripts')
-    <script src="{{ asset('js/dropify/dropify.min.js') }}"></script>
-    <script src="{{ asset('plugins/moment/moment.js') }}"></script>
-    <script src="{{ asset('plugins/daterangepicker/daterangepicker.js') }}"></script>
-    <script src="{{ asset('plugins/select2/select2.min.js') }}"></script>
-    <script src="{{ asset('pages/jquery.forms-advanced.js') }}"></script>
 @endpush
 
 <form class="form-horizontal form-material mb-0" action="{{ $action }}" method="POST" enctype="multipart/form-data">
@@ -82,7 +65,7 @@
                                 name="name"
                                 label="{{ __('site.projects.name') }}"
                                 :value="$project?->name"
-                                placeholder="{{ __('site.projects.name_placeholder') }}"
+                                placeholder="{{ __('site.projects.name') }}"
                                 required
                                 autofocus
                             />
@@ -92,7 +75,7 @@
                                 name="code"
                                 label="{{ __('site.projects.code') }}"
                                 :value="$project?->code"
-                                placeholder="{{ __('site.projects.code_placeholder') }}"
+                                placeholder="{{ __('site.projects.code') }}"
                                 format="uppercase"
                                 required
                             />
@@ -105,7 +88,7 @@
                                 name="project_type"
                                 label="{{ __('site.projects.project_type') }}"
                                 :options="$projectTypeOptions"
-                                :selected="$projectTypeValue"
+                                :selected="$project?->project_type?->value"
                                 required
                             />
                         </div>
@@ -114,7 +97,7 @@
                                 name="status"
                                 label="{{ __('site.projects.status') }}"
                                 :options="$projectStatusOptions"
-                                :selected="$projectStatusValue"
+                                :selected="$project?->status?->value"
                                 required
                             />
                         </div>
@@ -123,7 +106,7 @@
                                 name="priority"
                                 label="{{ __('site.projects.priority') }}"
                                 :options="$projectPriorityOptions"
-                                :selected="$projectPriorityValue"
+                                :selected="$project?->priority?->value"
                                 required
                             />
                         </div>
@@ -140,13 +123,14 @@
                             />
                         </div>
                     </div>
-
+                </div>
+                <div class="col-lg-12">
                     <div class="mt-3">
                         <x-form.textarea
                             name="description"
                             label="{{ __('site.projects.description') }}"
                             :value="$project?->description"
-                            placeholder="{{ __('site.projects.description_placeholder') }}"
+                            placeholder="{{ __('site.projects.description') }}"
                             :rows="4"
                         />
                     </div>
@@ -198,7 +182,7 @@
                     <x-form.datepicker
                         name="start_date"
                         label="{{ __('site.projects.start_date') }}"
-                        :value="$formatDate($project?->start_date)"
+                        :value="$project?->start_date?->format('d/m/Y')"
                     />
                 </div>
             </div>
@@ -207,27 +191,26 @@
                     <x-form.datepicker
                         name="planned_end_date"
                         label="{{ __('site.projects.planned_end_date') }}"
-                        :value="$formatDate($project?->planned_end_date)"
+                        :value="$project?->planned_end_date?->format('d/m/Y')"
                     />
                 </div>
                 <div class="col-lg-6 mt-3 mt-lg-0">
                     <x-form.datepicker
                         name="actual_end_date"
                         label="{{ __('site.projects.actual_end_date') }}"
-                        :value="$formatDate($project?->actual_end_date)"
+                        :value="$project?->actual_end_date?->format('d/m/Y')"
                     />
                 </div>
             </div>
         </div>
     </div>
 
-    @if ($method === 'POST')
-        @include('projects._assignment-fields', [
-            'employees' => $employees,
-            'memberInputs' => $memberInputs,
-            'roles' => $roles,
-        ])
-    @endif
+    @include('projects.partials._members-section', [
+        'initialMembers' => $initialMembers,
+        'assignments' => $assignments,
+        'memberInputs' => old('members', []),
+        'roles' => $roles,
+    ])
 
     <div class="card">
         <div class="card-body">
@@ -238,10 +221,14 @@
             />
         </div>
     </div>
-
 </form>
 
 @push('scripts')
+    <script src="{{ asset('js/dropify/dropify.min.js') }}"></script>
+    <script src="{{ asset('plugins/moment/moment.js') }}"></script>
+    <script src="{{ asset('plugins/daterangepicker/daterangepicker.js') }}"></script>
+    <script src="{{ asset('plugins/select2/select2.min.js') }}"></script>
+    <script src="{{ asset('pages/jquery.forms-advanced.js') }}"></script>
     <script>
         $(function () {
             $('#project_avatar').dropify({

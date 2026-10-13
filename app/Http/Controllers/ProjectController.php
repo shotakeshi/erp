@@ -43,12 +43,8 @@ class ProjectController extends Controller
     public function create(Request $request): View
     {
         return view('projects.create', [
-            ...$this->formOptions(
-                memberEmployeeIds: collect($request->old('members', []))
-                    ->pluck('employee_id')
-                    ->filter()
-                    ->all(),
-            ),
+            ...$this->formOptions(),
+            'initialMembers' => $this->formOptionService->initialAssignmentMembers($request->old('members', [])),
             'roles' => $this->formOptionService->roleProjectAssignmentOptions(),
         ]);
     }
@@ -113,8 +109,8 @@ class ProjectController extends Controller
             'histories' => $this->projectQuery
                 ->assignmentHistories($project)
                 ->appends('tab', self::HISTORY_TAB),
-            'selectedEmployees' => $this->formOptionService->selectedEmployees(
-                collect(old('employee_ids', []))->all(),
+            'initialEmployees' => $this->formOptionService->employeePickerItems(
+                $this->formOptionService->selectedEmployees(collect(old('employee_ids', []))->all()),
             ),
         ]);
     }
@@ -128,6 +124,12 @@ class ProjectController extends Controller
 
         return view('projects.edit', [
             'project' => $project,
+            'assignments' => $project->assignments()
+                ->currentAssignment()
+                ->with('employee.position')
+                ->orderBy('id')
+                ->get(),
+            'roles' => $this->formOptionService->roleProjectAssignmentOptions(),
             ...$this->formOptions($project),
         ]);
     }
@@ -139,7 +141,8 @@ class ProjectController extends Controller
         try {
             $oldAvatar = $project->project_avatar;
             $validated = $request->validated();
-            unset($validated['project_avatar'], $validated['remove_project_avatar']);
+            $members = $validated['members'] ?? [];
+            unset($validated['project_avatar'], $validated['remove_project_avatar'], $validated['members']);
 
             if ($request->hasFile('project_avatar')) {
                 $newAvatar = $this->fileUploadService->upload(
@@ -151,7 +154,7 @@ class ProjectController extends Controller
                 $validated['project_avatar'] = null;
             }
 
-            $this->projectService->updateProject($project, $validated);
+            $this->projectService->updateProject($project, $validated, $members);
 
             if ($oldAvatar && ($newAvatar || $request->boolean('remove_project_avatar'))) {
                 $this->fileUploadService->delete($oldAvatar);
@@ -160,6 +163,14 @@ class ProjectController extends Controller
             return redirect()
                 ->route('projects.index')
                 ->with('success', __('common.messages.updated'));
+        } catch (ServiceException $e) {
+            if ($newAvatar) {
+                $this->fileUploadService->delete($newAvatar);
+            }
+
+            return back()
+                ->withInput()
+                ->with('error', $e->getMessage());
         } catch (Throwable $e) {
             if ($newAvatar) {
                 $this->fileUploadService->delete($newAvatar);
@@ -204,8 +215,7 @@ class ProjectController extends Controller
             ->with('success', __('common.messages.restored'));
     }
 
-    /** @return array{employees: Collection, managers: Collection, teams: Collection, departments: Collection} */
-    private function formOptions(?Project $project = null, array $memberEmployeeIds = []): array
+    private function formOptions(?Project $project = null): array
     {
         $managers = $this->formOptionService->employeeOptions();
         $teams = $this->formOptionService->teamOptions();
@@ -219,7 +229,6 @@ class ProjectController extends Controller
         }
 
         return [
-            'employees' => $this->formOptionService->selectedEmployees($memberEmployeeIds),
             'managers' => $managers,
             'teams' => $teams,
             'departments' => $this->formOptionService->departmentOptions(),

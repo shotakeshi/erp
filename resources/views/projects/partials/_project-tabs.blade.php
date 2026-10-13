@@ -7,24 +7,20 @@
 
 <div class="card">
     <div class="card-body">
-        <div class="row align-items-center">
-            <div class="col-lg-12">
-                <div class="media align-items-center">
-                    <img
-                        src="{{ image_url($project->project_avatar, 'images/widgets/project1.jpg') }}"
-                        alt="{{ $project->name }}"
-                        class="rounded-circle thumb-xl mr-3"
-                    >
-                    <div class="media-body">
-                        <div class="d-flex align-items-center flex-wrap">
-                            <p class="header-title mb-1 mr-2">{{ $project->name }}</p>
-                            <span class="{{ $project->status->badgeClass() }}">
-                                {{ $project->status->label() }}
-                            </span>
-                        </div>
-                        <span class="badge badge-classic">{{ $project->code }}</span>
-                    </div>
+        <div class="media align-items-center">
+            <img
+                src="{{ image_url($project->project_avatar, 'images/widgets/project1.jpg') }}"
+                alt="{{ $project->name }}"
+                class="rounded-circle thumb-xl mr-3"
+            >
+            <div class="media-body">
+                <div class="d-flex align-items-center flex-wrap">
+                    <p class="header-title mb-1 mr-2">{{ $project->name }}</p>
+                    <span class="{{ $project->status->badgeClass() }}">
+                        {{ $project->status->label() }}
+                    </span>
                 </div>
+                <span class="badge badge-classic">{{ $project->code }}</span>
             </div>
         </div>
     </div>

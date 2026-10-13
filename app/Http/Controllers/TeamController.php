@@ -48,9 +48,7 @@ class TeamController extends Controller
     public function create(Request $request): View
     {
         return view('teams.create', [
-            'employees' => $this->formOptionService->selectedEmployees(
-                collect($request->old('members', []))->pluck('employee_id')->filter()->all(),
-            ),
+            'initialMembers' => $this->formOptionService->initialAssignmentMembers($request->old('members', [])),
             'roles' => $this->formOptionService->roleTeamAssignmentOptions(),
         ]);
     }
@@ -107,7 +105,9 @@ class TeamController extends Controller
             'histories' => $this->teamQuery
                 ->assignmentHistories($team)
                 ->appends('tab', self::HISTORY_TAB),
-            'employees' => $this->formOptionService->selectedEmployees($request->old('employee_ids', [])),
+            'initialEmployees' => $this->formOptionService->employeePickerItems(
+                $this->formOptionService->selectedEmployees($request->old('employee_ids', [])),
+            ),
         ]);
     }
 

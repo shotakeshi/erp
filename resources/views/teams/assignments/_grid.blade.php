@@ -19,7 +19,7 @@
                                 aria-haspopup="true"
                                 aria-expanded="false"
                             >
-                                <i class="fas fa-ellipsis-v font-20 text-muted"></i>
+                                <i class="fas fa-ellipsis-v font-16 text-muted"></i>
                             </a>
                             <div class="dropdown-menu dropdown-menu-right"
                                  aria-labelledby="team-actions-{{ $assignment->id }}">
