@@ -48,7 +48,7 @@ Route::middleware('auth')->group(function () {
         Route::post('{team}/restore', [TeamController::class, 'restore'])->withTrashed()->name('restore');
     });
 
-    Route::resource('teams', TeamController::class);
+    Route::resource('teams', TeamController::class)->withTrashed(['show']);
 
     Route::prefix('projects')->name('projects.')->group(function () {
         Route::get('employee-options', [ProjectAssignmentController::class, 'employeeOptions'])->name('employee-options');

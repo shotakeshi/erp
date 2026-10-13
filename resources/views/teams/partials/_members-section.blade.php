@@ -57,7 +57,6 @@
                     root: '#team-create-members',
                     modal: '#team-members-modal',
                     roleListId: 'team-role-suggestions',
-                    roleRequired: true,
                     initialAssignments: JSON.parse($('[data-initial-members]').text()),
                 });
             });

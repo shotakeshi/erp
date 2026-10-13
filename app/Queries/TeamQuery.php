@@ -20,7 +20,6 @@ class TeamQuery
 
     public function __construct(
         private readonly TeamFilter $teamFilter,
-        private readonly EmployeeQuery $employeeQuery,
         private readonly EmployeeFilter $employeeFilter,
     ) {}
 

@@ -24,7 +24,7 @@ class ProjectRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'code' => Str::upper(trim((string) $this->input('code'))),
+            'code' => Str::upper((string) $this->input('code')),
         ]);
     }
 

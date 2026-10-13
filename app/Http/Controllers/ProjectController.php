@@ -10,9 +10,9 @@ use App\Queries\ProjectQuery;
 use App\Services\FileUploadService;
 use App\Services\ProjectService;
 use App\Services\Shared\FormOptionService;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\View\View;
 use Throwable;
 
@@ -54,12 +54,7 @@ class ProjectController extends Controller
         $newAvatar = null;
 
         try {
-            $validated = $request->validated();
-            $members = $validated['members'] ?? [];
-            unset($validated['members'],
-                $validated['project_avatar'],
-                $validated['remove_project_avatar']
-            );
+            $validated = Arr::except($request->validated(), ['members', 'project_avatar', 'remove_project_avatar']);
 
             if ($request->hasFile('project_avatar')) {
                 $newAvatar = $this->fileUploadService->upload(
@@ -69,23 +64,17 @@ class ProjectController extends Controller
                 $validated['project_avatar'] = $newAvatar;
             }
 
-            $this->projectService->createProject($validated, $members, $request->user());
+            $this->projectService->createProject($validated, $request->validated('members', []), $request->user());
 
             return redirect()
                 ->route('projects.index')
                 ->with('success', __('common.messages.created'));
-        } catch (ServiceException $e) {
-            if ($newAvatar) {
-                $this->fileUploadService->delete($newAvatar);
-            }
-
-            return back()
-                ->withInput()
-                ->with('error', $e->getMessage());
         } catch (Throwable $e) {
             if ($newAvatar) {
                 $this->fileUploadService->delete($newAvatar);
             }
+
+            throw_if($e instanceof ServiceException, $e);
 
             report($e);
 
@@ -110,7 +99,7 @@ class ProjectController extends Controller
                 ->assignmentHistories($project)
                 ->appends('tab', self::HISTORY_TAB),
             'initialEmployees' => $this->formOptionService->employeePickerItems(
-                $this->formOptionService->selectedEmployees(collect(old('employee_ids', []))->all()),
+                $this->formOptionService->selectedEmployees($request->old('employee_ids', [])),
             ),
         ]);
     }
@@ -140,9 +129,7 @@ class ProjectController extends Controller
 
         try {
             $oldAvatar = $project->project_avatar;
-            $validated = $request->validated();
-            $members = $validated['members'] ?? [];
-            unset($validated['project_avatar'], $validated['remove_project_avatar'], $validated['members']);
+            $validated = Arr::except($request->validated(), ['members', 'project_avatar', 'remove_project_avatar']);
 
             if ($request->hasFile('project_avatar')) {
                 $newAvatar = $this->fileUploadService->upload(
@@ -154,7 +141,7 @@ class ProjectController extends Controller
                 $validated['project_avatar'] = null;
             }
 
-            $this->projectService->updateProject($project, $validated, $members);
+            $this->projectService->updateProject($project, $validated, $request->validated('members', []));
 
             if ($oldAvatar && ($newAvatar || $request->boolean('remove_project_avatar'))) {
                 $this->fileUploadService->delete($oldAvatar);
@@ -163,18 +150,12 @@ class ProjectController extends Controller
             return redirect()
                 ->route('projects.index')
                 ->with('success', __('common.messages.updated'));
-        } catch (ServiceException $e) {
-            if ($newAvatar) {
-                $this->fileUploadService->delete($newAvatar);
-            }
-
-            return back()
-                ->withInput()
-                ->with('error', $e->getMessage());
         } catch (Throwable $e) {
             if ($newAvatar) {
                 $this->fileUploadService->delete($newAvatar);
             }
+
+            throw_if($e instanceof ServiceException, $e);
 
             report($e);
 

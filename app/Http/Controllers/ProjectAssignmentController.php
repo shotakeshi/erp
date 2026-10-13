@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Exceptions\ServiceException;
 use App\Http\Requests\EmployeePickerRequest;
 use App\Http\Requests\ProjectAssignmentRequest;
 use App\Http\Requests\RemoveAssignmentRequest;
@@ -33,17 +32,11 @@ class ProjectAssignmentController extends Controller
 
     public function store(ProjectAssignmentRequest $request, Project $project): RedirectResponse
     {
-        $validated = $request->validated();
-
-        try {
-            $this->projectService->addAssignments(
-                $project,
-                $validated['employee_ids'],
-                $request->user(),
-            );
-        } catch (ServiceException $exception) {
-            return back()->withInput()->with('error', $exception->getMessage());
-        }
+        $this->projectService->addAssignments(
+            $project,
+            $request->validated('employee_ids'),
+            $request->user(),
+        );
 
         return redirect()->route('projects.show', [$project, 'tab' => ProjectController::MEMBERS_TAB])->with('success', __('common.messages.created'));
     }
@@ -53,11 +46,7 @@ class ProjectAssignmentController extends Controller
         Project $project,
         Employee $employee,
     ): RedirectResponse {
-        try {
-            $this->projectService->updateAssignment($project, $employee->getKey(), $request->validated('role'));
-        } catch (ServiceException $exception) {
-            return back()->withInput()->with('error', $exception->getMessage());
-        }
+        $this->projectService->updateAssignment($project, $employee->getKey(), $request->validated('role'));
 
         return redirect()->route('projects.show', [$project, 'tab' => ProjectController::MEMBERS_TAB])->with('success', __('common.messages.updated'));
     }
@@ -69,17 +58,13 @@ class ProjectAssignmentController extends Controller
     ): RedirectResponse {
         $validated = $request->validated();
 
-        try {
-            $this->projectService->removeAssignment(
-                $project,
-                $employee->getKey(),
-                $validated['end_date'],
-                $request->user(),
-                $validated['end_reason_note'] ?? null,
-            );
-        } catch (ServiceException $exception) {
-            return back()->withInput()->with('error', $exception->getMessage());
-        }
+        $this->projectService->removeAssignment(
+            $project,
+            $employee->getKey(),
+            $validated['end_date'],
+            $request->user(),
+            $validated['end_reason_note'] ?? null,
+        );
 
         return redirect()->route('projects.show', [$project, 'tab' => ProjectController::MEMBERS_TAB])->with('success', __('common.messages.updated'));
     }

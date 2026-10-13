@@ -33,7 +33,7 @@ class ProjectService extends BaseService
                 collect($members)
                     ->map(static fn (array $assignment): array => [
                         'employee_id' => (int) $assignment['employee_id'],
-                        'role' => trim($assignment['role']),
+                        'role' => $assignment['role'],
                         'start_date' => today()->toDateString(),
                         'is_current' => true,
                         'created_by' => $actor->getKey(),
@@ -63,7 +63,7 @@ class ProjectService extends BaseService
                     $this->fail(__('site.projects.conflicts.assignment_not_current'));
                 }
 
-                $assignment->update(['role' => trim($member['role'])]);
+                $assignment->update(['role' => $member['role']]);
             }
 
             $project->update($projectAttributes);
@@ -104,7 +104,7 @@ class ProjectService extends BaseService
             $this->fail(__('site.projects.conflicts.assignment_not_current'));
         }
 
-        $assignment->update(['role' => trim($role)]);
+        $assignment->update(['role' => $role]);
     }
 
     public function removeAssignment(
@@ -145,12 +145,12 @@ class ProjectService extends BaseService
             return;
         }
 
-        $employees = Employee::query()
+        $activeCount = Employee::query()
             ->whereIn('id', $employeeIds)
             ->active()
-            ->get();
+            ->count();
 
-        if ($employees->count() !== count($employeeIds)) {
+        if ($activeCount !== count($employeeIds)) {
             $this->fail(__('site.projects.conflicts.employee_not_eligible'));
         }
     }

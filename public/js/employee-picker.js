@@ -3,9 +3,6 @@
  * resources/views/components/employee-picker.blade.php.
  */
 (function () {
-    const normalize = (value) => value.trim().toLocaleLowerCase()
-        .normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd');
-
     // Render the avatar image, or initials when the employee has no photo.
     const appendAvatar = function ($container, employee, avatarClass, fallbackClass) {
         if (employee.avatar_url) {
@@ -153,7 +150,8 @@
         };
 
         $search.on('input', function () {
-            const nextSearch = normalize(this.value);
+            // The backend folds accents (Str::ascii), so only surrounding spaces are ignored here.
+            const nextSearch = this.value.trim();
             if (nextSearch === search) {
                 return;
             }

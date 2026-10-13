@@ -27,7 +27,7 @@
                 ], Response::HTTP_CONFLICT);
             }
             
-            return back()->with('error', $e->getMessage());
+            return back()->withInput()->with('error', $e->getMessage());
         });
     })
     ->withEvents(discover: [
