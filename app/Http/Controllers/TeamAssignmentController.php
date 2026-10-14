@@ -27,7 +27,7 @@ class TeamAssignmentController extends Controller
             $request->validated('exclude_ids') ?? [],
         );
 
-        return response()->json($this->formOptionService->employeePickerPayload($employees));
+        return response()->json($this->formOptionService->employeePickerResponse($employees));
     }
 
     public function store(TeamAssignmentsRequest $request, Team $team): RedirectResponse
@@ -43,6 +43,22 @@ class TeamAssignmentController extends Controller
         return redirect()
             ->route('teams.show', [$team, 'tab' => TeamController::MEMBERS_TAB])
             ->with('success', __('common.messages.created'));
+    }
+
+    public function update(
+        TeamAssignmentsRequest $request,
+        Team $team,
+        Employee $employee,
+    ): RedirectResponse|JsonResponse {
+        $role = $this->teamService->updateAssignment($team, $employee, $request->validated('role'));
+
+        if ($request->wantsJson()) {
+            return response()->json(['message' => __('common.messages.updated'), 'value' => $role]);
+        }
+
+        return redirect()
+            ->route('teams.show', [$team, 'tab' => TeamController::MEMBERS_TAB])
+            ->with('success', __('common.messages.updated'));
     }
 
     public function destroy(

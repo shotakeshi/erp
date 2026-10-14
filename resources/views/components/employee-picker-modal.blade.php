@@ -117,14 +117,14 @@
 <script type="application/json" data-initial-employees="{{ $id }}">@json($initialEmployees)</script>
 @once
     @push('scripts')
-        <script src="{{ asset('js/employee-picker.js') }}"></script>
+        <script src="{{ asset('js/shared/employee-picker.js') }}"></script>
     @endpush
 @endonce
 
 @if ($isForm)
     @once
         @push('scripts')
-            <script src="{{ asset('js/assignment-add-modal.js') }}"></script>
+            <script src="{{ asset('js/shared/assignment/assignment-add-modal.js') }}"></script>
         @endpush
     @endonce
 @endif

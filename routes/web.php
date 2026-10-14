@@ -68,6 +68,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('teams/{team}')->name('teams.')->group(function () {
         Route::get('employee-options', [TeamAssignmentController::class, 'employeeOptions'])->name('assignments.employee-options');
         Route::post('assignments', [TeamAssignmentController::class, 'store'])->name('assignments.store');
+        Route::put('assignments/{employee}', [TeamAssignmentController::class, 'update'])->name('assignments.update');
         Route::delete('assignments/{employee}', [TeamAssignmentController::class, 'destroy'])->withTrashed()->name('assignments.destroy');
     });
 

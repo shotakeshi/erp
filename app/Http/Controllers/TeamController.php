@@ -100,14 +100,12 @@ class TeamController extends Controller
             'activeTab' => $activeTab,
             'mode' => $request->validated('mode') === self::LIST_MODE ? self::LIST_MODE : self::GRID_MODE,
             'assignments' => $this->teamQuery
-                ->currentAssignments($team, $request->validated('search') ?? '')
+                ->currentAssignments($team, $request->validated('search'))
                 ->appends('tab', self::MEMBERS_TAB),
             'histories' => $this->teamQuery
                 ->assignmentHistories($team)
                 ->appends('tab', self::HISTORY_TAB),
-            'initialEmployees' => $this->formOptionService->employeePickerItems(
-                $this->formOptionService->selectedEmployees($request->old('employee_ids', [])),
-            ),
+            'initialEmployees' => [],
         ]);
     }
 

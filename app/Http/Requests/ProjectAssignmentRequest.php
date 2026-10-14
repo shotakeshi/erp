@@ -28,7 +28,7 @@ class ProjectAssignmentRequest extends FormRequest
     {
         if ($this->isMethod('put')) {
             return [
-                'role' => ['required', 'string', 'max:255'],
+                'role' => ['required', 'string', 'max:50'],
             ];
         }
 

@@ -33,55 +33,30 @@ class FormOptionService
         return $this->employeeQuery->selectedEmployees($employeeIds);
     }
 
-    public function searchTeamEmployees(?Team $team, string $search, array $excludedIds)
+    public function searchTeamEmployees(?Team $team, string $search, array $excludedIds): Paginator
     {
         return $this->employeeQuery->searchTeamEmployees($team, $search, $excludedIds);
     }
 
-    public function searchProjectEmployees(?Project $project, string $search, array $excludedIds)
+    public function searchProjectEmployees(?Project $project, string $search, array $excludedIds): Paginator
     {
         return $this->employeeQuery->searchProjectEmployees($project, $search, $excludedIds);
     }
 
-    /**
-     * Map employees to the item shape used by the employee picker (modal list and preselected items).
-     */
     public function employeePickerItems(iterable $employees): array
     {
-        return collect($employees)
-            ->map(static fn (Employee $employee): array => [
-                'employee_id' => $employee->id,
-                'name' => $employee->full_name,
-                'detail' => $employee->position?->name ?? '-',
-                'avatar_url' => $employee->avatar ? image_url($employee->avatar) : null,
-            ])
-            ->values()
-            ->all();
+        return $this->employeeQuery->employeePickerItems($employees);
     }
 
-    /**
-     * Rebuild the assignment rows of a create form (employee picker item + role) from old('members') input.
-     */
     public function initialAssignmentMembers(array $members): array
     {
-        $members = collect($members)->filter(static fn ($member): bool => ! empty($member['employee_id']));
-        $items = collect($this->employeePickerItems(
-            $this->selectedEmployees($members->pluck('employee_id')->all()),
-        ))->keyBy('employee_id');
-
-        return $members
-            ->map(static fn ($member): ?array => ($item = $items->get((int) $member['employee_id']))
-                ? [...$item, 'role' => $member['role'] ?? '']
-                : null)
-            ->filter()
-            ->values()
-            ->all();
+        return $this->employeeQuery->initialAssignmentMembers($members);
     }
 
     /**
      * JSON payload for the employee picker (employee selection modal).
      */
-    public function employeePickerPayload(Paginator $employees): array
+    public function employeePickerResponse(Paginator $employees): array
     {
         return [
             'data' => $this->employeePickerItems($employees->items()),

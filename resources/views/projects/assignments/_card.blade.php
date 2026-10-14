@@ -3,10 +3,6 @@
         @php
             $employee = $assignment->employee;
             $employeeIsDeleted = $employee->trashed();
-            $isRoleFormSubmitted = (string) old('role_employee_id') === (string) $employee->id;
-            $roleError = $isRoleFormSubmitted
-                ? $errors->getBag(\App\Http\Requests\ProjectAssignmentRequest::UPDATE_ERROR_BAG)->first('role')
-                : null;
         @endphp
 
         <div class="col-sm-6 col-lg-3">
@@ -74,32 +70,15 @@
                         </span>
                         <p class="font-12 text-muted text-truncate mb-0" title="{{ $assignment->role }}">{{ $assignment->role }}</p>
                     @else
-                        <form action="{{ route('projects.assignments.update', [$project, $employee]) }}" method="POST" class="mt-2">
-                            @csrf
-                            @method('PUT')
-                            <input type="hidden" name="role_employee_id" value="{{ $employee->id }}">
-                            <label class="sr-only" for="assignment-role-{{ $assignment->id }}">{{ __('site.projects.role') }}</label>
-                            <div class="input-group input-group-sm mb-3">
-                                <input
-                                    id="assignment-role-{{ $assignment->id }}"
-                                    name="role"
-                                    value="{{ $isRoleFormSubmitted ? old('role') : $assignment->role }}"
-                                    placeholder="{{ __('site.projects.role') }}"
-                                    @class(['form-control text-center', 'is-invalid' => $roleError])
-                                    maxlength="255"
-                                    required
-                                    @if ($roleError) aria-describedby="assignment-role-error-{{ $assignment->id }}" @endif
-                                >
-                                <div class="input-group-append">
-                                    <button type="submit" class="btn btn-soft-primary" title="{{ __('site.projects.update_role') }}" aria-label="{{ __('site.projects.update_role') }}">
-                                        <i class="fas fa-check" aria-hidden="true"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            @if ($roleError)
-                                <div id="assignment-role-error-{{ $assignment->id }}" class="invalid-feedback d-block text-left">{{ $roleError }}</div>
-                            @endif
-                        </form>
+                        <p class="mt-2 mb-3">
+                            <x-form.editable
+                                name="role"
+                                :pk="$assignment->id"
+                                :url="route('projects.assignments.update', [$project, $employee])"
+                                :title="__('site.projects.update_role')"
+                                :maxlength="50"
+                            >{{ $assignment->role }}</x-form.editable>
+                        </p>
                     @endif
 
                     <div class="font-12 text-muted text-nowrap mb-2">

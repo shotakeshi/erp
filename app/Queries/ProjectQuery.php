@@ -24,10 +24,21 @@ class ProjectQuery
 
     public function paginate(array $filters): LengthAwarePaginator
     {
-        $employee = new Employee;
+        return $this->paginateProjects(Project::query(), $filters, withPreviews: true);
+    }
 
-        return $this->projectFilter
-            ->apply(Project::query(), $filters)
+    public function paginateTrashed(array $filters): LengthAwarePaginator
+    {
+        return $this->paginateProjects(Project::onlyTrashed(), $filters);
+    }
+
+    private function paginateProjects(
+        Builder $query,
+        array $filters,
+        bool $withPreviews = false,
+    ): LengthAwarePaginator {
+        $query = $this->projectFilter
+            ->apply($query, $filters)
             ->select([
                 'id',
                 'code',
@@ -37,36 +48,45 @@ class ProjectQuery
                 'status',
                 'project_url',
                 'updated_at',
-            ])
-            ->withCount([
-                'assignments as current_members_count' => static fn (Builder $query) => $query->currentAssignment(),
-            ])
-            ->with([
-                'members' => static fn (BelongsToMany $query) => $query
-                    ->select([
-                        $employee->qualifyColumn('id'),
-                        $employee->qualifyColumn('first_name'),
-                        $employee->qualifyColumn('last_name'),
-                        $employee->qualifyColumn('avatar'),
-                    ])
-                    ->orderByPivot('start_date')
-                    ->limit(3),
-            ])
-            ->orderByDesc('updated_at')
+                'deleted_at',
+            ]);
+
+        if ($withPreviews) {
+            $this->withCurrentAssignmentCounts($query);
+            $this->withMemberPreviews($query);
+        }
+
+        return $query
             ->orderByDesc('id')
             ->paginate(20)
             ->withQueryString();
     }
 
-    public function paginateTrashed(array $filters): LengthAwarePaginator
+    /**
+     * Load a small preview of members for each card on the Project index.
+     */
+    private function withMemberPreviews(Builder $query): void
     {
-        return $this->projectFilter
-            ->apply(Project::onlyTrashed(), $filters)
-            ->select(['id', 'code', 'name', 'description', 'project_avatar', 'deleted_at'])
-            ->orderByDesc('deleted_at')
-            ->orderByDesc('id')
-            ->paginate(20)
-            ->withQueryString();
+        $employee = new Employee;
+
+        $query->with([
+            'members' => static fn(BelongsToMany $relation) => $relation
+                ->select([
+                    $employee->qualifyColumn('id'),
+                    $employee->qualifyColumn('first_name'),
+                    $employee->qualifyColumn('last_name'),
+                    $employee->qualifyColumn('avatar'),
+                ])
+                ->orderByPivot('start_date')
+                ->limit(3),
+        ]);
+    }
+
+    private function withCurrentAssignmentCounts(Builder $query): void
+    {
+        $query->withCount([
+            'assignments as current_members_count' => static fn(Builder $query) => $query->currentAssignment(),
+        ]);
     }
 
     /**
@@ -119,11 +139,11 @@ class ProjectQuery
     /**
      * Get the list of members currently assigned to the project.
      */
-    public function currentAssignments(Project $project, string $search = ''): LengthAwarePaginator
+    public function currentAssignments(Project $project, $search = ''): LengthAwarePaginator
     {
         return $project->assignments()
             ->currentAssignment()
-            ->when($search !== '', fn (Builder $query) => $query->whereHas(
+            ->when(filled($search), fn (Builder $query) => $query->whereHas(
                 'employee', fn (Builder $employee) => $this->employeeFilter->searchEmployeeOption($employee, $search),
             ))
             ->select([

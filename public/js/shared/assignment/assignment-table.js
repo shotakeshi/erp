@@ -1,5 +1,5 @@
 /**
- * Assignment table on the create form (Team, Project): select employees from the picker modal,
+ * Assignment table on the create/edit form (Team, Project): select employees from the picker modal,
  * enter a role, and submit as members[index][employee_id|role].
  * Uses EmployeePicker (employee-picker.js) when initialized; call init after DOM ready.
  *

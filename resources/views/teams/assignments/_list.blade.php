@@ -56,7 +56,19 @@
                                 </div>
                             </td>
                             <td>{{ $employee->department?->name ?? '--' }} - {{ $employee->position?->name ?? '--' }}</td>
-                            <td>{{ $assignment->role ?: '-' }}</td>
+                            <td>
+                                @if ($employeeIsDeleted)
+                                    {{ $assignment->role ?: '-' }}
+                                @else
+                                    <x-form.editable
+                                        name="role"
+                                        :pk="$assignment->id"
+                                        :url="route('teams.assignments.update', [$team, $employee])"
+                                        :title="__('site.teams.role')"
+                                        :maxlength="50"
+                                    >{{ $assignment->role }}</x-form.editable>
+                                @endif
+                            </td>
                             <td class="text-nowrap">{{ $assignment->start_date->format('d/m/Y') }}</td>
                             <td class="text-center">
                                 <button

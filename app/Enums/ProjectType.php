@@ -11,12 +11,7 @@ enum ProjectType: string
 
     public function label(): string
     {
-        return match ($this) {
-            self::DEVELOPMENT => 'Development',
-            self::MAINTENANCE => 'Maintenance',
-            self::INTERNAL => 'Internal',
-            self::SUPPORT => 'Support',
-        };
+        return __('site.projects.types.'.$this->value);
     }
 
     public static function options(): array

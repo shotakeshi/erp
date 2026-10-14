@@ -27,7 +27,7 @@ class ProjectAssignmentController extends Controller
             $request->validated('exclude_ids') ?? [],
         );
 
-        return response()->json($this->formOptionService->employeePickerPayload($employees));
+        return response()->json($this->formOptionService->employeePickerResponse($employees));
     }
 
     public function store(ProjectAssignmentRequest $request, Project $project): RedirectResponse
@@ -45,8 +45,14 @@ class ProjectAssignmentController extends Controller
         ProjectAssignmentRequest $request,
         Project $project,
         Employee $employee,
-    ): RedirectResponse {
-        $this->projectService->updateAssignment($project, $employee->getKey(), $request->validated('role'));
+    ): RedirectResponse|JsonResponse {
+        $role = $request->validated('role');
+
+        $this->projectService->updateAssignment($project, $employee->getKey(), $role);
+
+        if ($request->wantsJson()) {
+            return response()->json(['message' => __('common.messages.updated'), 'value' => $role]);
+        }
 
         return redirect()->route('projects.show', [$project, 'tab' => ProjectController::MEMBERS_TAB])->with('success', __('common.messages.updated'));
     }

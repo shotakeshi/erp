@@ -86,7 +86,7 @@ class ProjectController extends Controller
 
     public function show(AssignmentPageRequest $request, Project $project): View
     {
-        $search = $request->validated('search') ?? '';
+        $search = $request->validated('search');
         $activeTab = $request->validated('tab') ?? ($search !== '' ? self::MEMBERS_TAB : self::OVERVIEW_TAB);
 
         return view('projects.show', [

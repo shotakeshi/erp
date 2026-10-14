@@ -73,6 +73,23 @@ class TeamService extends BaseService
         });
     }
 
+    public function updateAssignment(Team $team, Employee $employee, ?string $role): string
+    {
+        $assignment = $team->assignments()
+            ->currentAssignment()
+            ->where('employee_id', $employee->getKey())
+            ->first();
+
+        if ($assignment === null) {
+            $this->fail(__('site.teams.conflicts.assignment_not_current'));
+        }
+
+        $role ??= self::DEFAULT_ROLE;
+        $assignment->update(['role' => $role]);
+
+        return $role;
+    }
+
     public function removeAssignment(
         Team $team,
         Employee $employee,

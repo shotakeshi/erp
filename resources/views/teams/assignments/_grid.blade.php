@@ -63,7 +63,19 @@
                         @endif
                     </h5>
 
-                    <p class="font-12 text-muted mb-2">{{ $assignment->role }}</p>
+                    <p class="font-12 text-muted mb-2">
+                        @if ($employeeIsDeleted)
+                            {{ $assignment->role }}
+                        @else
+                            <x-form.editable
+                                name="role"
+                                :pk="$assignment->id"
+                                :url="route('teams.assignments.update', [$team, $employee])"
+                                :title="__('site.teams.role')"
+                                :maxlength="50"
+                            >{{ $assignment->role }}</x-form.editable>
+                        @endif
+                    </p>
 
                     <div class="font-12 text-muted text-nowrap mb-2">
                         <span class="mr-2">

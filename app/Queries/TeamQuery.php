@@ -70,7 +70,6 @@ class TeamQuery
         }
 
         return $query
-            ->orderByDesc('updated_at')
             ->orderByDesc('id')
             ->paginate(20)
             ->withQueryString();
@@ -79,7 +78,7 @@ class TeamQuery
     /**
      * Load a small preview of people for each card on the Team index.
      */
-    private function withCardPeoplePreviews(Builder $query): Builder
+    private function withCardPeoplePreviews(Builder $query): void
     {
         $employee = new Employee;
         $columns = [
@@ -95,26 +94,26 @@ class TeamQuery
                 ->limit(3);
         };
 
-        return $query->with([
+        $query->with([
             'members' => $preview,
         ]);
     }
 
-    private function withCurrentAssignmentCounts(Builder $query): Builder
+    private function withCurrentAssignmentCounts(Builder $query): void
     {
-        return $query->withCount([
-            'assignments as current_members_count' => static fn (Builder $query) => $query->currentAssignment(),
+        $query->withCount([
+            'assignments as current_members_count' => static fn(Builder $query) => $query->currentAssignment(),
         ]);
     }
 
     /**
      * Get the list of members currently assigned to the team.
      */
-    public function currentAssignments(Team $team, string $search = ''): LengthAwarePaginator
+    public function currentAssignments(Team $team, $search = ''): LengthAwarePaginator
     {
         return $team->assignments()
             ->currentAssignment()
-            ->when($search !== '', fn (Builder $query) => $query->whereHas(
+            ->when(filled($search), fn (Builder $query) => $query->whereHas(
                 'employee', fn (Builder $employee) => $this->employeeFilter->searchEmployeeOption($employee, $search),
             ))
             ->select([

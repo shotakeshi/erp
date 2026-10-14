@@ -1,6 +1,6 @@
 /**
  * Shared employee picker for the selection modal (Team, Project).
- * resources/views/components/employee-picker.blade.php.
+ * resources/views/components/employee-picker-modal.blade.php.
  */
 (function () {
     // Render the avatar image, or initials when the employee has no photo.

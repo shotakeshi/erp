@@ -50,7 +50,7 @@
 
     <script type="application/json" data-initial-members>@json($initialMembers)</script>
     @push('scripts')
-        <script src="{{ asset('js/assignment-table.js') }}"></script>
+        <script src="{{ asset('js/shared/assignment/assignment-table.js') }}"></script>
         <script>
             $(function () {
                 AssignmentTable.init({

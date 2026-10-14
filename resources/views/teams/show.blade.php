@@ -65,3 +65,12 @@
         />
     @endunless
 @endsection
+
+@push('css')
+    <link href="{{ asset('plugins/x-editable/css/bootstrap-editable.css') }}" rel="stylesheet" type="text/css">
+@endpush
+
+@push('scripts')
+    <script src="{{ asset('plugins/x-editable/js/bootstrap-editable.min.js') }}"></script>
+    <script src="{{ asset('js/shared/x-editable.js') }}"></script>
+@endpush
