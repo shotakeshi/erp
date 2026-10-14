@@ -13,6 +13,12 @@ class TeamAssignmentsRequest extends FormRequest
 
     public function rules(): array
     {
+        if ($this->isMethod('put')) {
+            return [
+                'role' => ['nullable', 'string', 'max:50'],
+            ];
+        }
+
         return [
             'employee_ids' => ['required', 'array', 'min:1'],
             'employee_ids.*' => ['required', 'integer', 'distinct', 'exists:employees,id'],
@@ -31,6 +37,7 @@ class TeamAssignmentsRequest extends FormRequest
         return [
             'employee_ids' => __('site.teams.employee_ids'),
             'employee_ids.*' => __('site.teams.employee'),
+            'role' => __('site.teams.role'),
         ];
     }
 }

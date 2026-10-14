@@ -4,6 +4,7 @@ namespace App\Queries;
 
 use App\Filters\EmployeeFilter;
 use App\Models\Employee;
+use App\Models\Project;
 use App\Models\Team;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Contracts\Pagination\Paginator;
@@ -54,26 +55,95 @@ class EmployeeQuery
 
     public function searchTeamEmployees(?Team $team, string $search, array $excludedIds = []): Paginator
     {
-        $query = $this->teamEmployeeOptionsQuery()
-            ->when($team !== null, fn (Builder $query) => $query->whereDoesntHave(
-                'teamAssignments',
-                fn (Builder $assignments) => $assignments->where('team_id', $team->getKey())->currentAssignment(),
-            ))
-            ->when($excludedIds !== [], fn (Builder $query) => $query->whereNotIn('id', $excludedIds));
-
-        return $this->employeeFilter->searchTeamMember($query, $search)->orderBy('id')->simplePaginate(20);
+        return $this->searchAssignableEmployees(
+            'teamAssignments',
+            'team_id',
+            $team?->getKey(),
+            $search,
+            $excludedIds
+        );
     }
 
-    public function selectedTeamEmployees(array $employeeIds): EloquentCollection
+    public function searchProjectEmployees(?Project $project, string $search, array $excludedIds = []): Paginator
     {
-        return $this->teamEmployeeOptionsQuery()->whereIn('id', $employeeIds)->get();
+        return $this->searchAssignableEmployees(
+            'projectAssignments',
+            'project_id',
+            $project?->getKey(),
+            $search,
+            $excludedIds
+        );
     }
 
-    private function teamEmployeeOptionsQuery(): Builder
-    {
-        return Employee::query()->active()
+    public function searchAssignableEmployees(
+        string $relation,
+        string $foreignKey,
+        ?int $assignableId,
+        string $search,
+        array $excludedIds = [],
+    ): Paginator {
+        $query = Employee::query()->active()
             ->select(['id', 'first_name', 'last_name', 'avatar', 'position_id'])
-            ->with('position:id,name');
+            ->with('position:id,name')
+            ->when($assignableId !== null, fn (Builder $query) => $query->whereDoesntHave(
+                $relation,
+                fn (Builder $assignments) => $assignments
+                    ->where($foreignKey, $assignableId)
+                    ->currentAssignment(),
+            ))
+            ->when(
+                $excludedIds !== [],
+                fn (Builder $query) => $query->whereNotIn('id', $excludedIds),
+            );
+        
+        return $this->employeeFilter->searchEmployeeOption($query, $search)
+                    ->orderBy('id')
+                    ->simplePaginate(20);
+    }
+
+    public function selectedEmployees(array $employeeIds): EloquentCollection
+    {
+        return Employee::query()
+            ->active()
+            ->select(['id', 'first_name', 'last_name', 'avatar', 'position_id'])
+            ->with('position:id,name')
+            ->whereIn('id', $employeeIds)
+            ->get();
+    }
+
+    /**
+     * Map employees to the item shape used by the employee picker (modal list and preselected items).
+     */
+    public function employeePickerItems(iterable $employees): array
+    {
+        return collect($employees)
+            ->map(static fn (Employee $employee): array => [
+                'employee_id' => $employee->id,
+                'name' => $employee->full_name,
+                'detail' => $employee->position?->name ?? '-',
+                'avatar_url' => $employee->avatar ? image_url($employee->avatar) : null,
+            ])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * Rebuild the assignment rows of a create/edit form from old('members') input.
+     */
+    public function initialAssignmentMembers(array $members): array
+    {
+        $members = collect($members)->filter(fn ($member) => ! empty($member['employee_id']));
+        $items = collect($this->employeePickerItems(
+            $this->selectedEmployees($members->pluck('employee_id')->all()),
+        ))->keyBy('employee_id');
+        
+        return $members
+            ->map(fn ($member): ?array => ($item = $items->get((int) $member['employee_id']))
+                ? [...$item, 'role' => $member['role'] ?? '']
+                : null)
+            ->filter()
+            ->values()
+            ->all();
     }
 
     private function paginateEmployees(Builder $query, array $filters): LengthAwarePaginator

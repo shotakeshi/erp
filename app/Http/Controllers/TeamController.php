@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\ServiceException;
+use App\Http\Requests\AssignmentPageRequest;
 use App\Http\Requests\TeamRequest;
 use App\Models\Team;
 use App\Queries\TeamQuery;
@@ -10,12 +12,19 @@ use App\Services\Shared\FormOptionService;
 use App\Services\TeamService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use Throwable;
 
 class TeamController extends Controller
 {
+    public const MEMBERS_TAB = 'members';
+
+    public const HISTORY_TAB = 'history';
+
+    public const GRID_MODE = 'grid';
+
+    public const LIST_MODE = 'list';
+
     public function __construct(
         private readonly TeamQuery $teamQuery,
         private readonly TeamService $teamService,
@@ -40,10 +49,8 @@ class TeamController extends Controller
     public function create(Request $request): View
     {
         return view('teams.create', [
-            'employees' => $this->formOptionService->selectedTeamEmployees(
-                collect($request->old('members', []))->pluck('employee_id')->filter()->all(),
-            ),
-            'roles' => $this->formOptionService->roleAssignmentOptions(),
+            'initialMembers' => $this->formOptionService->initialAssignmentMembers($request->old('members', [])),
+            'roles' => $this->formOptionService->roleTeamAssignmentOptions(),
         ]);
     }
 
@@ -52,9 +59,7 @@ class TeamController extends Controller
         $teamLogo = null;
 
         try {
-            $validated = $request->validated();
-            $members = $validated['members'] ?? [];
-            unset($validated['members']);
+            $validated = $request->safe()->except(['members', 'logo', 'remove_logo']);
 
             if ($request->hasFile('logo')) {
                 $teamLogo = $this->fileUploadService->upload(
@@ -64,7 +69,7 @@ class TeamController extends Controller
                 $validated['logo'] = $teamLogo;
             }
 
-            $this->teamService->createTeam($validated, $members, $request->user());
+            $this->teamService->createTeam($validated, $request->validated('members', []), $request->user());
 
             return redirect()
                 ->route('teams.index')
@@ -74,6 +79,8 @@ class TeamController extends Controller
                 $this->fileUploadService->delete($teamLogo);
             }
 
+            throw_if($e instanceof ServiceException, $e);
+
             report($e);
 
             return back()
@@ -82,13 +89,23 @@ class TeamController extends Controller
         }
     }
 
-    public function show(Request $request, int $teamId): View
+    public function show(AssignmentPageRequest $request, Team $team): View
     {
-        $team = Team::withTrashed()->findOrFail($teamId);
+        $activeTab = $team->trashed()
+            ? self::HISTORY_TAB
+            : ($request->validated('tab') === self::HISTORY_TAB ? self::HISTORY_TAB : self::MEMBERS_TAB);
 
         return view('teams.show', [
             'team' => $team,
-            'assignments' => $this->teamQuery->assignmentHistories($team, $request->only('filter')),
+            'activeTab' => $activeTab,
+            'mode' => $request->validated('mode') === self::LIST_MODE ? self::LIST_MODE : self::GRID_MODE,
+            'assignments' => $this->teamQuery
+                ->currentAssignments($team, $request->validated('search'))
+                ->appends('tab', self::MEMBERS_TAB),
+            'histories' => $this->teamQuery
+                ->assignmentHistories($team)
+                ->appends('tab', self::HISTORY_TAB),
+            'initialEmployees' => [],
         ]);
     }
 
@@ -100,7 +117,7 @@ class TeamController extends Controller
                 ->currentAssignment()
                 ->with('employee.position')
                 ->orderBy('id')->get(),
-            'roles' => $this->formOptionService->roleAssignmentOptions(),
+            'roles' => $this->formOptionService->roleTeamAssignmentOptions(),
         ]);
     }
 
@@ -109,13 +126,7 @@ class TeamController extends Controller
         $newLogo = null;
         try {
             $oldLogo = $team->logo;
-            $teamRequests = $request->validated();
-            $members = $teamRequests['members'] ?? [];
-            unset(
-                $teamRequests['remove_logo'],
-                $teamRequests['logo'],
-                $teamRequests['members'],
-            );
+            $teamRequests = $request->safe()->except(['members', 'logo', 'remove_logo']);
 
             if ($request->hasFile('logo')) {
                 $newLogo = $this->fileUploadService->upload(
@@ -127,19 +138,21 @@ class TeamController extends Controller
                 $teamRequests['logo'] = null;
             }
 
-            $this->teamService->updateTeam($team, $teamRequests, $members);
+            $this->teamService->updateTeam($team, $teamRequests, $request->validated('members', []));
 
             if ($oldLogo && ($newLogo || $request->boolean('remove_logo'))) {
                 $this->fileUploadService->delete($oldLogo);
             }
 
             return redirect()
-                ->route('teams.index', $team)
+                ->route('teams.index')
                 ->with('success', __('common.messages.updated'));
         } catch (Throwable $e) {
             if ($newLogo) {
                 $this->fileUploadService->delete($newLogo);
             }
+
+            throw_if($e instanceof ServiceException, $e);
 
             report($e);
 
@@ -168,9 +181,7 @@ class TeamController extends Controller
     public function restore(Team $team): RedirectResponse
     {
         try {
-            DB::transaction(function () use ($team) {
-                $team->restore();
-            });
+            $team->restore();
 
             return redirect()
                 ->route('teams.trash')

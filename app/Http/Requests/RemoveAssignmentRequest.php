@@ -2,11 +2,13 @@
 
 namespace App\Http\Requests;
 
-use Carbon\Carbon;
+use App\Http\Requests\Concerns\ConvertsDisplayDates;
 use Illuminate\Foundation\Http\FormRequest;
 
 class RemoveAssignmentRequest extends FormRequest
 {
+    use ConvertsDisplayDates;
+
     public function authorize(): bool
     {
         return true;
@@ -28,21 +30,8 @@ class RemoveAssignmentRequest extends FormRequest
         ];
     }
 
-    public function validated($key = null, $default = null): mixed
+    protected function displayDateAttributes(): array
     {
-        $validated = parent::validated();
-
-        foreach (['end_date'] as $dateAttribute) {
-            if (! isset($validated[$dateAttribute])) {
-                continue;
-            }
-
-            $validated[$dateAttribute] = Carbon::createFromFormat(
-                'd/m/Y',
-                $validated[$dateAttribute]
-            )->format('Y-m-d');
-        }
-
-        return data_get($validated, $key, $default);
+        return ['end_date'];
     }
 }

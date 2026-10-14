@@ -12,7 +12,7 @@
 
     <div class="row">
         <div class="col-lg-8 mx-auto">
-            @include('teams._form-upsert', [
+            @include('teams.partials._form-upsert', [
                 'action' => route('teams.store'),
                 'method' => 'POST',
             ])

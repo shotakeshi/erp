@@ -92,4 +92,11 @@ return [
         'reset_password_confirm' => 'Reset Password',
         'resend_activation' => 'Resend activation',
     ],
+    'employee_picker' => [
+        'search' => 'Search employees...',
+        'loading' => 'Loading employees...',
+        'error' => 'Employees could not be loaded.',
+        'empty' => 'No eligible employees available.',
+        'retry' => 'Retry',
+    ],
 ];

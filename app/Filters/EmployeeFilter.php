@@ -34,14 +34,10 @@ class EmployeeFilter
             );
     }
 
-    public function searchTeamMember(Builder $query, string $search): Builder
+    public function searchEmployeeOption(Builder $query, string $search): Builder
     {
         foreach (preg_split('/\s+/u', trim(Str::ascii($search)), -1, PREG_SPLIT_NO_EMPTY) as $word) {
-            $query->where(function (Builder $query) use ($word): void {
-                $query->where('first_name', 'like', "%{$word}%")
-                    ->orWhere('last_name', 'like', "%{$word}%")
-                    ->orWhereHas('position', fn (Builder $position) => $position->where('name', 'like', "%{$word}%"));
-            });
+            $this->search($query, $word);
         }
 
         return $query;
