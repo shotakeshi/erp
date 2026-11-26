@@ -1,44 +1,20 @@
+@props([
+    'assignments',
+    'langPrefix',
+])
+
 <div class="card">
     <div class="card-body">
-        @php
-            $historyFilterOptions = collect(['all', 'current', 'past'])
-                ->mapWithKeys(fn ($filter) => [
-                    $filter => __('site.teams.history_filters.' . $filter),
-                ])
-                ->all();
-        @endphp
-
-        <form action="{{ $historyRoute }}" method="GET" class="mb-3">
-            <div class="row">
-                <div class="col-lg-3">
-                    <x-form.select
-                        name="filter"
-                        :options="$historyFilterOptions"
-                        :selected="request('filter', 'all')"
-                        required
-                    />
-                </div>
-                <div class="col-lg-3 mt-2 mt-lg-0">
-                    <button type="submit" class="btn btn-outline-gray mr-1">
-                        {{ __('common.button.filter') }}
-                    </button>
-                    <a href="{{ $historyRoute }}" class="btn btn-outline-danger">
-                        {{ __('common.button.reset') }}
-                    </a>
-                </div>
-            </div>
-        </form>
-
         <div class="table-responsive">
             <table class="table table-bordered mb-0 table-centered">
                 <thead>
                     <tr>
-                        <th>{{ __('site.teams.employee') }}</th>
-                        <th>{{ __('site.teams.role') }}</th>
-                        <th>{{ __('site.teams.assignment_period') }}</th>
-                        <th>{{ __('site.teams.end_reason') }}</th>
-                        <th>{{ __('site.teams.created_by') }}</th>
-                        <th>{{ __('site.teams.ended_by') }}</th>
+                        <th>{{ __($langPrefix.'.employee') }}</th>
+                        <th>{{ __($langPrefix.'.role') }}</th>
+                        <th>{{ __($langPrefix.'.assignment_period') }}</th>
+                        <th>{{ __($langPrefix.'.end_reason') }}</th>
+                        <th>{{ __($langPrefix.'.created_by') }}</th>
+                        <th>{{ __($langPrefix.'.ended_by') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -60,7 +36,7 @@
                                         <p class="font-14 font-weight-bold mb-0">
                                             {{ $employee->full_name }}
                                             @if ($employee->trashed())
-                                                <span class="badge badge-soft-danger ml-1">{{ __('site.teams.employee_deleted') }}</span>
+                                                <span class="badge badge-soft-danger ml-1">{{ __($langPrefix.'.employee_deleted') }}</span>
                                             @endif
                                         </p>
                                         <p class="mb-0 font-12 text-muted">{{ $employee->email }}</p>
@@ -74,25 +50,23 @@
                                 @if ($assignment->end_date)
                                     {{ $assignment->end_date->format('d/m/Y') }}
                                 @else
-                                    <span class="badge badge-soft-success">{{ __('site.teams.history_filters.current') }}</span>
+                                    <span class="badge badge-soft-success">{{ __($langPrefix.'.history_filters.current') }}</span>
                                 @endif
                             </td>
                             <td>
-                                {{ $assignment->end_reason
-                                    ? __('site.teams.end_reasons.' . $assignment->end_reason->value)
-                                    : '-' }}
+                                {{ $assignment->end_reason?->label() ?? '-' }}
                                 @if (filled($assignment->end_reason_note))
                                     <small class="d-block text-muted mt-1">{{ $assignment->end_reason_note }}</small>
                                 @endif
                             </td>
-                            <td>{{ $assignment->createdBy?->name ?? __('site.teams.system_or_legacy') }}</td>
+                            <td>{{ $assignment->createdBy?->name ?? __($langPrefix.'.system_or_legacy') }}</td>
                             <td>{{ $assignment->endedBy?->name ?? '-' }}</td>
                         </tr>
                     @empty
                         <tr>
                             <td colspan="6" class="text-center text-muted py-4">
                                 <i class="fas fa-history d-block font-20 mb-2"></i>
-                                {{ __('site.teams.no_member_history') }}
+                                {{ __($langPrefix.'.no_member_history') }}
                             </td>
                         </tr>
                     @endforelse

@@ -101,7 +101,6 @@
         @required($required)
         @readonly($readonly)
         @disabled($disabled)
-        @autofocus($autofocus)
 
     {{
         $attributes->class([

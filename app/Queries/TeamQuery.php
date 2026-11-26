@@ -16,9 +16,10 @@ use Illuminate\Support\Collection;
 
 class TeamQuery
 {
+    public const HISTORY_PAGE_NAME = 'history_page';
+
     public function __construct(
         private readonly TeamFilter $teamFilter,
-        private readonly EmployeeQuery $employeeQuery,
         private readonly EmployeeFilter $employeeFilter,
     ) {}
 
@@ -36,7 +37,16 @@ class TeamQuery
     {
         return TeamAssignment::query()
             ->distinct()
+            ->orderBy('role')
             ->pluck('role');
+    }
+
+    public function forSelect(): EloquentCollection
+    {
+        return Team::query()
+            ->select(['id', 'name'])
+            ->orderBy('name')
+            ->get();
     }
 
     private function paginateTeams(
@@ -60,7 +70,6 @@ class TeamQuery
         }
 
         return $query
-            ->orderByDesc('updated_at')
             ->orderByDesc('id')
             ->paginate(20)
             ->withQueryString();
@@ -69,7 +78,7 @@ class TeamQuery
     /**
      * Load a small preview of people for each card on the Team index.
      */
-    private function withCardPeoplePreviews(Builder $query): Builder
+    private function withCardPeoplePreviews(Builder $query): void
     {
         $employee = new Employee;
         $columns = [
@@ -85,27 +94,27 @@ class TeamQuery
                 ->limit(3);
         };
 
-        return $query->with([
+        $query->with([
             'members' => $preview,
         ]);
     }
 
-    private function withCurrentAssignmentCounts(Builder $query): Builder
+    private function withCurrentAssignmentCounts(Builder $query): void
     {
-        return $query->withCount([
-            'assignments as current_members_count' => static fn (Builder $query) => $query->currentAssignment(),
+        $query->withCount([
+            'assignments as current_members_count' => static fn(Builder $query) => $query->currentAssignment(),
         ]);
     }
 
     /**
      * Get the list of members currently assigned to the team.
      */
-    public function currentAssignments(Team $team, string $search = ''): LengthAwarePaginator
+    public function currentAssignments(Team $team, $search = ''): LengthAwarePaginator
     {
         return $team->assignments()
             ->currentAssignment()
-            ->when($search !== '', fn (Builder $query) => $query->whereHas(
-                'employee', fn (Builder $employee) => $this->employeeFilter->searchTeamMember($employee, $search),
+            ->when(filled($search), fn (Builder $query) => $query->whereHas(
+                'employee', fn (Builder $employee) => $this->employeeFilter->searchEmployeeOption($employee, $search),
             ))
             ->select([
                 'id',
@@ -122,12 +131,10 @@ class TeamQuery
     }
 
     /**
-     * Team member history, filterable by current or past assignment.
+     * Team member history.
      */
-    public function assignmentHistories(Team $team, array $filters = []): LengthAwarePaginator
+    public function assignmentHistories(Team $team): LengthAwarePaginator
     {
-        $filter = $filters['filter'] ?? 'all';
-
         return $team->assignments()
             ->select([
                 'id',
@@ -147,17 +154,9 @@ class TeamQuery
                 'createdBy:id,name',
                 'endedBy:id,name',
             )
-            ->when(
-                $filter === 'current',
-                static fn (Builder $query) => $query->currentAssignment()
-            )
-            ->when(
-                $filter === 'past',
-                static fn (Builder $query) => $query->pastAssignment()
-            )
             ->orderByDesc('is_current')
             ->orderBy('id')
-            ->paginate(20)
+            ->paginate(20, pageName: self::HISTORY_PAGE_NAME)
             ->withQueryString();
     }
 

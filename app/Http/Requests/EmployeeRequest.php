@@ -4,13 +4,15 @@ namespace App\Http\Requests;
 
 use App\Enums\ContractType;
 use App\Enums\Gender;
+use App\Http\Requests\Concerns\ConvertsDisplayDates;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
-use Carbon\Carbon;
 
 class EmployeeRequest extends FormRequest
 {
+    use ConvertsDisplayDates;
+
     public function authorize(): bool
     {
         return true;
@@ -186,22 +188,9 @@ class EmployeeRequest extends FormRequest
         ]);
     }
 
-    public function validated($key = null, $default = null): mixed
+    protected function displayDateAttributes(): array
     {
-        $validated = parent::validated();
-
-        foreach (['dob', 'date_of_joining'] as $dateAttribute) {
-            if (! isset($validated[$dateAttribute])) {
-                continue;
-            }
-
-            $validated[$dateAttribute] = Carbon::createFromFormat(
-                'd/m/Y',
-                $validated[$dateAttribute]
-            )->format('Y-m-d');
-        }
-
-        return data_get($validated, $key, $default);
+        return ['dob', 'date_of_joining'];
     }
 
     public function attributes(): array

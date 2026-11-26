@@ -59,6 +59,8 @@
                     <li class="nav-item"><a class="nav-link" href="{{ route('departments.index') }}">{{ __('site.employees.department') }}</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ route('positions.index') }}">{{ __('site.positions.title') }}</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ route('teams.index') }}">{{ __('site.teams.title') }}</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ route('projects.index') }}">{{ __('site.projects.title') }}</a></li>
+
                 </ul>
             </div><!-- end Dashboards -->
 

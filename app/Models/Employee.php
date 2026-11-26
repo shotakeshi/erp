@@ -65,6 +65,11 @@ class Employee extends Model
         return $this->hasMany(TeamAssignment::class);
     }
 
+    public function projectAssignments(): HasMany
+    {
+        return $this->hasMany(ProjectAssignment::class);
+    }
+
     public function teams(): BelongsToMany
     {
         return $this->belongsToMany(Team::class, 'team_assignments')

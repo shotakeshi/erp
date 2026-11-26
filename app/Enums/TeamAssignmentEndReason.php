@@ -11,4 +11,9 @@ enum TeamAssignmentEndReason: string
     case EMPLOYEE_INACTIVATED = 'employee_inactivated';
     case EMPLOYEE_TERMINATED = 'employee_terminated';
     case EMPLOYEE_DELETED = 'employee_deleted';
+
+    public function label(): string
+    {
+        return __('site.teams.end_reasons.'.$this->value);
+    }
 }

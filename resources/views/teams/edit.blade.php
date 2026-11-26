@@ -6,14 +6,14 @@
         title="{{ __('site.teams.edit') }}"
         :breadcrumbs="[
             ['title' => __('site.teams.title'), 'url' => route('teams.index')],
-            ['title' => $team->name, 'url' => route('teams.members.index', $team)],
+            ['title' => $team->name, 'url' => route('teams.show', $team)],
             ['title' => __('site.teams.edit')],
         ]"
     />
 
     <div class="row">
         <div class="col-lg-8 mx-auto">
-            @include('teams._form-upsert', [
+            @include('teams.partials._form-upsert', [
                 'team' => $team,
                 'action' => route('teams.update', $team),
                 'method' => 'PUT',

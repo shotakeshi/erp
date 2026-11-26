@@ -4,9 +4,10 @@ use App\Http\Controllers\Auth\AccountController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\EmployeeController;
-use App\Http\Controllers\EmployeeTeamController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProjectAssignmentController;
+use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TeamAssignmentController;
 use App\Http\Controllers\TeamController;
 use App\Services\LocationService;
@@ -47,14 +48,28 @@ Route::middleware('auth')->group(function () {
         Route::post('{team}/restore', [TeamController::class, 'restore'])->withTrashed()->name('restore');
     });
 
-    Route::resource('teams', TeamController::class);
+    Route::resource('teams', TeamController::class)->withTrashed(['show']);
+
+    Route::prefix('projects')->name('projects.')->group(function () {
+        Route::get('employee-options', [ProjectAssignmentController::class, 'employeeOptions'])->name('employee-options');
+        Route::get('trash', [ProjectController::class, 'trash'])->name('trash');
+        Route::post('{project}/restore', [ProjectController::class, 'restore'])->withTrashed()->name('restore');
+    });
+
+    Route::resource('projects', ProjectController::class);
+
+    Route::prefix('projects/{project}')->name('projects.')->group(function () {
+        Route::get('employee-options', [ProjectAssignmentController::class, 'employeeOptions'])->name('assignments.employee-options');
+        Route::post('assignments', [ProjectAssignmentController::class, 'store'])->name('assignments.store');
+        Route::put('assignments/{employee}', [ProjectAssignmentController::class, 'update'])->name('assignments.update');
+        Route::delete('assignments/{employee}', [ProjectAssignmentController::class, 'destroy'])->withTrashed()->name('assignments.destroy');
+    });
 
     Route::prefix('teams/{team}')->name('teams.')->group(function () {
-        Route::get('employee-options', [TeamAssignmentController::class, 'employeeOptions'])->name('members.employee-options');
-        Route::get('members/history', [TeamAssignmentController::class, 'history'])->name('members.history');
-        Route::get('members', [TeamAssignmentController::class, 'index'])->name('members.index');
-        Route::post('members', [TeamAssignmentController::class, 'store'])->name('members.store');
-        Route::delete('members/{employee}', [TeamAssignmentController::class, 'destroy'])->withTrashed()->name('members.destroy');
+        Route::get('employee-options', [TeamAssignmentController::class, 'employeeOptions'])->name('assignments.employee-options');
+        Route::post('assignments', [TeamAssignmentController::class, 'store'])->name('assignments.store');
+        Route::put('assignments/{employee}', [TeamAssignmentController::class, 'update'])->name('assignments.update');
+        Route::delete('assignments/{employee}', [TeamAssignmentController::class, 'destroy'])->withTrashed()->name('assignments.destroy');
     });
 
     Route::resources(

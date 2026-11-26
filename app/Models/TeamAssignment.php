@@ -53,9 +53,4 @@ class TeamAssignment extends Model
     {
         return $query->whereNull('end_date')->where('is_current', true);
     }
-
-    public function scopePastAssignment(Builder $query): Builder
-    {
-        return $query->whereNotNull('end_date')->whereNull('is_current');
-    }
 }

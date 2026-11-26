@@ -121,7 +121,6 @@
 
         @readonly($readonly)
         @disabled($disabled)
-        @autofocus($autofocus)
 
         @if($format)
             data-format="{{ $format }}"

@@ -10,12 +10,11 @@ class TeamFilter
     {
         $search = trim($filters['search'] ?? '');
 
-        return $query
-            ->when($search !== '', function (Builder $query) use ($search): void {
-                $query->where(function (Builder $query) use ($search): void {
-                    $query->where('name', 'like', "%{$search}%")
-                        ->orWhere('code', 'like', "%{$search}%");
-                });
+        return $query->when($search !== '', function (Builder $query) use ($search): void {
+            $query->where(function (Builder $query) use ($search): void {
+                $query->where('name', 'like', "%{$search}%")
+                    ->orWhere('code', 'like', "%{$search}%");
             });
+        });
     }
 }
