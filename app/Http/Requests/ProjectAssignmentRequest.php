@@ -6,19 +6,6 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class ProjectAssignmentRequest extends FormRequest
 {
-    /**
-     * Error bag used by the role form on each card, kept separate from the add-assignment modal
-     * because both forms use the `role` field.
-     */
-    public const UPDATE_ERROR_BAG = 'assignmentUpdate';
-
-    protected function prepareForValidation(): void
-    {
-        if ($this->isMethod('put')) {
-            $this->errorBag = self::UPDATE_ERROR_BAG;
-        }
-    }
-
     public function authorize(): bool
     {
         return true;
