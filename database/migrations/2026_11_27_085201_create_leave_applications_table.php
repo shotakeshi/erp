@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('leave_requests', function (Blueprint $table) {
+        Schema::create('leave_applications', function (Blueprint $table) {
             $table->id();
 
             $table->foreignId('employee_id')
@@ -26,16 +26,23 @@ return new class extends Migration
             $table->date('end_date');
             $table->decimal('days', 8, 2);
             $table->text('reason');
-            
-            //pending, approved, rejected
+
+            //pending, approved, rejected, cancelled
             $table->string('status')->default('pending');
-            
+
+            $table->text('rejection_reason')->nullable();
+
             $table->foreignId('approved_by')
                 ->nullable()
                 ->constrained('employees')
                 ->restrictOnDelete();
+            $table->foreignId('cancelled_by')
+                ->nullable()
+                ->constrained('employees')
+                ->restrictOnDelete();
+            $table->timestamp('approved_at')->nullable();
+            $table->timestamp('cancelled_at')->nullable();
 
-            $table->text('rejection_reason')->nullable();
             $table->timestamps();
 
             $table->index(

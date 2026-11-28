@@ -24,11 +24,16 @@ return new class extends Migration
 
             $table->foreignId('application_id')
                 ->nullable()
-                ->unique()
                 ->constrained('leave_applications')
                 ->restrictOnDelete();
 
-            // grant | bonus | accrual | usage | adjustment
+            $table->foreignId('reversal_of_id')
+                ->nullable()
+                ->unique()
+                ->constrained('leave_transactions')
+                ->restrictOnDelete();
+
+            // grant | bonus | accrual | usage | adjustment | reversal
             $table->string('transaction_type', 50);
             $table->decimal('days', 8, 2);
             $table->char('period', 7)->nullable();

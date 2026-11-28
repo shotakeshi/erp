@@ -18,6 +18,8 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->boolean('is_accrual_enabled')->default(false);
             $table->decimal('accrual_days', 5, 2)->default(0);
+            //monthly, quarterly, yearly
+            $table->string('accrual_frequency')->nullable();
             $table->date('effective_from');
             $table->date('effective_to')->nullable();
             $table->timestamps();
