@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AccountController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\LeaveTypeController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectAssignmentController;
@@ -79,6 +80,8 @@ Route::middleware('auth')->group(function () {
             'positions' => PositionController::class,
         ]
     );
+
+    Route::resource('leave-types', LeaveTypeController::class)->except(['create', 'show']);
 
     Route::prefix('profiles')->name('profiles.')->group(function () {
         Route::get('/change-password', [ProfileController::class, 'changePassword'])->name('change-password');
